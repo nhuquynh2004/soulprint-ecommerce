@@ -1,0 +1,42 @@
+<!-- SCR-31 theo thiết kế: nền biển xanh nối liền footer, số 404 có Sâu Béo trong bong bóng,
+     ô tìm kiếm, 2 nút và chip "Hoặc ghé" dạng kính mờ. Bong bóng chỉ trang trí. -->
+<section class="sp-nf">
+  <div class="sp-nf__rays" aria-hidden="true"></div>
+  <i class="sp-nf__bub" style="width: 26px; height: 26px; left: 12%; top: 128px" aria-hidden="true"></i>
+  <i class="sp-nf__bub" style="width: 12px; height: 12px; left: 16%; top: 248px" aria-hidden="true"></i>
+  <i class="sp-nf__bub" style="width: 18px; height: 18px; left: 82%; top: 110px" aria-hidden="true"></i>
+  <i class="sp-nf__bub" style="width: 32px; height: 32px; left: 74%; top: 390px" aria-hidden="true"></i>
+  <i class="sp-nf__bub" style="width: 14px; height: 14px; left: 30%; top: 450px" aria-hidden="true"></i>
+
+  <div class="container sp-nf__inner">
+    <p class="sp-nf__code" aria-hidden="true">
+      <span>4</span>
+      <span class="sp-nf__ring">
+        <img src="/assets/brand/sau-beo.png" alt="" width="112" height="112" />
+        <b>?</b>
+      </span>
+      <span>4</span>
+    </p>
+    <h1>Ối, Sâu Béo lạc giữa đại dương rồi!</h1>
+    <p class="sp-nf__lead">Trang bạn tìm có thể đã đổi địa chỉ hoặc không còn nữa. Để Sâu Béo đưa bạn về bờ nhé.</p>
+
+    <form class="sp-nf__search" role="search" (submit)="$event.preventDefault(); search()">
+      <input type="search" name="q" placeholder="Tìm quà cho chàng..." aria-label="Tìm kiếm sản phẩm" [(ngModel)]="keyword" />
+      <button type="submit" aria-label="Tìm kiếm"><app-icon name="search" [size]="20" /></button>
+    </form>
+
+    <div class="sp-nf__ctas">
+      <a class="btn btn-accent" routerLink="/"><app-icon name="home" [size]="20" /> Về trang chủ</a>
+      <a class="btn sp-nf__ghost" routerLink="/tu-van-qua"><app-icon name="sparkle" [size]="20" /> Tìm quà cùng AI</a>
+    </div>
+
+    <div class="sp-nf__more">
+      <span>Hoặc ghé:</span>
+      <a routerLink="/danh-muc/giftbox"><app-icon name="gift" [size]="16" /> Giftbox</a>
+      <a routerLink="/bo-suu-tap/qua-sinh-nhat-me-bong-da"><app-icon name="ball" [size]="16" /> Quà cho chàng mê bóng đá</a>
+      <a routerLink="/tra-cuu-don"><app-icon name="package" [size]="16" /> Tra cứu đơn hàng</a>
+    </div>
+
+    <p class="sp-nf__note">Mã lỗi 404 | Không tìm thấy trang</p>
+  </div>
+</section>

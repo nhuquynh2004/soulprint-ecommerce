@@ -1,0 +1,20 @@
+// SCR-50 Yêu cầu hậu mãi: bảng cuộn ngang trong khung, tab cuộn ngang trên điện thoại (như SCR-47)
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.sp-rqtabs {
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  button {
+    flex: none;
+    white-space: nowrap;
+  }
+}
+
+.sp-count--danger {
+  background: var(--sp-color-danger);
+  color: #fff;
+}

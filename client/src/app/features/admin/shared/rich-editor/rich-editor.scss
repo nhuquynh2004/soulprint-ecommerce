@@ -1,0 +1,68 @@
+.sp-rte {
+  position: relative;
+  border: 1.5px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface);
+
+  &:focus-within {
+    border-color: var(--sp-color-primary);
+    box-shadow: var(--sp-focus-ring);
+  }
+
+  &.is-disabled {
+    background: var(--sp-color-surface-alt);
+  }
+}
+
+.sp-rte__bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 6px;
+  border-bottom: 1px solid var(--sp-color-border);
+  background: var(--sp-color-surface-alt);
+  border-radius: var(--sp-radius-md) var(--sp-radius-md) 0 0;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px;
+    border: 0;
+    border-radius: var(--sp-radius-sm);
+    background: none;
+    color: var(--sp-color-text);
+
+    &:hover:not(:disabled) {
+      background: var(--sp-color-primary-subtle);
+    }
+  }
+}
+
+.sp-rte__sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: var(--sp-color-border);
+}
+
+.sp-rte__area {
+  padding: var(--sp-space-3);
+  padding-bottom: 28px;
+  outline: none;
+  overflow-wrap: anywhere;
+
+  // Nội dung chèn bằng innerHTML không mang thuộc tính đóng gói style của Angular
+  ::ng-deep :where(p, ul, ol) {
+    margin: 0 0 8px;
+  }
+}
+
+.sp-rte__count {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  color: var(--sp-color-text-muted);
+  font-size: 12px;
+}

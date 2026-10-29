@@ -1,0 +1,70 @@
+<app-dialog title="Sửa thông tin giao hàng" [subtitle]="'Đơn ' + order.code + ' | ' + (isOther() ? 'Giao cho người nhận' : 'Giao cho tôi')" (closed)="closed.emit()">
+  @let f = form();
+  @if (canSwitch()) {
+    <div class="d-flex flex-wrap gap-3 mb-2" role="radiogroup" aria-label="Kiểu nhận">
+      <label class="form-check m-0"><input class="form-check-input" type="radio" name="recvKind" [checked]="!toOther()" (change)="setKind(false)" /><span class="form-check-label">Giao cho tôi</span></label>
+      <label class="form-check m-0"><input class="form-check-input" type="radio" name="recvKind" [checked]="toOther()" (change)="setKind(true)" /><span class="form-check-label">Giao người nhận</span></label>
+    </div>
+    @if (toOther()) {
+      <p class="sp-alert sp-alert--warning small mb-2">Đơn giao người nhận cần thanh toán online 100%{{ switchPay() > 0 ? ', bạn thanh toán thêm ' + (switchPay() | vnd) : '' }}. Đơn chỉ đổi sau khi bạn thanh toán xong.</p>
+    }
+  }
+  <div class="row g-2">
+    <label class="sp-field col-sm-6"><span>{{ isOther() ? 'Tên người nhận' : 'Họ tên' }} <span class="text-danger">*</span></span>
+      <input class="form-control" maxlength="60" [value]="f.recipientName" [class.is-invalid]="!!fe('recipientName')" (input)="set('recipientName', $any($event.target).value)" />
+      @if (fe('recipientName')) { <small class="sp-field__error">{{ fe('recipientName') }}</small> }
+    </label>
+    <label class="sp-field col-sm-6"><span>Số điện thoại <span class="text-danger">*</span></span>
+      <input class="form-control" inputmode="tel" maxlength="12" [value]="f.phone" [class.is-invalid]="!!fe('phone')" (input)="set('phone', $any($event.target).value)" (blur)="phoneTouched.set(true)" />
+      @if (fe('phone')) { <small class="sp-field__error">{{ fe('phone') }}</small> }
+    </label>
+    <label class="sp-field col-sm-6"><span>Tỉnh/Thành phố <span class="text-danger">*</span></span>
+      <app-search-select ariaLabel="Tỉnh/Thành phố" placeholder="Chọn hoặc gõ Tỉnh/Thành phố" [invalid]="!!fe('province')" [ngModel]="f.province" (ngModelChange)="set('province', $event)" [options]="provinceNames() | searchOptions" />
+      @if (fe('province')) { <small class="sp-field__error">{{ fe('province') }}</small> }
+    </label>
+    <label class="sp-field col-sm-6"><span>Phường/Xã <span class="text-danger">*</span></span>
+      @if (wards().length) {
+        <app-search-select ariaLabel="Phường/Xã" placeholder="Chọn hoặc gõ Phường/Xã" [invalid]="!!fe('ward')" [ngModel]="f.ward" (ngModelChange)="set('ward', $event)" [options]="wards() | searchOptions" />
+      } @else {
+        <input class="form-control" [value]="f.ward" [class.is-invalid]="!!fe('ward')" (input)="set('ward', $any($event.target).value)" />
+      }
+      @if (fe('ward')) { <small class="sp-field__error">{{ fe('ward') }}</small> }
+    </label>
+    <label class="sp-field col-12"><span>Số nhà, tên đường <span class="text-danger">*</span></span>
+      <input class="form-control" maxlength="200" [value]="f.street" [class.is-invalid]="!!fe('street')" (input)="set('street', $any($event.target).value)" />
+      @if (fe('street')) { <small class="sp-field__error">{{ fe('street') }}</small> }
+    </label>
+    @if (isOther() && range(); as r) {
+      <div class="sp-field col-12">
+        <span>Ngày giao <span class="text-danger">*</span></span>
+        <app-date-calendar label="Chọn ngày giao" [min]="r.min" [max]="r.max" [value]="f.deliveryDate" [today]="today" [marked]="r.min" (picked)="set('deliveryDate', $event)" />
+        @if (fe('deliveryDate')) { <small class="sp-field__error">{{ fe('deliveryDate') }}</small> }
+      </div>
+      <label class="sp-field col-12"><span>Khung giờ <span class="text-danger">*</span></span>
+        <select class="form-select" [value]="f.deliveryWindow" [class.is-invalid]="!!fe('deliveryWindow')" (change)="set('deliveryWindow', $any($event.target).value)">
+          <option value="">Chọn khung giờ</option>
+          @for (s of order.editDelivery?.slots || []; track s) { <option [value]="s">{{ s }}</option> }
+        </select>
+        @if (fe('deliveryWindow')) { <small class="sp-field__error">{{ fe('deliveryWindow') }}</small> }
+      </label>
+    }
+    <label class="sp-field col-12"><span>Ghi chú cho shipper</span>
+      <input class="form-control" maxlength="200" [value]="f.noteForShipper" (input)="set('noteForShipper', $any($event.target).value)" />
+    </label>
+    <label class="sp-field col-12"><span>Ghi chú cho cửa hàng</span>
+      <input class="form-control" maxlength="200" [value]="f.noteForShop" (input)="set('noteForShop', $any($event.target).value)" />
+    </label>
+  </div>
+  <p class="small text-body-secondary mt-2 mb-0">Sửa được khi đơn còn chờ xác nhận. Phí vận chuyển đồng giá nên tổng tiền không đổi.{{ canSwitch() ? ' Đổi sang Giao người nhận thì không đổi lại Giao cho tôi được.' : '' }}</p>
+  @if (confirming()) {
+    <div class="sp-alert sp-alert--info mt-3 mb-0" role="status">
+      <app-icon name="info" [size]="20" />
+      <span>Lưu thay đổi thông tin giao hàng? Đơn sẽ giao đến <strong>{{ f.recipientName }}</strong>, {{ f.phone }}, {{ f.street }}, {{ f.ward }}, {{ f.province }}{{ isOther() && f.deliveryDate ? ', ngày ' + (f.deliveryDate | date: 'dd/MM') + ' ' + f.deliveryWindow : '' }}. @if (toOther()) { Đơn đổi sang Giao người nhận, thanh toán online 100%{{ switchPay() > 0 ? ': bạn trả thêm ' + (switchPay() | vnd) + ', số thu khi giao còn 0đ' : '' }}. } @else { Tổng tiền không đổi. }</span>
+    </div>
+  }
+  @if (error()) { <p class="text-danger small mt-2 mb-0" role="alert">{{ error() }}</p> }
+  <div dialog-footer class="d-flex justify-content-end gap-2">
+    <button class="btn btn-outline-secondary" type="button" (click)="confirming() ? confirming.set(false) : closed.emit()">{{ confirming() ? 'Quay lại sửa' : 'Hủy' }}</button>
+    <button class="btn btn-primary" type="button" [disabled]="sending()" (click)="submit()">{{ sending() ? 'Đang lưu...' : confirming() ? (switchPay() > 0 ? 'Xác nhận và thanh toán' : 'Xác nhận') : 'Lưu thay đổi' }}</button>
+  </div>
+</app-dialog>

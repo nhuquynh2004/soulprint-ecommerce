@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="Nhịp tim">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D0FBED"/><stop offset="1" stop-color="#72F3C8"/></linearGradient></defs>
+<rect width="240" height="240" fill="url(#g)"/>
+<g transform="translate(90 72.575) scale(2.5)" fill="none" stroke="#085E41" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path fill="#101828" stroke-linejoin="round" d="m12 3.5 2.6 5.4 5.9.7-4.4 4 1.2 5.9L12 16.6l-5.3 2.9 1.2-5.9-4.4-4 5.9-.7z"/></g>
+<g fill="#085E41" text-anchor="middle" font-family="Montserrat, Arial, sans-serif"><text x="120" y="163.17499999999998" font-size="17" font-weight="700">Nhịp tim</text></g>
+<text x="224" y="224" text-anchor="end" font-family="Montserrat, Arial, sans-serif" font-size="12" fill="#085E41" opacity=".7">Ảnh minh họa</text>
+</svg>

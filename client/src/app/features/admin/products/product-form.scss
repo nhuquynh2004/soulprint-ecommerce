@@ -1,0 +1,266 @@
+// SCR-42 - bám SCR-42-Desktop. Khung form (header dính, 2 cột 66/34) nằm ở styles/_components.scss
+// Mục lục cột phải, vùng còn lỗi có chấm đỏ
+.sp-toc a {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: var(--sp-radius-md);
+  color: var(--sp-color-text);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--sp-color-primary-subtle);
+  }
+
+  &.has-error {
+    color: var(--sp-color-danger);
+  }
+
+  @media (max-width: 991.98px) {
+    display: inline-flex;
+  }
+}
+
+.sp-toc__dot {
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: var(--sp-color-danger);
+}
+
+// Nhóm biến thể
+.sp-og {
+  padding: var(--sp-space-3);
+  margin-bottom: var(--sp-space-2);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+}
+
+.sp-og__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+  margin-bottom: var(--sp-space-2);
+
+  .btn-sm {
+    display: inline-flex;
+    padding: 4px;
+  }
+}
+
+.sp-og__name {
+  width: 180px;
+}
+
+.sp-og__values {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-space-2);
+  margin-bottom: var(--sp-space-2);
+}
+
+// Nhấp đúp vào giá trị để sửa trực tiếp
+.sp-og__vtext {
+  cursor: text;
+}
+
+.sp-og__vname {
+  width: 120px;
+  min-height: 28px;
+  padding: 2px 6px;
+}
+
+.sp-og__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 6px 0 12px;
+  border: 1.5px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+  font-size: 14px;
+
+  img {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    object-fit: cover;
+  }
+
+  button {
+    display: inline-flex;
+    padding: 4px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--sp-color-text-muted);
+  }
+
+  &.is-noimg {
+    border-style: dashed;
+    border-color: var(--sp-color-warning);
+  }
+
+  &.is-hidden {
+    opacity: 0.6;
+    padding-right: 12px;
+  }
+}
+
+.sp-og__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  .form-control {
+    width: 140px;
+  }
+}
+
+.sp-og__imgs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+  margin-bottom: var(--sp-space-2);
+}
+
+.sp-og__imgrow {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sp-space-2);
+}
+
+.sp-og__imglabel {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+// Bảng biến thể gom theo giá trị nhóm gắn ảnh
+.sp-vtable {
+  min-width: 620px;
+}
+
+.sp-vsec td {
+  background: var(--sp-color-surface-alt);
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.sp-vsec__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  padding: 2px 4px;
+}
+
+.sp-vtable tr.is-locked td {
+  opacity: 0.55;
+}
+
+.sp-sctable {
+  min-width: 480px;
+
+  th,
+  td {
+    min-width: 120px;
+  }
+
+  th:last-child,
+  td:last-child {
+    min-width: 44px;
+  }
+}
+
+.sp-imgs-ro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+
+  img {
+    width: 88px;
+    height: 88px;
+    border-radius: var(--sp-radius-md);
+    object-fit: cover;
+    border: 1px solid var(--sp-color-border);
+  }
+}
+
+.sp-tagchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 0 6px 0 12px;
+  border: 1.5px solid var(--sp-color-primary);
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-primary-subtle);
+  color: var(--sp-color-primary);
+  font-size: 13px;
+  font-weight: 600;
+
+  button {
+    display: inline-flex;
+    padding: 3px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+  }
+}
+
+// Bảng tính giá
+.sp-calc {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin: 0;
+
+  dt {
+    font-weight: 400;
+    color: var(--sp-color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+  }
+}
+
+.sp-calc__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: var(--sp-space-3) 0 4px;
+  padding-top: var(--sp-space-3);
+  border-top: 1px solid var(--sp-color-border);
+
+  strong {
+    font-size: 22px;
+    color: var(--sp-color-primary);
+  }
+}
+
+// Khách sẽ thấy
+.sp-preview {
+  display: flex;
+  gap: var(--sp-space-3);
+
+  img,
+  .sp-preview__ph {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-color-surface-alt);
+    color: var(--sp-color-text-muted);
+    object-fit: cover;
+  }
+}

@@ -1,0 +1,139 @@
+<header class="sp-aph">
+  <div>
+    <h1>Hàng lưu kho</h1>
+    <p>Món cá nhân hóa khách chưa nhận, giữ tối đa 14 ngày rồi tiêu hủy</p>
+  </div>
+  <button class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" type="button" [disabled]="!items().length" (click)="exportList()"><app-icon name="upload" [size]="18" /> Xuất danh sách</button>
+</header>
+
+<div class="sp-lkstats">
+  <button type="button" class="sp-lkstat" [class.is-on]="group() === 'dang-luu'" (click)="setGroup('dang-luu')">
+    <span>Đang lưu</span><strong>{{ counts()['dang-luu'] || 0 }}</strong><small>trong hạn 14 ngày</small>
+  </button>
+  <button type="button" class="sp-lkstat sp-lkstat--warn" [class.is-on]="group() === 'sap-het-han'" (click)="setGroup('sap-het-han')">
+    <span>Sắp hết hạn</span><strong>{{ counts()['sap-het-han'] || 0 }}</strong><small>còn dưới 3 ngày</small>
+  </button>
+  <button type="button" class="sp-lkstat sp-lkstat--danger" [class.is-on]="group() === 'cho-tieu-huy'" (click)="setGroup('cho-tieu-huy')">
+    <span>Chờ tiêu hủy</span><strong>{{ counts()['cho-tieu-huy'] || 0 }}</strong><small>quá hạn nhận lại</small>
+  </button>
+</div>
+
+<nav class="sp-tabs2" role="tablist" aria-label="Nhóm hàng lưu kho">
+  @for (t of tabs; track t.key) {
+    <button type="button" role="tab" [class.is-on]="group() === t.key" [attr.aria-selected]="group() === t.key" (click)="setGroup(t.key)">
+      {{ t.label }} <span class="sp-count">{{ t.key ? counts()[t.key] || 0 : allCount() }}</span>
+    </button>
+  }
+</nav>
+
+@if (loading()) {
+  <span class="sp-skel d-block" style="height: 320px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!items().length) {
+  <div class="sp-state">
+    <app-icon name="archive" [size]="40" />
+    <p>Không có hàng lưu kho{{ group() ? ' trong nhóm này' : '' }}.</p>
+  </div>
+} @else {
+  <div class="sp-table-wrap">
+    <table class="table sp-atable sp-lktable align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Mã lưu</th>
+          <th scope="col">Đơn</th>
+          <th scope="col">Sản phẩm</th>
+          <th scope="col">Lý do</th>
+          <th scope="col">{{ group() === 'da-tieu-huy' ? 'Đã tiêu hủy' : 'Hạn lưu' }}</th>
+          <th scope="col" class="text-end"><span class="visually-hidden">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of items(); track r.code) {
+          <tr>
+            <td>
+              <strong class="d-block">{{ r.storageCode || '-' }}</strong>
+              @if (r.storageShelf) {
+                <small class="text-body-secondary">{{ r.storageShelf }}</small>
+              } @else if (auth.can('HANG_LUU_KHO.SUA') && !r.disposal) {
+                <button class="btn btn-link btn-sm p-0" type="button" (click)="openShelf(r)">Ghi vị trí kệ</button>
+              }
+            </td>
+            <td><a [routerLink]="['/quan-tri/don-hang', r.code]">{{ r.code }}</a></td>
+            <td>
+              @for (it of r.items; track it._id) {
+                <span class="d-block fw-semibold">{{ it.name }}</span>
+                <small class="d-block text-body-secondary">In/Khắc: {{ it.personalizationText }}{{ it.variantName ? ', ' + it.variantName : '' }}</small>
+              }
+            </td>
+            <td>{{ r.storageReason }}</td>
+            @if (r.disposal) {
+              <td>
+                <span class="sp-status sp-status--DA_HUY">{{ r.disposal.method }}</span>
+                <small class="d-block text-body-secondary">{{ r.disposal.at | date: 'dd/MM/yyyy' }}{{ r.disposal.by ? ' - ' + r.disposal.by : '' }}</small>
+              </td>
+              <td></td>
+            } @else {
+            <td>
+              <span class="sp-prio" [ngClass]="'sp-prio--' + levelClass(r)">{{ r.group === 'cho-tieu-huy' ? 'Khẩn cấp' : r.group === 'sap-het-han' ? 'Cần chú ý' : '' }} {{ deadlineText(r) }}</span>
+              <small class="d-block text-body-secondary">nhập {{ r.storedAt | date: 'dd/MM/yyyy' }}</small>
+            </td>
+            <td class="text-end text-nowrap">
+              @if (r.group === 'cho-tieu-huy' && auth.can('HANG_LUU_KHO.TIEU_HUY')) {
+                <button class="btn btn-sm btn-danger" type="button" (click)="openDispose(r)">Tiêu hủy</button>
+              } @else {
+                <button class="btn btn-sm btn-outline-secondary" type="button" (click)="contact.set(r)">Liên hệ khách</button>
+              }
+              @if (r.storageShelf && auth.can('HANG_LUU_KHO.SUA')) {
+                <button class="btn btn-sm btn-link" type="button" (click)="openShelf(r)">Sửa kệ</button>
+              }
+            </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (total() > pageSize()) {
+    <app-pagination class="d-block mt-3" [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="goPage($event)" />
+  }
+}
+
+@if (contact(); as r) {
+  <app-dialog [title]="'Liên hệ khách - ' + r.code" size="sm" (closed)="contact.set(null)">
+    <p class="mb-1"><strong>{{ r.customer.fullName }}</strong></p>
+    <p class="mb-2">{{ r.customer.phone }} <button class="btn btn-link btn-sm" type="button" (click)="copyPhone(r.customer.phone)">Sao chép</button></p>
+    <p class="small text-body-secondary">Nhắc khách: sản phẩm cá nhân hóa được giữ đến {{ r.storageDeadline | date: 'dd/MM/yyyy' }}. Khách bấm "Nhận lại hàng" ở đơn hàng và trả phí giao lại để nhận.</p>
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      @if (r.userId && auth.can('KHACH_HANG.XEM')) {
+        <a class="btn btn-outline-secondary" [routerLink]="['/quan-tri/khach-hang', r.userId]">Xem khách hàng</a>
+      }
+      <a class="btn btn-primary" [href]="'tel:' + r.customer.phone">Gọi</a>
+    </div>
+  </app-dialog>
+}
+
+@if (shelfFor(); as r) {
+  <app-confirm-dialog [title]="'Vị trí kệ - ' + r.storageCode" confirmLabel="Lưu" [busy]="busy() || !shelf().trim()" (confirm)="saveShelf()" (cancel)="shelfFor.set(null)">
+    <label class="sp-field w-100"><span>Vị trí kệ (1-20 ký tự)</span><input class="form-control" maxlength="20" placeholder="VD Kệ A2" [value]="shelf()" (input)="shelf.set($any($event.target).value)" /></label>
+    @if (formError()) { <p class="text-danger small mt-2 mb-0">{{ formError() }}</p> }
+  </app-confirm-dialog>
+}
+
+@if (disposeFor(); as r) {
+  <app-confirm-dialog title="Tiêu hủy hàng lưu kho?" confirmLabel="Tiêu hủy" [danger]="true" [busy]="busy() || !method() || !checked()" (confirm)="doDispose()" (cancel)="disposeFor.set(null)">
+    <p class="mb-2"><strong>{{ r.storageCode }}</strong>{{ r.storageShelf ? ' | ' + r.storageShelf : '' }} | {{ r.items[0]?.name }} In/Khắc: {{ r.items[0]?.personalizationText }} | đơn {{ r.code }}</p>
+    <p class="mb-2">Hàng đã {{ deadlineText(r) }}. Sản phẩm cá nhân hóa sẽ bị tiêu hủy, không hoàn tiền, không bồi thường. Thao tác này không thể hoàn tác.</p>
+    <label class="sp-field w-100"><span>Hình thức tiêu hủy *</span>
+      <select class="form-select" [value]="method()" (change)="method.set($any($event.target).value)">
+        <option value="">Chọn hình thức</option>
+        @for (m of methods; track m.key) { <option [value]="m.key">{{ m.label }}</option> }
+      </select>
+    </label>
+    <label class="form-check mt-2"><input class="form-check-input" type="checkbox" [checked]="checked()" (change)="checked.set(!checked())" /> Tôi đã kiểm tra mã lưu và vị trí kệ{{ r.storageShelf ? ' ' + r.storageShelf : '' }}</label>
+    @if (formError()) { <p class="text-danger small mt-2 mb-0">{{ formError() }}</p> }
+  </app-confirm-dialog>
+}

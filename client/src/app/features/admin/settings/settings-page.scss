@@ -1,0 +1,121 @@
+// SCR-59 - bám SCR-59-Desktop
+.sp-st {
+  max-width: 860px;
+}
+
+.sp-st-gw {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-3);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface-alt);
+}
+
+.sp-st-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-2) 0;
+
+  .form-check-input {
+    width: 2.6em;
+    height: 1.4em;
+  }
+}
+
+.sp-pol {
+  display: flex;
+  gap: var(--sp-space-3);
+  align-items: flex-start;
+
+  @media (max-width: 767.98px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.sp-pol__list {
+  flex: none;
+  width: 280px;
+
+  @media (max-width: 767.98px) {
+    width: auto;
+  }
+}
+
+.sp-pol__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--sp-radius-md);
+  background: none;
+  color: var(--sp-color-text);
+  text-align: left;
+
+  strong,
+  small {
+    display: block;
+  }
+
+  small {
+    color: var(--sp-color-text-muted);
+  }
+
+  &:hover,
+  &.is-on {
+    background: var(--sp-color-primary-subtle);
+  }
+
+  &.is-on strong {
+    color: var(--sp-color-primary);
+  }
+}
+
+.sp-pol__vars {
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 260px;
+
+  code {
+    margin-left: auto;
+    font-size: 11px;
+  }
+}
+
+.sp-pol__preview {
+  min-height: 220px;
+  padding: var(--sp-space-3);
+  border: 1.5px dashed var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+}
+
+.sp-faq-ans {
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-ask {
+  margin-top: var(--sp-space-3);
+  padding: var(--sp-space-3);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-info-subtle);
+
+  small {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--sp-color-info);
+  }
+
+  &.is-none {
+    background: var(--sp-color-surface-alt);
+  }
+}

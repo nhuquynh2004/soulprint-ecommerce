@@ -1,0 +1,349 @@
+<header class="sp-aph sp-cs-aph">
+  <div>
+    <h1>Hỗ trợ khách hàng</h1>
+    <p>
+      {{ list()?.waitingCount ? list()?.waitingCount + ' hội thoại chờ' : 'Không có hội thoại chờ' }}
+      @if (list()?.urgentCount) { | <span class="text-warning fw-semibold">{{ list()?.urgentCount }} đơn gấp</span> }
+      @if (list()?.remindCount) { | <span class="text-danger fw-semibold">{{ list()?.remindCount }} chờ bạn trả lời</span> }
+      | Sâu Béo tự trả lời câu hỏi thường gặp
+    </p>
+  </div>
+  @if (list(); as l) {
+    @if (l.canReply) {
+      <div class="form-check form-switch sp-duty">
+        <input id="sp-duty" class="form-check-input" type="checkbox" role="switch" [checked]="l.onDuty && !l.finishing" [disabled]="dutyBusy()" (change)="toggleDuty()" />
+        <label class="form-check-label" for="sp-duty">{{ l.finishing ? 'Đang xử lý nốt rồi nghỉ' : 'Đang trực' }}</label>
+      </div>
+    }
+  }
+</header>
+
+@if (loadError()) {
+  <div class="sp-alert sp-alert--danger mb-3" role="alert">{{ loadError() }} <button type="button" class="btn btn-link btn-sm p-0" (click)="loadQueue()">Thử lại</button></div>
+}
+
+<div class="sp-ms" [class.has-chat]="selectedId()" [class.has-info]="showInfo() && detail()">
+  <!-- Cột trái: danh sách khách -->
+  <aside class="sp-ms__list" aria-label="Danh sách hội thoại">
+    <div class="sp-ms__search">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm khách, nội dung" aria-label="Tìm hội thoại" [value]="search()" (input)="search.set($any($event.target).value)" />
+    </div>
+    <div class="sp-ms__groups sp-chips" role="tablist" aria-label="Nhóm hội thoại">
+      @for (g of groups; track g.key) {
+        <button type="button" role="tab" class="sp-chip sp-chip--sm" [class.is-on]="group() === g.key" [attr.aria-selected]="group() === g.key" (click)="setGroup(g.key)">
+          {{ g.label }}
+          @if (g.key !== 'CLOSED' && counts()[g.key]) {
+            <span class="n" [class.is-hot]="g.key === 'DAT_GAP' || g.key === 'WAITING' || g.key === 'KHIEU_NAI'">{{ counts()[g.key] }}</span>
+          }
+        </button>
+      }
+    </div>
+
+    <div class="sp-ms__items">
+      @if (!list()) {
+        <span class="sp-skel d-block mb-2" style="height: 64px"></span>
+        <span class="sp-skel d-block mb-2" style="height: 64px"></span>
+      } @else {
+        @for (c of items(); track c._id) {
+          <button type="button" class="sp-mi" [class.is-on]="c._id === selectedId()" [class.is-unread]="c.unread || c.status === 'CHO_NHAN_VIEN'" [class.is-urgent]="c.urgentOpen" (click)="select(c._id)">
+            <span class="sp-mi__av">
+              <span class="sp-avatar">{{ initials(c.customerName) }}</span>
+              <span class="mood" [class]="'mood mood--' + toneOf(c.sentiment)" [attr.title]="'Cảm xúc: ' + c.sentimentLabel" aria-hidden="true"></span>
+            </span>
+            <span class="sp-mi__b">
+              <span class="r1">
+                <strong>{{ c.customerName }}</strong>
+                <span class="t">{{ timeText(c.lastMessageAt) }}</span>
+              </span>
+              <span class="r2">{{ preview(c) }}</span>
+              <span class="r3">
+                @for (l of c.labels.slice(0, 2); track l.code) {
+                  <span class="sp-lbl" [class]="'sp-lbl sp-lbl--' + l.code">{{ l.label }}</span>
+                }
+                @if (c.remindMinutes) {
+                  <span class="sp-lbl sp-lbl--remind"><app-icon name="clock" [size]="11" /> Chưa trả lời {{ c.remindMinutes }} phút</span>
+                } @else if (c.status === 'CHO_NHAN_VIEN') {
+                  <span class="sp-lbl sp-lbl--wait">Chờ {{ c.waitMinutes < 1 ? 'vừa xong' : c.waitMinutes + ' phút' }}</span>
+                } @else if (!c.isMine && c.assignedName) {
+                  <span class="sp-mi__who">{{ c.assignedName }}</span>
+                }
+              </span>
+            </span>
+            @if (c.unread) {
+              <span class="sp-mi__dot" aria-label="Có tin chưa đọc"></span>
+            }
+          </button>
+        } @empty {
+          <div class="sp-state sp-state--sm">
+            <img src="/assets/brand/sau-beo.png" alt="" width="64" height="64" />
+            <strong>{{ search() ? 'Không tìm thấy hội thoại' : group() === 'CLOSED' ? 'Chưa có hội thoại đã đóng' : 'Không có hội thoại nào' }}</strong>
+            @if (!search() && group() === 'ALL') {
+              <p>Sâu Béo đang tự trả lời các câu hỏi thường gặp.</p>
+            }
+          </div>
+        }
+      }
+    </div>
+  </aside>
+
+  <!-- Giữa: khung chat -->
+  <section class="sp-ms__chat" aria-label="Hội thoại">
+    @if (!selectedId()) {
+      <div class="sp-state sp-state--sm m-auto">
+        <app-icon name="chat" [size]="40" />
+        <strong>Chọn một hội thoại</strong>
+        <p>Bấm vào khách ở cột trái để nhận và trả lời. Đơn gấp và khách chờ lâu luôn ở đầu danh sách.</p>
+      </div>
+    } @else if (detailError()) {
+      <div class="sp-state sp-state--sm m-auto"><strong>{{ detailError() }}</strong></div>
+    } @else if (!detail()) {
+      <span class="sp-skel d-block m-3" style="height: 240px"></span>
+    } @else {
+      @if (detail(); as d) {
+        <div class="sp-ms__head">
+          <button type="button" class="sp-ms__iconbtn sp-ms__back" (click)="select('')" aria-label="Về danh sách"><app-icon name="chevron-left" [size]="20" /></button>
+          <span class="sp-avatar" aria-hidden="true">{{ initials(d.customerName) }}</span>
+          <div class="who">
+            <strong>{{ d.customerName }}</strong>
+            <span>{{ d.isMember ? 'Thành viên' : 'Khách vãng lai' }} | {{ d.statusLabel }}{{ d.assignedName && !d.isMine ? ' | ' + d.assignedName : '' }}</span>
+          </div>
+          <div class="sp-ms__labels">
+            @for (l of d.labels; track l.code) {
+              <span class="sp-lbl" [class]="'sp-lbl sp-lbl--' + l.code">{{ l.label }}</span>
+            }
+            @if (list()?.canReply) {
+              <button type="button" class="sp-ms__iconbtn sm" (click)="editLabels()" [attr.aria-label]="'Sửa nhãn' + (d.labelsManual ? ' (đã sửa tay)' : ' (tự động)')" [title]="d.labelsManual ? 'Nhãn do nhân viên đặt' : 'Nhãn hệ thống tự gắn, bấm để sửa'"><app-icon name="tag" [size]="16" /></button>
+            }
+          </div>
+          <div class="sp-ms__tools">
+            @if (d.canClose) {
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeConfirm.set(true)">Kết thúc</button>
+            }
+            <button type="button" class="sp-ms__iconbtn" [class.is-on]="showInfo()" (click)="showInfo.set(!showInfo())" [attr.aria-pressed]="showInfo()" aria-label="Thông tin khách"><app-icon name="info" [size]="20" /></button>
+          </div>
+        </div>
+
+        @if (labelEdit(); as sel) {
+          <div class="sp-ms__lbledit" role="group" aria-label="Sửa nhãn hội thoại">
+            <span class="small text-body-secondary">Chọn nhãn đúng với hội thoại:</span>
+            @for (l of labelCodes; track l.code) {
+              <label class="sp-chip sp-chip--sm" [class.is-on]="sel.includes(l.code)">
+                <input type="checkbox" class="visually-hidden" [checked]="sel.includes(l.code)" (change)="toggleLabel(l.code)" /> {{ l.label }}
+              </label>
+            }
+            <span class="ms-auto d-flex gap-2">
+              @if (d.labelsManual) {
+                <button type="button" class="btn btn-link btn-sm" (click)="saveLabels(true)">Để hệ thống tự gắn</button>
+              }
+              <button type="button" class="btn btn-link btn-sm" (click)="labelEdit.set(null)">Hủy</button>
+              <button type="button" class="btn btn-primary btn-sm" [disabled]="!sel.length" (click)="saveLabels()">Lưu nhãn</button>
+            </span>
+          </div>
+        }
+
+        <div class="sp-ms__log" #log aria-live="polite">
+          @if ((d.earlier || []).length) {
+            <button type="button" class="sp-ms__earlier" (click)="showEarlier.set(!showEarlier())">
+              <app-icon [name]="showEarlier() ? 'chevron-down' : 'history'" [size]="14" />
+              {{ showEarlier() ? 'Ẩn các phiên trước' : 'Xem ' + d.earlier!.length + ' phiên trò chuyện trước với khách này' }}
+            </button>
+          }
+          @for (r of rows(); track r.key) {
+            @if (r.kind === 'divider') {
+              <span class="sp-ms__divider" [class.is-session]="r.tone === 'session'"><span>{{ r.text }}</span></span>
+            } @else {
+              @switch (r.m.sender) {
+                @case ('HE_THONG') {
+                  @if (r.m.card; as c) {
+                    <div class="sp-ms__card" [class.is-old]="r.earlier">
+                      <span class="h"><app-icon name="clock" [size]="16" /> {{ c.title }}</span>
+                      <p>{{ r.m.text }}</p>
+                      <a class="btn btn-sm btn-outline-primary" [routerLink]="['/quan-tri/don-nhap', c.code]">{{ c.status === 'CHO_XEM_XET' ? 'Mở yêu cầu để sửa, chốt' : 'Xem yêu cầu' }}</a>
+                    </div>
+                  } @else {
+                    <span class="sp-ms__sys">{{ r.m.text }}</span>
+                  }
+                }
+                @case ('ADMIN') {
+                  <div class="sp-bub sp-bub--me" [class.first]="r.first" [class.last]="r.last" [class.is-old]="r.earlier">
+                    @if (r.first) { <small class="n">{{ r.m.senderName }}</small> }
+                    <div class="m">{{ r.m.text }}</div>
+                    @if (r.last) { <small class="t">{{ r.m.createdAt | date: 'HH:mm' }}</small> }
+                  </div>
+                }
+                @case ('BOT') {
+                  <div class="sp-bub sp-bub--in sp-bub--bot" [class.first]="r.first" [class.last]="r.last" [class.is-old]="r.earlier">
+                    <span class="av">@if (r.last) { <img src="/assets/brand/sau-beo.png" alt="" width="28" height="28" /> }</span>
+                    <div>
+                      @if (r.first) { <small class="n">Sâu Béo</small> }
+                      <div class="m">{{ r.m.text }}</div>
+                      @if (r.last) { <small class="t">{{ r.m.createdAt | date: 'HH:mm' }}</small> }
+                    </div>
+                  </div>
+                }
+                @default {
+                  <div class="sp-bub sp-bub--in" [class.first]="r.first" [class.last]="r.last" [class.is-old]="r.earlier">
+                    <span class="av">@if (r.last) { <span class="sp-avatar sp-avatar--sm">{{ initials(d.customerName) }}</span> }</span>
+                    <div>
+                      <div class="m">{{ r.m.text }}</div>
+                      @if (r.m.originalText) {
+                        <button type="button" class="btn btn-link btn-sm p-0 sp-orig" (click)="toggleOriginal(r.m)">Đã chuyển ngữ | {{ showOriginal()[r.m._id] ? 'Ẩn bản gốc' : 'Xem bản gốc' }}</button>
+                        @if (showOriginal()[r.m._id]) {
+                          <q class="sp-origq">{{ r.m.originalText }}</q>
+                        }
+                      }
+                      @if (r.last) { <small class="t">{{ r.m.createdAt | date: 'HH:mm' }}</small> }
+                    </div>
+                  </div>
+                }
+              }
+            }
+          }
+          @if (selectedItem()?.remindMinutes) {
+            <span class="sp-ms__remind"><app-icon name="clock" [size]="14" /> Khách đã chờ {{ selectedItem()!.remindMinutes }} phút từ tin cuối, bạn trả lời giúp khách nhé</span>
+          }
+        </div>
+
+        @if (d.canReply && showQuick() && d.quickReplies?.length) {
+          <div class="sp-ms__quick" role="group" aria-label="Câu trả lời nhanh">
+            @for (q of d.quickReplies; track q.label) {
+              <button type="button" class="sp-chip sp-chip--sm" [title]="q.text" (click)="useQuick(q.text)">{{ q.label }}</button>
+            }
+          </div>
+        }
+        <form class="sp-ms__compose" (ngSubmit)="send()">
+          @if (d.canReply && d.quickReplies?.length) {
+            <button type="button" class="sp-ms__iconbtn" [class.is-on]="showQuick()" (click)="showQuick.set(!showQuick())" aria-label="Câu trả lời nhanh" title="Câu trả lời nhanh"><app-icon name="sparkle" [size]="20" /></button>
+          }
+          <div class="box">
+            <textarea name="draft" rows="1" class="form-control" aria-label="Nhập tin nhắn" [disabled]="!d.canReply"
+              [placeholder]="d.canReply ? 'Nhập tin nhắn (Enter để gửi, Shift+Enter xuống dòng)' : d.blockedReason || ''"
+              [ngModel]="draft()" (ngModelChange)="draft.set($event)" (keydown.enter)="onEnter($any($event))"></textarea>
+            @if (draft().length > maxText) {
+              <span class="sp-field__error">Tối đa {{ maxText }} ký tự ({{ draft().length }}/{{ maxText }})</span>
+            }
+          </div>
+          <button type="submit" class="sp-ms__send" [disabled]="!canSend()" aria-label="Gửi"><app-icon name="send" [size]="20" /></button>
+        </form>
+      }
+    }
+  </section>
+
+  <!-- Phải: đơn gấp, tóm tắt, ghi chú, khách hàng -->
+  @if (showInfo() && detail(); as d) {
+    <div class="sp-ms__info">
+      <div class="sp-ms__infohead">
+        <span class="sp-avatar sp-avatar--lg">{{ initials(d.customerName) }}</span>
+        <strong>{{ d.customerName }}</strong>
+        <span class="sp-mood" [class]="'sp-mood sp-mood--' + toneOf(d.sentiment)">Cảm xúc: {{ d.sentimentLabel }}</span>
+        <button type="button" class="sp-ms__iconbtn sp-ms__infoclose" (click)="showInfo.set(false)" aria-label="Đóng thông tin"><app-icon name="close" [size]="18" /></button>
+      </div>
+
+      @if (d.urgentRequests?.length) {
+        <section class="sp-ms__sec" aria-label="Yêu cầu đặt gấp">
+          <h2>Đặt gấp</h2>
+          @for (u of d.urgentRequests; track u.code) {
+            <a class="sp-ms__urg" [class.is-open]="u.status === 'CHO_XEM_XET' || u.status === 'DA_CHOT'" [routerLink]="['/quan-tri/don-nhap', u.code]">
+              <span class="r1"><strong>#{{ u.code }}</strong><span>{{ u.statusLabel }}</span></span>
+              <span class="r2">Mong nhận {{ u.requestedDate | date: 'dd/MM' }}{{ u.deliveryDate !== u.requestedDate ? ' | chốt ' + (u.deliveryDate | date: 'dd/MM') : '' }}{{ u.total !== null ? ' | ' + (u.total | vnd) : '' }}</span>
+              @if (u.orderCode) { <span class="r2">Đơn {{ u.orderCode }}</span> }
+            </a>
+          }
+        </section>
+      }
+
+      <section class="sp-ms__sec" aria-label="Tóm tắt hội thoại">
+        <h2>Tóm tắt</h2>
+        @if (d.topic) {
+          <p class="mb-1"><strong>Chủ đề:</strong> {{ d.topic }}</p>
+        }
+        <p class="mb-0">{{ d.summary || 'Chưa có tóm tắt, vui lòng đọc lịch sử.' }}</p>
+        @if (d.contact) {
+          <p class="mt-2 mb-0"><strong>Liên hệ:</strong> {{ d.contact }}
+            <button type="button" class="btn btn-link btn-sm p-0" (click)="copy(d.contact)" aria-label="Sao chép liên hệ"><app-icon name="copy" [size]="14" /></button></p>
+        }
+      </section>
+
+      <section class="sp-ms__sec" aria-label="Ghi chú nội bộ">
+        <h2>Ghi chú nội bộ <span class="sp-count">{{ d.notes?.length || 0 }}</span></h2>
+        @for (n of d.notes || []; track n._id) {
+          <div class="sp-inote">
+            <span class="sp-inote__by"><strong>{{ n.byName }}</strong> | {{ n.at | date: 'dd/MM HH:mm' }}</span>
+            {{ n.text }}
+          </div>
+        }
+        @if (noteOpen()) {
+          <div class="sp-inote sp-inote--new">
+            <label class="sp-field__label" for="sp-note">Ghi chú mới (chỉ nhân viên thấy)</label>
+            <textarea id="sp-note" rows="3" class="form-control form-control-sm" [class.is-invalid]="noteError()" [ngModel]="noteText()" (ngModelChange)="noteText.set($event)"></textarea>
+            <div class="d-flex justify-content-between align-items-center mt-1">
+              <span class="sp-muted small" [class.text-danger]="noteError()">{{ noteText().length }}/{{ maxNote }}</span>
+              <span class="d-flex gap-2">
+                <button type="button" class="btn btn-link btn-sm" (click)="noteOpen.set(false); noteText.set('')">Hủy</button>
+                <button type="button" class="btn btn-primary btn-sm" [disabled]="!canSaveNote()" (click)="saveNote()">Lưu</button>
+              </span>
+            </div>
+          </div>
+        } @else if (list()?.canReply) {
+          <button type="button" class="btn btn-link btn-sm p-0" (click)="noteOpen.set(true)"><app-icon name="plus" [size]="14" /> Thêm ghi chú</button>
+        }
+      </section>
+
+      @if (d.customer; as c) {
+        <section class="sp-ms__sec" aria-label="Khách hàng">
+          <h2>Khách hàng <a class="ms-auto small fw-normal" [routerLink]="['/quan-tri/khach-hang', c._id]">Xem</a></h2>
+          @if (c.phone) {
+            <p class="mb-1">{{ c.phone }}
+              <button type="button" class="btn btn-link btn-sm p-0" (click)="copy(c.phone)" aria-label="Sao chép số điện thoại"><app-icon name="copy" [size]="14" /></button></p>
+          }
+          <p class="sp-muted mb-2">{{ c.isMember ? 'Thành viên từ ' + (c.memberSince | date: 'MM/yyyy') : 'Chưa là thành viên' + (c.firstOrderAt ? ' | mua lần đầu ' + (c.firstOrderAt | date: 'MM/yyyy') : '') }} | {{ c.orderCount }} đơn | đã chi {{ c.totalSpent | vnd }}</p>
+          @for (o of c.recentOrders; track o.code) {
+            <a class="sp-ocard" [routerLink]="['/quan-tri/don-hang', o.code]">
+              <span class="r1"><span class="code">{{ o.code }}</span><span class="sp-muted">{{ o.orderStatusLabel }}</span></span>
+              <span class="r2">{{ o.firstItem }}{{ o.moreItems ? ' + ' + o.moreItems + ' món' : '' }}</span>
+              <span class="r3"><strong>{{ o.total | vnd }}</strong><span class="sp-muted">{{ o.paymentStatusLabel }}</span></span>
+            </a>
+          } @empty {
+            <p class="sp-muted mb-0">Khách chưa có đơn hàng.</p>
+          }
+        </section>
+      } @else {
+        <section class="sp-ms__sec" aria-label="Khách hàng">
+          <h2>Khách hàng</h2>
+          <p class="sp-muted mb-0">Khách vãng lai, không có tài khoản.{{ d.contact ? '' : ' Khách chưa để lại liên hệ.' }}</p>
+        </section>
+      }
+    </div>
+  }
+</div>
+
+@if (dutyDialog()) {
+  <app-dialog [title]="'Bạn còn ' + mine().length + ' hội thoại đang hỗ trợ'" subtitle="Chọn cách xử lý các hội thoại này trước khi tắt Đang trực." size="sm" (closed)="dutyDialog.set(false)">
+    <div class="sp-handover" role="radiogroup" aria-label="Cách bàn giao">
+      <label class="sp-handover__opt" [class.is-on]="handover() === 'REASSIGN'">
+        <input type="radio" name="handover" class="form-check-input" [checked]="handover() === 'REASSIGN'" (change)="handover.set('REASSIGN')" />
+        <span><strong>Chuyển cho nhân viên đang trực khác</strong><small>{{ onDutyStaffText() }}</small></span>
+      </label>
+      <label class="sp-handover__opt" [class.is-on]="handover() === 'FINISH_FIRST'">
+        <input type="radio" name="handover" class="form-check-input" [checked]="handover() === 'FINISH_FIRST'" (change)="handover.set('FINISH_FIRST')" />
+        <span><strong>Xử lý nốt rồi nghỉ</strong><small>Không nhận hội thoại mới, tự tắt Đang trực khi xong {{ mine().length }} hội thoại</small></span>
+      </label>
+    </div>
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="dutyDialog.set(false)">Ở lại trực</button>
+      <button type="button" class="btn btn-primary" [disabled]="dutyBusy()" (click)="applyDuty(false, handover())">
+        {{ handover() === 'REASSIGN' ? 'Chuyển và tắt Đang trực' : 'Xác nhận' }}
+      </button>
+    </div>
+  </app-dialog>
+}
+
+@if (closeConfirm()) {
+  <app-dialog title="Kết thúc hỗ trợ?" subtitle="Khách nhận lời cảm ơn, hội thoại chuyển sang Đã đóng và không gửi thêm tin được." size="sm" (closed)="closeConfirm.set(false)">
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="closeConfirm.set(false)">Quay lại</button>
+      <button type="button" class="btn btn-primary" (click)="finish()">Kết thúc hỗ trợ</button>
+    </div>
+  </app-dialog>
+}

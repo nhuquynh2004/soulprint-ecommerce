@@ -1,0 +1,120 @@
+// SCR-41 - bám SCR-41-Desktop: ảnh nhỏ, tên + SKU, tồn kho có nút mở tồn theo biến thể, chip biến thể
+.sp-pthumb {
+  width: 52px;
+
+  img,
+  span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--sp-radius-md);
+    border: 1px solid var(--sp-color-border);
+    background: var(--sp-color-surface-alt);
+    color: var(--sp-color-text-muted);
+    object-fit: cover;
+  }
+}
+
+.sp-pname {
+  color: var(--sp-color-text);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--sp-color-primary);
+  }
+}
+
+.sp-expand {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  // Cố định cỡ để ô chừa chỗ (.sp-expand-gap) bằng đúng nút, số tồn thẳng cột
+  width: 32px;
+  min-width: 0;
+  height: 32px;
+  padding: 0;
+  border: 1.5px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-sm);
+
+  &.is-on {
+    border-color: var(--sp-color-primary);
+    color: var(--sp-color-primary);
+  }
+}
+
+.sp-vrow td {
+  background: var(--sp-color-surface-alt);
+}
+
+.sp-vrow__in {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-3);
+}
+
+.sp-vchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: 1.5px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-surface);
+  font-size: 13px;
+
+  &.is-low {
+    border-color: var(--sp-color-warning);
+  }
+
+  &.is-off {
+    opacity: 0.55;
+    text-decoration: line-through;
+  }
+}
+
+.sp-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  width: 240px;
+  padding: var(--sp-space-3);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-lg);
+}
+
+.sp-listfoot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-3);
+  margin-top: var(--sp-space-3);
+  color: var(--sp-color-text-muted);
+}
+
+// Số tồn thẳng cột dù dòng có hay không có nút xổ tồn từng biến thể (rộng bằng nút .sp-expand)
+.sp-expand-gap {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 32px;
+}
+
+.sp-stocknum {
+  min-width: 3ch;
+  text-align: right;
+}
+
+// Dòng giải thích ở tab Ẩn và Lưu trữ
+.sp-tabnote {
+  margin: 0 0 var(--sp-space-3);
+  color: var(--sp-color-text-muted);
+  font-size: 14px;
+}

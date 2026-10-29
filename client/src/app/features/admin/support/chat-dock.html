@@ -1,0 +1,52 @@
+@if (dock.listOpen()) {
+  <div class="sp-cdl" role="dialog" aria-label="Hội thoại với khách">
+    <div class="sp-cdl__head">
+      <strong>Chat với khách</strong>
+      <a class="btn btn-link btn-sm p-0" routerLink="/quan-tri/ho-tro" (click)="dock.listOpen.set(false)">Mở trang đầy đủ</a>
+    </div>
+    @if (data(); as d) {
+      @if (!d.onDuty && d.canReply) {
+        <p class="sp-cdl__note">Bạn chưa bật Đang trực nên chưa nhận được hội thoại đang chờ. Bật ở trang Hỗ trợ khách hàng.</p>
+      }
+      @for (g of groups(); track g.key) {
+        <p class="sp-cdl__group">{{ g.title }} ({{ g.items.length }})</p>
+        @for (c of g.items; track c._id) {
+          <button type="button" class="sp-cdl__item" [class.is-unread]="c.unread || c.status === 'CHO_NHAN_VIEN'" (click)="open(c)">
+            <span class="sp-cdl__av">{{ c.customerName.slice(0, 1) }}</span>
+            <span class="sp-cdl__txt">
+              <span class="sp-cdl__row">
+                <strong>{{ c.customerName }}</strong>
+                <time>{{ ago(c.lastMessageAt) }}</time>
+              </span>
+              <span class="sp-cdl__last">{{ c.lastSender === 'ADMIN' ? 'Bạn: ' : '' }}{{ c.lastText || c.topic }}</span>
+              @if (c.labels.length || c.remindMinutes) {
+                <span class="sp-cdl__tags">
+                  @for (l of c.labels; track l.code) {
+                    <span [class.is-urgent]="l.code === 'DAT_GAP'">{{ l.label }}</span>
+                  }
+                  @if (c.remindMinutes) {
+                    <span class="is-urgent">Chưa trả lời {{ c.remindMinutes }} phút</span>
+                  }
+                </span>
+              }
+            </span>
+          </button>
+        }
+      } @empty {
+        <p class="sp-cdl__note">Chưa có hội thoại nào đang mở.</p>
+      }
+    } @else if (error()) {
+      <p class="sp-cdl__note text-danger">{{ error() }}</p>
+    } @else {
+      <span class="sp-skel d-block m-2" style="height: 120px"></span>
+    }
+  </div>
+}
+
+@if (!onSupportPage()) {
+  <div class="sp-cdw">
+    @for (w of dock.windows(); track w.id) {
+      <app-chat-window [win]="w" />
+    }
+  </div>
+}

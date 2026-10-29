@@ -1,0 +1,474 @@
+<div class="container sp-pd">
+  @if (loading()) {
+    <div class="sp-pd__top" aria-busy="true" aria-label="Đang tải sản phẩm">
+      <span class="sp-skel" style="aspect-ratio: 1 / 1"></span>
+      <div class="d-flex flex-column gap-3">
+        <span class="sp-skel" style="height: 40px; width: 80%"></span>
+        <span class="sp-skel" style="height: 24px; width: 40%"></span>
+        <span class="sp-skel" style="height: 48px; width: 50%"></span>
+        <span class="sp-skel" style="height: 120px"></span>
+      </div>
+    </div>
+  } @else if (notFound()) {
+    <!-- UC-DIS-02 1Ea, SCR-03-Desktop-KhongTimThay -->
+    <nav aria-label="Vị trí trang">
+      <ol class="breadcrumb sp-crumbs">
+        <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a routerLink="/san-pham">Sản phẩm</a></li>
+      </ol>
+    </nav>
+    <div class="sp-state">
+      <span class="sp-state__ic"><app-icon name="search" [size]="32" /></span>
+      <h1 class="h3">Không tìm thấy sản phẩm</h1>
+      <p>Sản phẩm này đã ngừng bán hoặc đường dẫn không còn đúng. Bạn xem thử những món quà khác nhé.</p>
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        <a class="btn btn-primary" routerLink="/">Về trang chủ</a>
+        <a class="btn btn-outline-primary" routerLink="/san-pham" [queryParams]="{ chip: 'moi' }">Xem sản phẩm mới</a>
+      </div>
+      @if (categories().length) {
+        <div class="d-flex flex-wrap justify-content-center gap-2 mt-2">
+          @for (c of categories(); track c._id) {
+            <a class="sp-chip sp-chip--sm" [routerLink]="['/danh-muc', c.slug]">{{ c.name }}</a>
+          }
+        </div>
+      }
+    </div>
+    @if (popular().length) {
+      <section class="sp-sec">
+        <div class="sp-sec-head">
+          <h2>Có thể bạn quan tâm</h2>
+        </div>
+        <div class="sp-grid">
+          @for (p of popular(); track p._id) {
+            <app-product-card [product]="p" />
+          }
+        </div>
+      </section>
+    }
+  } @else if (errMessage()) {
+    <div class="sp-state my-5" role="alert">
+      <span class="sp-state__ic"><app-icon name="alert-circle" [size]="32" /></span>
+      <p>{{ errMessage() }}</p>
+      <button class="btn btn-primary" type="button" (click)="reload()">Thử lại</button>
+    </div>
+  } @else if (product(); as p) {
+    <nav aria-label="Vị trí trang">
+      <ol class="breadcrumb sp-crumbs">
+        <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+        @if (p.category) {
+          <li class="breadcrumb-item"><a [routerLink]="['/danh-muc', p.category.slug]">{{ p.category.name }}</a></li>
+        }
+        <li class="breadcrumb-item active" aria-current="page">{{ p.name }}</li>
+      </ol>
+    </nav>
+
+    <!-- Vùng 1: ảnh + thông tin mua -->
+    <div class="sp-pd__top">
+      <div class="sp-gallery">
+        <div class="sp-gallery__main">
+          <img [src]="images()[activeImage()] || images()[0]" [alt]="p.name" />
+          @if (images().length > 1) {
+            <span class="sp-gallery__count">{{ activeImage() + 1 }}/{{ images().length }}</span>
+          }
+        </div>
+        @if (images().length > 1) {
+          <div class="sp-gallery__thumbs" role="group" aria-label="Chọn ảnh">
+            @for (img of images(); track img; let i = $index) {
+              <button type="button" class="sp-gallery__thumb" [class.is-on]="i === activeImage()" (click)="activeImage.set(i)" [attr.aria-label]="'Ảnh ' + (i + 1)">
+                <img [src]="img" alt="" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="sp-buy">
+        <div class="sp-buy__badges">
+          @if (p.labels.personalization.length) {
+            <span class="sp-badge sp-badge--perso"><app-icon name="wand" [size]="14" />Cá nhân hóa</span>
+          }
+          @if (p.labels.isNew) {
+            <span class="sp-badge sp-badge--new">Mới</span>
+          }
+          @if (p.labels.isBestSeller) {
+            <span class="sp-badge sp-badge--hot">Bán chạy</span>
+          }
+          <span class="sp-badge sp-badge--neutral">{{ axisInfo[p.axis].name }}</span>
+        </div>
+
+        <h1 class="sp-buy__name">{{ p.name }}</h1>
+
+        <div class="sp-buy__rating">
+          @if (p.ratingCount) {
+            <app-rating [value]="p.ratingAvg" />
+            <span class="text-body-secondary">({{ p.ratingCount }} đánh giá)</span>
+            <button class="btn btn-link p-0" type="button" (click)="scrollTo('danh-gia')">Xem đánh giá</button>
+          } @else {
+            <span class="text-body-secondary">Chưa có đánh giá</span>
+          }
+        </div>
+
+        <div class="sp-price sp-price--lg">
+          <span class="sp-price__now">{{ unitPrice() | vnd }}</span>
+          @if (p.onSale) {
+            <span class="sp-price__was">{{ wasPrice() | vnd }}</span>
+            <span class="sp-price__off">-{{ p.discountPercent }}%</span>
+          }
+        </div>
+
+        @if (variant(); as v) {
+          @if (v.stock > 0) {
+            <p class="sp-stock is-in">
+              <app-icon name="check-circle" [size]="18" />
+              {{ lowStock() ? 'Chỉ còn ' + v.stock + ' sản phẩm' : 'Còn hàng' }}
+            </p>
+          }
+        }
+
+        <!-- Bộ chọn biến thể: 1 hàng mỗi nhóm (BR-39) -->
+        @for (g of groups(); track g.name) {
+          <div class="sp-opt">
+            <div class="sp-opt__head">
+              <span>
+                {{ g.name }}: <strong>{{ selected()[g.name] }}</strong>
+              </span>
+              @if (p.sizeChart && $last) {
+                <button class="btn btn-link p-0 sp-opt__size" type="button" data-bs-toggle="modal" data-bs-target="#sp-size-chart">
+                  <app-icon name="ruler" [size]="18" /> Bảng size
+                </button>
+              }
+            </div>
+            <div class="sp-opt__values" role="radiogroup" [attr.aria-label]="g.name">
+              @for (val of g.values; track val.value) {
+                <button
+                  type="button"
+                  class="sp-optbtn"
+                  role="radio"
+                  [class.is-on]="selected()[g.name] === val.value"
+                  [class.is-out]="isOut(g.name, val.value)"
+                  [attr.aria-checked]="selected()[g.name] === val.value"
+                  [attr.aria-label]="val.value + (isOut(g.name, val.value) ? ' (tạm hết hàng)' : '')"
+                  (click)="select(g, val.value)"
+                >
+                  @if (g.hasImages && val.images?.length) {
+                    <img [src]="val.images![0]" alt="" />
+                  }
+                  {{ val.value }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+        @if (!groups().length && p.sizeChart) {
+          <button class="btn btn-link p-0 sp-opt__size align-self-start" type="button" data-bs-toggle="modal" data-bs-target="#sp-size-chart">
+            <app-icon name="ruler" [size]="18" /> Bảng size
+          </button>
+        }
+
+        @if (stockWarning()) {
+          <div class="sp-alert sp-alert--warning mb-0" role="status">
+            <app-icon name="alert-circle" [size]="20" /> {{ stockWarning() }}
+          </div>
+        }
+
+        @if (p.personalization.allowed) {
+          <div class="sp-perso">
+            <div class="sp-perso__head">
+              <strong>Cá nhân hóa</strong>
+              <span class="text-body-secondary">Không bắt buộc</span>
+            </div>
+            @if (chosen(); as c) {
+              <!-- Tóm tắt cá nhân hóa đã chọn kèm Sửa, Bỏ (UC-CRT-01 bước 6, nhánh 3a, 6a) -->
+              <div class="sp-perso__chosen" role="status">
+                <app-icon [name]="c.type === 'IN_KHAC' ? 'edit' : 'sparkle'" [size]="20" />
+                <span>
+                  <strong>{{ c.type === 'IN_KHAC' ? 'In/Khắc' : 'Thiết kế' }}:</strong> {{ describe(c) }}
+                  <em>{{ chosenFee() ? '+' + (chosenFee() | vnd) + '/sản phẩm' : 'Miễn phí' }}</em>
+                </span>
+                <button class="btn btn-sm btn-link" type="button" (click)="openPersonalize(c.type)">Sửa</button>
+                <button class="btn btn-sm btn-link text-danger" type="button" (click)="chosen.set(null)">Bỏ</button>
+              </div>
+            } @else {
+              <div class="sp-perso__opts">
+                @if (p.personalization.types?.includes('IN_KHAC')) {
+                  <button class="sp-perso__opt" type="button" (click)="openPersonalize('IN_KHAC')">
+                    <app-icon name="edit" [size]="20" />
+                    <span><strong>In/Khắc</strong> Tên, số áo, lời nhắn ngắn | Miễn phí</span>
+                  </button>
+                }
+                @if (p.personalization.types?.includes('THIET_KE')) {
+                  <button class="sp-perso__opt" type="button" (click)="openPersonalize('THIET_KE')">
+                    <app-icon name="sparkle" [size]="20" />
+                    <span><strong>Thiết kế</strong> Sticker, lời nhắn | từ {{ stickerFee() | vnd }}</span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <div class="sp-qty">
+          <span>Số lượng</span>
+          <div class="sp-qty__ctl">
+            <button class="btn" type="button" (click)="changeQuantity(-1)" [disabled]="quantity() <= 1 || soldOut()" aria-label="Giảm số lượng">
+              <app-icon name="minus" [size]="18" />
+            </button>
+            <span aria-live="polite">{{ quantity() }}</span>
+            <button class="btn" type="button" (click)="changeQuantity(1)" [disabled]="quantity() >= stock() || soldOut()" aria-label="Tăng số lượng">
+              <app-icon name="plus" [size]="18" />
+            </button>
+          </div>
+        </div>
+
+        <div class="sp-buy__ctas">
+          <!-- Theo SCR-03 - Thêm vào giỏ viền, Mua ngay nền xanh, cao 44px -->
+          <button class="btn btn-outline-primary" type="button" [disabled]="soldOut() || !variant() || adding()" (click)="addToCart()">
+            <app-icon name="cart" [size]="20" /> {{ soldOut() ? 'Tạm hết hàng' : 'Thêm vào giỏ hàng' }}
+          </button>
+          <button class="btn btn-primary" type="button" [disabled]="soldOut() || !variant() || adding()" (click)="addToCart(true)">Mua ngay</button>
+          <button
+            class="btn sp-buy__fav"
+            type="button"
+            [class.is-on]="wishlist.has(p._id)"
+            [attr.aria-pressed]="wishlist.has(p._id)"
+            [attr.aria-label]="wishlist.has(p._id) ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'"
+            (click)="wishlist.toggle(p._id)"
+          >
+            <app-icon [name]="wishlist.has(p._id) ? 'heart-fill' : 'heart'" />
+          </button>
+        </div>
+        @if (cartNote()) {
+          <p class="sp-buy__note" role="status">{{ cartNote() }}</p>
+        }
+        <app-bulk-order-note [productName]="p.name" />
+
+        <ul class="sp-assure">
+          @if (p.warrantyMonths) {
+            <li><app-icon name="shield" [size]="20" /><span><strong>Bảo hành {{ p.warrantyMonths }} tháng</strong> Lỗi nhà sản xuất</span></li>
+          }
+          <li><app-icon name="rotate" [size]="20" /><span><strong>Đổi trả trong 7 ngày</strong> Hàng cá nhân hóa chỉ đổi khi lỗi sản xuất</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Vùng 2: Mô tả, Thông số, Chính sách -->
+    <section class="sp-tabs">
+      <div class="sp-tabs__list" role="tablist" aria-label="Thông tin sản phẩm">
+        <button role="tab" type="button" [class.is-on]="tab() === 'mo-ta'" [attr.aria-selected]="tab() === 'mo-ta'" (click)="tab.set('mo-ta')">Mô tả</button>
+        <button role="tab" type="button" [class.is-on]="tab() === 'thong-so'" [attr.aria-selected]="tab() === 'thong-so'" (click)="tab.set('thong-so')">Thông số</button>
+        <button role="tab" type="button" [class.is-on]="tab() === 'chinh-sach'" [attr.aria-selected]="tab() === 'chinh-sach'" (click)="tab.set('chinh-sach')">Chính sách</button>
+      </div>
+      <div class="sp-tabs__panel" role="tabpanel">
+        @switch (tab()) {
+          @case ('mo-ta') {
+            @if (p.shortDescription) {
+              <p class="lead fs-6 fw-semibold">{{ p.shortDescription }}</p>
+            }
+            <!-- Mô tả là HTML giới hạn do server lọc; Angular tự làm sạch thêm khi gán innerHTML -->
+            <div class="sp-prose" [innerHTML]="p.description"></div>
+          }
+          @case ('thong-so') {
+            <table class="table sp-specs">
+              <tbody>
+                @if (p.specs.material) {
+                  <tr><th scope="row">Chất liệu</th><td>{{ p.specs.material }}</td></tr>
+                }
+                @if (p.specs.size) {
+                  <tr><th scope="row">Kích thước</th><td>{{ p.specs.size }}</td></tr>
+                }
+                @if (p.specs.weight) {
+                  <tr><th scope="row">Trọng lượng</th><td>{{ p.specs.weight }}</td></tr>
+                }
+                @if (p.specs.origin) {
+                  <tr><th scope="row">Xuất xứ</th><td>{{ p.specs.origin }}</td></tr>
+                }
+                @if (p.specs.care) {
+                  <tr><th scope="row">Bảo quản</th><td>{{ p.specs.care }}</td></tr>
+                }
+                @if (p.brand) {
+                  <tr><th scope="row">Thương hiệu</th><td>{{ p.brand }}</td></tr>
+                }
+                @if (p.ageMin || p.ageMax) {
+                  <tr><th scope="row">Độ tuổi phù hợp</th><td>{{ p.ageMin }} - {{ p.ageMax }} tuổi</td></tr>
+                }
+                <tr><th scope="row">Mã sản phẩm</th><td>{{ variant()?.sku || p.sku }}</td></tr>
+              </tbody>
+            </table>
+          }
+          @case ('chinh-sach') {
+            <ul class="sp-prose">
+              <li>Đổi trả trong 7 ngày kể từ khi nhận hàng, sản phẩm còn tem, nhãn và bao bì gốc.</li>
+              <li>
+                @if (p.warrantyMonths) {
+                  Bảo hành {{ p.warrantyMonths }} tháng lỗi nhà sản xuất kể từ khi nhận hàng.
+                } @else {
+                  Sản phẩm không áp dụng bảo hành.
+                }
+              </li>
+              <li>Hàng cá nhân hóa (in, khắc, thiết kế riêng) chỉ được đổi trả khi có lỗi sản xuất kèm ảnh bằng chứng.</li>
+            </ul>
+            <p class="d-flex flex-wrap gap-3 mb-0">
+              <a routerLink="/chinh-sach/doi-tra">Chính sách đổi trả</a>
+              <a routerLink="/chinh-sach/bao-hanh">Chính sách bảo hành</a>
+              <a routerLink="/chinh-sach/van-chuyen">Chính sách vận chuyển</a>
+            </p>
+          }
+        }
+      </div>
+    </section>
+
+    <!-- Vùng 3: đánh giá -->
+    <section class="sp-sec" id="danh-gia">
+      <div class="sp-sec-head">
+        <h2>Đánh giá từ khách hàng</h2>
+      </div>
+      @if (reviews(); as r) {
+        @if (r.ratingCount) {
+          <div class="sp-reviews">
+            <div class="sp-reviews__sum">
+              <span class="sp-reviews__avg">{{ r.ratingAvg.toFixed(1).replace('.', ',') }}</span>
+              <app-rating [value]="r.ratingAvg" [showScore]="false" />
+              <span class="text-body-secondary">Dựa trên {{ r.ratingCount }} đánh giá</span>
+              <div class="sp-reviews__bars">
+                @for (s of stars; track s) {
+                  <button type="button" class="sp-reviews__bar" (click)="filterReviews(s)" [attr.aria-label]="'Xem đánh giá ' + s + ' sao'">
+                    <span>{{ s }} sao</span>
+                    <span class="sp-bar"><span [style.width.%]="percent(s)"></span></span>
+                    <span>{{ r.distribution[s] }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+            <div class="sp-reviews__list">
+              @if (showAllReviews()) {
+                <div class="sp-chips" role="group" aria-label="Lọc theo số sao">
+                  <button class="sp-chip sp-chip--sm" type="button" [class.is-on]="!reviewRating()" (click)="filterReviews(null)">Tất cả</button>
+                  @for (s of stars; track s) {
+                    <button class="sp-chip sp-chip--sm" type="button" [class.is-on]="reviewRating() === s" (click)="filterReviews(s)">{{ s }} sao</button>
+                  }
+                </div>
+              }
+              @for (rv of visibleReviews(); track rv._id) {
+                <article class="sp-review">
+                  <div class="sp-review__head">
+                    <strong>{{ rv.userName }}</strong>
+                    <span class="text-body-secondary">{{ rv.createdAt | date: 'dd/MM/yyyy' }}</span>
+                  </div>
+                  <app-rating [value]="rv.rating" [size]="14" />
+                  @if (rv.variantName) {
+                    <span class="text-body-secondary small">{{ rv.variantName }}</span>
+                  }
+                  @if (rv.likes?.length) {
+                    <div class="sp-chips flex-wrap">
+                      @for (l of rv.likes; track l.code) {
+                        <span class="sp-chip sp-chip--sm">{{ l.label }}</span>
+                      }
+                    </div>
+                  }
+                  @if (rv.comment) {
+                    <p>{{ rv.comment }}</p>
+                  }
+                  @if (rv.images?.length) {
+                    <div class="sp-review__imgs">
+                      @for (img of rv.images; track img) {
+                        <img [src]="img" alt="Ảnh đánh giá" loading="lazy" />
+                      }
+                    </div>
+                  }
+                  <!-- UC-OPS-08 1b: trả lời của Soulprint ngay dưới đánh giá -->
+                  @if (rv.reply) {
+                    <div class="sp-review__reply">
+                      <strong>Phản hồi từ Soulprint</strong>
+                      <p class="mb-0">{{ rv.reply.text }}</p>
+                    </div>
+                  }
+                </article>
+              } @empty {
+                <p class="text-body-secondary">Chưa có đánh giá {{ reviewRating() }} sao.</p>
+              }
+              @if (!showAllReviews() && r.ratingCount > 3) {
+                <button class="btn btn-outline-primary align-self-start" type="button" (click)="filterReviews(null)">Xem tất cả đánh giá</button>
+              } @else if (showAllReviews() && r.page * r.pageSize < r.total) {
+                <button class="btn btn-outline-primary align-self-start" type="button" (click)="loadReviews(r.page + 1)">Xem thêm đánh giá</button>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="sp-state">
+            <span class="sp-state__ic"><app-icon name="star-line" [size]="32" /></span>
+            <p>Chưa có đánh giá nào cho sản phẩm này</p>
+          </div>
+        }
+      }
+    </section>
+
+    @if (p.related.length) {
+      <section class="sp-sec">
+        <div class="sp-sec-head">
+          <h2>Có thể bạn quan tâm</h2>
+          @if (p.category) {
+            <a class="sp-more" [routerLink]="['/danh-muc', p.category.slug]">Xem thêm <app-icon name="arrow-right" [size]="18" /></a>
+          }
+        </div>
+        <div class="sp-hscroll">
+          @for (r of p.related; track r._id) {
+            <app-product-card [product]="r" />
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Hộp thoại Bảng size (UC-DIS-02 3a): đóng bằng X hoặc Esc (Bootstrap modal) -->
+    @if (p.sizeChart; as chart) {
+      <div class="modal fade" id="sp-size-chart" tabindex="-1" aria-labelledby="sp-size-chart-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2 class="modal-title h4" id="sp-size-chart-title">Bảng size</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-striped text-center align-middle mb-3">
+                  <thead>
+                    <tr>
+                      @for (col of chart.columns; track $index) {
+                        <th scope="col">{{ col }}</th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of chart.rows; track $index) {
+                      <tr [class.table-primary]="row[0] === selected()['Size']">
+                        @for (cell of row; track $index) {
+                          <td>{{ cell }}</td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              @if (chart.note) {
+                <p class="text-body-secondary mb-0"><app-icon name="info" [size]="18" /> {{ chart.note }}</p>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>
+
+@if (dialogTab() && personalizeProduct(); as pp) {
+  <app-personalize-dialog
+    [product]="pp"
+    [variantLabel]="variant()?.name === 'Mặc định' ? '' : variant()?.name || ''"
+    [unitPrice]="unitPrice()"
+    [quantity]="quantity()"
+    [stickerFee]="stickerFee()"
+    [initial]="dialogInitial()"
+    [startTab]="dialogTab()"
+    (applied)="onPersonalized($event)"
+    (closed)="dialogTab.set(null)"
+  />
+}

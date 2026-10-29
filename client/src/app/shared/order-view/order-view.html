@@ -1,0 +1,192 @@
+@let o = order;
+<section class="sp-ov__panel" aria-label="Tiến trình đơn hàng">
+  <h2>
+    <app-icon name="truck" [size]="20" />
+    {{ showHistory() ? 'Lịch sử chi tiết' : 'Tiến trình đơn hàng' }}
+    <button class="sp-ov__switch" type="button" (click)="showHistory.set(!showHistory())" [attr.aria-pressed]="showHistory()">
+      {{ showHistory() ? 'Xem tiến trình' : 'Lịch sử chi tiết' }}
+    </button>
+  </h2>
+  @if (!showHistory()) {
+    <ol class="sp-tl">
+      @for (s of steps; track $index) {
+        <li class="sp-tl__step" [class.is-done]="s.state === 'done'" [class.is-on]="s.state === 'current'" [class.is-cancel]="s.state === 'cancelled'" [attr.aria-current]="s.state === 'current' ? 'step' : null">
+          <span class="sp-tl__dot">
+            @switch (s.state) {
+              @case ('done') { <app-icon name="check" [size]="16" /> }
+              @case ('current') { <app-icon name="clock" [size]="16" /> }
+              @case ('cancelled') { <app-icon name="close" [size]="16" /> }
+            }
+          </span>
+          <span class="sp-tl__txt">
+            <span class="sp-tl__label">{{ s.label }}</span>
+            @if (s.at) {
+              <span class="sp-tl__time">{{ s.at | date: 'dd/MM HH:mm' }}</span>
+            } @else if (s.expected) {
+              <span class="sp-tl__time">{{ expected(s.expected) }}</span>
+            }
+          </span>
+        </li>
+      }
+    </ol>
+  } @else {
+    <ul class="sp-ov__hist">
+      @for (h of o.history; track $index) {
+        <li>
+          <time>{{ h.at | date: 'dd/MM/yyyy HH:mm' }}</time>
+          <span>
+            <strong>{{ h.field === 'paymentStatus' ? 'Thanh toán: ' : '' }}{{ h.label }}</strong>
+            @if (h.note) {
+              <small>{{ h.note }}</small>
+            }
+          </span>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+<div class="sp-ov__grid">
+  <section class="sp-ov__panel" [attr.aria-label]="'Sản phẩm (' + o.items.length + ')'">
+    <h2><app-icon name="bag" [size]="20" /> Sản phẩm ({{ o.items.length }})</h2>
+    @for (it of o.items; track it._id) {
+      <div class="sp-ov__item">
+        <span class="sp-ov__thumb">
+          @if (it.image) {
+            <img [src]="it.image" alt="" loading="lazy" />
+          } @else {
+            <app-icon name="gift" [size]="24" />
+          }
+        </span>
+        <div class="sp-ov__ib">
+          @if (it.slug) {
+            <a [routerLink]="['/san-pham', it.slug]"><strong>{{ it.name }}</strong></a>
+          } @else {
+            <strong>{{ it.name }}</strong>
+          }
+          <span>{{ it.variantName || 'Mặc định' }}, {{ it.personalizationText ? (it.personalization?.type === 'THIET_KE' ? 'Thiết kế: ' : 'In/Khắc: ') + it.personalizationText : 'Không cá nhân hóa' }}</span>
+          @if (it.isPersonalized) {
+            <span class="sp-badge sp-badge--perso"><app-icon name="wand" [size]="14" /> Cá nhân hóa</span>
+          }
+          @if (it.canEditPersonalization) {
+            <button class="btn btn-sm btn-link px-0 align-self-start d-inline-flex align-items-center gap-1" type="button" (click)="editPersonalization.emit(it._id)"><app-icon name="edit" [size]="16" /> Sửa cá nhân hóa</button>
+          }
+          <!-- UC-TRK-06 1b: món thường của sản phẩm có hỗ trợ cá nhân hóa -->
+          @if (it.canAddPersonalization) {
+            <button class="btn btn-sm btn-link px-0 align-self-start d-inline-flex align-items-center gap-1" type="button" (click)="editPersonalization.emit(it._id)"><app-icon name="wand" [size]="16" /> Thêm cá nhân hóa</button>
+          }
+          @if (it.fulfillStatus === 'DA_THAY_THE' && it.substitute) {
+            <span class="sp-status sp-status--HOAN_THANH sp-ov__wrap">Đã đổi sang {{ it.substitute.name }} {{ it.substitute.variantName }} ({{ it.substitute.unitPrice | vnd }})</span>
+          }
+          @if (it.fulfillStatus === 'DA_HOAN_TIEN') {
+            <span class="sp-status sp-status--DA_HUY">Đã hoàn tiền, bỏ khỏi đơn</span>
+          }
+          <!-- Nút theo dòng của chủ đơn đã giao (S9): đánh giá (UC-TRK-03), bảo hành (UC-TRK-05) -->
+          @if (itemActions && delivered && it.fulfillStatus !== 'DA_HOAN_TIEN') {
+            <div class="sp-ov__acts">
+              @if (!it.reviewed) {
+                <button class="btn btn-sm btn-outline-primary" type="button" (click)="review.emit(it._id)"><app-icon name="star-line" [size]="16" /> Đánh giá</button>
+              } @else if (it.review) {
+                <button class="btn btn-sm btn-link px-0" type="button" (click)="review.emit(it._id)">
+                  <app-icon name="star" [size]="16" /> {{ it.review.editable ? 'Sửa đánh giá' : 'Đã đánh giá ' + it.review.rating + ' sao' }}
+                </button>
+              } @else {
+                <span class="sp-ov__done"><app-icon name="check" [size]="16" /> Đã đánh giá</span>
+              }
+              @if (it.warranty?.allowed) {
+                <button class="btn btn-sm btn-link px-0" type="button" (click)="warranty.emit(it._id)"><app-icon name="shield" [size]="16" /> Yêu cầu bảo hành</button>
+              } @else if (it.warranty?.months && it.warranty?.until) {
+                <small class="text-body-secondary">{{ it.warranty?.open ? 'Đang bảo hành' : it.warranty?.expired ? 'Hết hạn bảo hành' : '' }}</small>
+              }
+            </div>
+          }
+        </div>
+        <span class="sp-ov__ip"><strong>{{ it.unitPrice | vnd }}</strong><span>x{{ it.quantity }}</span></span>
+      </div>
+    }
+    @if (o.giftWrap) {
+      <div class="sp-ov__gift"><app-icon name="gift" [size]="18" /> Gói quà: {{ o.giftWrap.name }}{{ o.giftWrap.message ? ' | Thiệp: "' + o.giftWrap.message + '"' : '' }}</div>
+    }
+  </section>
+
+  <div class="sp-ov__col">
+    <section class="sp-ov__panel" aria-label="Thanh toán">
+      <h2><app-icon name="ticket" [size]="20" /> Thanh toán</h2>
+      <div class="sp-ov__rows">
+        <div class="sp-ov__row"><span>Tạm tính ({{ itemQuantity }} sản phẩm)</span><strong>{{ o.subtotal | vnd }}</strong></div>
+        @if (o.personalizationFee) {
+          <div class="sp-ov__row"><span>Phí cá nhân hóa</span><strong>{{ o.personalizationFee | vnd }}</strong></div>
+        }
+        @if (o.giftWrapFee) {
+          <div class="sp-ov__row"><span>Gói quà</span><strong>{{ o.giftWrapFee | vnd }}</strong></div>
+        }
+        <div class="sp-ov__row"><span>Phí vận chuyển</span><strong>{{ o.shippingFee | vnd }}</strong></div>
+        @if (o.urgentFee) {
+          <div class="sp-ov__row"><span>Phụ phí giao gấp</span><strong>{{ o.urgentFee | vnd }}</strong></div>
+        }
+        @for (v of o.vouchers; track v.code) {
+          <div class="sp-ov__row is-minus"><span>Mã {{ v.code }}</span><strong>-{{ v.discount | vnd }}</strong></div>
+        }
+        <div class="sp-ov__row is-total"><span>Tổng đơn</span><strong>{{ o.total | vnd }}</strong></div>
+        @if (onlinePaid > 0) {
+          <div class="sp-ov__row is-paid">
+            <span>{{ paidLabel }}<small>Thanh toán online</small></span>
+            <strong>{{ onlinePaid | vnd }}</strong>
+          </div>
+        }
+        @if (o.codPaid) {
+          <div class="sp-ov__row is-paid">
+            <span>Đã trả khi nhận hàng<small>COD</small></span>
+            <strong>{{ o.codPaid | vnd }}</strong>
+          </div>
+        }
+        @if (o.refund) {
+          <div class="sp-ov__row" [class.is-paid]="o.refund.status === 'DA_HOAN'">
+            <span>
+              @if (o.refund.method === 'VOUCHER') {
+                Đã hoàn bằng voucher
+                <small>{{ o.refund.voucherCode }} trong Ưu đãi của tôi</small>
+              } @else {
+                {{ o.refund.status === 'DA_HOAN' ? 'Đã hoàn tiền' : o.refund.status === 'THAT_BAI' ? 'Hoàn tiền chưa thành công' : 'Đang hoàn tiền' }}
+                <small>{{ o.refund.bankName }} {{ o.refund.account }}</small>
+              }
+            </span>
+            <strong>-{{ o.refund.amount | vnd }}</strong>
+          </div>
+        }
+        @if (remainingDue > 0) {
+          <div class="sp-ov__row">
+            <span>{{ o.paidAmount > 0 ? 'Còn lại trả khi nhận hàng' : 'Thanh toán khi nhận hàng' }}<small>COD</small></span>
+            <strong>{{ remainingDue | vnd }}</strong>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="sp-ov__panel" aria-label="Giao hàng">
+      <h2>
+        <app-icon name="map-pin" [size]="20" /> Giao hàng
+        @if (o.actions?.editShipping) {
+          <button class="sp-ov__switch" type="button" (click)="editShipping.emit()">Sửa</button>
+        }
+      </h2>
+      <div class="sp-ov__ship">
+        <strong>{{ o.shippingAddress.recipientName }} | {{ o.shippingAddress.phone }}</strong>
+        <span>{{ o.shippingAddress.street }}, {{ o.shippingAddress.ward }}, {{ o.shippingAddress.province }}</span>
+        <span class="text-body-secondary">{{ o.recipientType === 'OTHER' ? 'Giao cho người nhận' : 'Giao cho tôi' }}</span>
+        @if (o.shippingAddress.deliveryDate) {
+          <span><app-icon name="calendar" [size]="16" /> Ngày giao {{ o.shippingAddress.deliveryDate | date: 'dd/MM/yyyy' }} | {{ o.shippingAddress.deliveryWindow }}</span>
+        }
+        @if (o.trackingCode) {
+          <span class="sp-ov__carrier"><app-icon name="truck" [size]="16" /> {{ carrier[o.carrier || 'KHAC'] || o.carrier }} - Mã vận đơn {{ o.trackingCode }}</span>
+        }
+        @if (o.shippingAddress.noteForShipper) {
+          <span class="sp-ov__note"><app-icon name="chat" [size]="16" /> Ghi chú cho shipper: {{ o.shippingAddress.noteForShipper }}</span>
+        }
+        @if (o.noteForShop) {
+          <span class="sp-ov__note"><app-icon name="edit" [size]="16" /> Ghi chú cho cửa hàng: {{ o.noteForShop }}</span>
+        }
+      </div>
+    </section>
+  </div>
+</div>

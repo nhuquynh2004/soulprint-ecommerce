@@ -1,0 +1,70 @@
+<app-dialog [title]="'Hủy đơn ' + code + '?'" [subtitle]="order() ? 'Đơn đang ' + statusLabel[order()!.orderStatus].toLowerCase() : ''" (closed)="closed.emit()">
+  @if (loadError()) {
+    <p class="text-danger m-0" role="alert">{{ loadError() }}</p>
+  } @else if (!order()) {
+    <span class="sp-skel" style="height: 220px"></span>
+  } @else {
+    @let o = order()!;
+    <!-- Tiêu đề đã có mã đơn nên chỉ giữ tổng tiền, không lặp mã đơn và tên sản phẩm -->
+    <div class="sp-cd__sum">
+      <span>Tổng đơn</span>
+      <strong>{{ o.total | vnd }}</strong>
+    </div>
+
+    <fieldset class="sp-cd__reasons">
+      <legend>Lý do hủy <span class="text-danger">*</span></legend>
+      @for (r of reasons(); track r.key) {
+        <label class="sp-cd__reason" [class.is-on]="reason === r.key">
+          <input class="form-check-input" type="radio" name="cancel-reason" [value]="r.key" [ngModel]="reason" (ngModelChange)="pickReason($event)" />
+          {{ r.label }}
+        </label>
+      }
+      @if (reason === 'KHAC') {
+        <textarea class="form-control mt-2" rows="2" maxlength="300" [(ngModel)]="detail" placeholder="Cho Soulprint biết lý do nhé" aria-label="Lý do khác"></textarea>
+      }
+      @if (fieldErrors()['reason'] || fieldErrors()['detail']) {
+        <div class="invalid-feedback d-block">{{ fieldErrors()['reason'] || fieldErrors()['detail'] }}</div>
+      }
+    </fieldset>
+
+    @if (editOffer(); as kind) {
+      <!-- UC-CNL-02 3b: sửa đơn thay vì hủy rồi đặt lại -->
+      <div class="sp-cd__refund sp-cd__offer">
+        <app-icon name="edit" [size]="20" />
+        <span>
+          <strong>Bạn có thể sửa đơn mà không cần hủy.</strong>
+          {{ kind === 'personalization' ? 'Đổi nội dung in/khắc, sticker, lời nhắn ngay trên đơn này.' : 'Đổi địa chỉ, người nhận, ngày và giờ nhận ngay trên đơn này.' }}
+          <button class="btn btn-link btn-sm p-0 d-block" type="button" (click)="forceCancel.set(true)">Vẫn muốn hủy đơn</button>
+        </span>
+      </div>
+    } @else if (needsAccount()) {
+      <div class="sp-cd__refund">
+        <app-icon name="info" [size]="20" />
+        <span>
+          {{ hasPersonalized() ? 'Đơn chưa bắt đầu cá nhân hóa nên được hoàn' : 'Đơn được hoàn' }}
+          <strong>100% số tiền đã thanh toán ({{ o.cancelRefundAmount | vnd }})</strong>.
+        </span>
+      </div>
+
+      <div class="sp-cd__acc">
+        <strong>Tài khoản nhận tiền hoàn</strong>
+        <app-refund-account [saved]="o.refundAccount" [fieldErrors]="fieldErrors()" [touchAll]="accountTouched()" (changed)="account.set($event)" />
+      </div>
+    }
+
+    @if (error()) {
+      <p class="text-danger mb-0 mt-2" role="alert">{{ error() }}</p>
+    }
+  }
+
+  <div dialog-footer class="sp-cd__foot">
+    <button class="btn btn-outline-primary" type="button" (click)="closed.emit()">Giữ đơn</button>
+    @if (editOffer(); as kind) {
+      <button class="btn btn-primary" type="button" (click)="edit.emit(kind)">Sửa đơn</button>
+    } @else {
+      <button class="btn btn-danger" type="button" [disabled]="sending()" (click)="submit()">
+        {{ sending() ? 'Đang hủy...' : 'Xác nhận hủy đơn' }}
+      </button>
+    }
+  </div>
+</app-dialog>

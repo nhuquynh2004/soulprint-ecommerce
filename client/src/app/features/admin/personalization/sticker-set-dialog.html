@@ -1,0 +1,138 @@
+<app-dialog [title]="set && !duplicate ? 'Sửa nhóm sticker' : 'Thêm nhóm sticker'" size="lg" (closed)="done.emit(false)">
+  <form [formGroup]="form" (ngSubmit)="save()" id="stk-form" novalidate class="sp-pdlg">
+    @if (error()) {
+      <div class="sp-alert sp-alert--danger" role="alert"><app-icon name="alert-circle" [size]="20" /><p>{{ error() }}</p></div>
+    }
+
+    <div class="sp-pdlg__grid">
+      <div class="sp-pdlg__full">
+        <label class="form-label" for="s-name">Tên bộ <span class="text-danger">*</span></label>
+        <input id="s-name" class="form-control" formControlName="name" maxlength="60" [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid" />
+        <div class="invalid-feedback">Tên bộ sticker cần 2-60 ký tự</div>
+      </div>
+
+      <div class="sp-pdlg__full">
+        <span class="form-label d-block">Loại</span>
+        <div class="sp-seg">
+          <button type="button" [class.is-on]="form.controls.kind.value === 'THUONG'" (click)="form.controls.kind.setValue('THUONG')">Theo loại sản phẩm</button>
+          <button type="button" [class.is-on]="form.controls.kind.value === 'BST_MUA'" (click)="form.controls.kind.setValue('BST_MUA')">Theo BST/mùa</button>
+        </div>
+      </div>
+
+      @if (form.controls.kind.value === 'BST_MUA') {
+        <div>
+          <label class="form-label" for="s-season">Tên BST/mùa hiển thị <span class="text-danger">*</span></label>
+          <input id="s-season" class="form-control" formControlName="seasonLabel" maxlength="60" placeholder="VD Halloween 2026" [class.is-invalid]="form.touched && form.errors?.['seasonLabel']" />
+          @if (form.touched && form.errors?.['seasonLabel']) {
+            <div class="invalid-feedback d-block">{{ form.errors?.['seasonLabel'] }}</div>
+          }
+        </div>
+        <div>
+          <label class="form-label" for="s-badge">Nhãn</label>
+          <select id="s-badge" class="form-select" formControlName="badge">
+            <option value="">Không có</option>
+            <option value="HOT">Hot</option>
+            <option value="MOI">Mới</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label" for="s-col">Liên kết bộ sưu tập</label>
+          <select id="s-col" class="form-select" formControlName="collectionId">
+            <option value="">Không liên kết</option>
+            @for (c of collections; track c._id) {
+              <option [value]="c._id">{{ c.name }}</option>
+            }
+          </select>
+        </div>
+        <div formGroupName="time" class="sp-pdlg__dates">
+          <div>
+            <label class="form-label" for="s-start">Bắt đầu <span class="text-danger">*</span></label>
+            <input id="s-start" class="form-control" type="datetime-local" formControlName="startAt" />
+          </div>
+          <div>
+            <label class="form-label" for="s-end">Kết thúc <span class="text-danger">*</span></label>
+            <input id="s-end" class="form-control" type="datetime-local" formControlName="endAt" [class.is-invalid]="form.controls.time.errors?.['dateRange']" />
+          </div>
+          @if (form.controls.time.errors?.['dateRange']; as e) {
+            <div class="invalid-feedback d-block sp-pdlg__full">{{ e }}</div>
+          } @else if (form.touched && form.errors?.['time']) {
+            <div class="invalid-feedback d-block sp-pdlg__full">{{ form.errors?.['time'] }}</div>
+          }
+        </div>
+      }
+
+      <div class="sp-pdlg__full">
+        <span class="form-label d-block">Phạm vi áp dụng <small class="text-body-secondary">(để trống = mọi sản phẩm cho phép Thiết kế)</small></span>
+        <div class="d-flex flex-wrap gap-2 mb-2">
+          @for (a of axes; track a.value) {
+            <button type="button" class="sp-chip sp-chip--sm" [class.is-on]="form.controls.axes.value.includes(a.value)" (click)="toggleIn('axes', a.value)">{{ a.label }}</button>
+          }
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          @for (c of categories; track c._id) {
+            <button type="button" class="sp-chip sp-chip--sm" [class.is-on]="form.controls.categoryIds.value.includes(c._id)" (click)="toggleIn('categoryIds', c._id)">{{ c.name }}</button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <section class="sp-pdlg__stickers" aria-label="Danh sách sticker">
+      <div class="d-flex justify-content-between align-items-center">
+        <strong>Sticker ({{ stickers.length }})</strong>
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="addSticker()"><app-icon name="plus" [size]="16" /> Thêm sticker</button>
+      </div>
+      <p class="small text-body-secondary m-0">Tải ảnh PNG nền trong. Mã để trống thì tự sinh. Kéo tay nắm để đổi thứ tự khách thấy.</p>
+      <div formArrayName="stickers" class="sp-pdlg__rows">
+        @for (row of stickers.controls; track row; let i = $index) {
+          <div class="sp-pdlg__row" [formGroupName]="i" draggable="true" (dragstart)="onDragStart(i)" (dragover)="$event.preventDefault()" (drop)="onDrop(i, $event)">
+            <span class="sp-grip" title="Kéo để đổi thứ tự"><app-icon name="grip" [size]="18" /></span>
+            <app-image-picker [images]="stickerImage(i) ? [stickerImage(i)] : []" [max]="1" [compact]="true" label="Ảnh" (imagesChange)="setImage(i, $event)" />
+            <input class="form-control form-control-sm" formControlName="name" placeholder="Tên sticker" aria-label="Tên sticker" maxlength="40" [class.is-invalid]="row.get('name')?.touched && row.get('name')?.invalid" />
+            <input class="form-control form-control-sm sp-mono text-uppercase" formControlName="code" placeholder="Mã tự sinh" aria-label="Mã sticker" maxlength="20" [class.is-invalid]="!!codeError(i)" (input)="clearCodeError(i)" />
+            <div class="form-check form-switch m-0" title="Hiện sticker">
+              <input class="form-check-input" type="checkbox" role="switch" formControlName="isActive" aria-label="Hiện sticker" />
+            </div>
+            <button type="button" class="btn btn-link btn-sm text-danger" aria-label="Bỏ sticker" (click)="removeSticker(i)"><app-icon name="trash" [size]="18" /></button>
+            @if (row.get('image')?.touched && row.get('image')?.invalid) {
+              <span class="sp-pdlg__rowerr">Tải ảnh cho sticker</span>
+            }
+            @if (codeError(i); as e) {
+              <span class="sp-pdlg__rowerr">{{ e }}</span>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Xem trước như khách thấy ở SCR-04 -->
+    <section class="sp-pdlg__preview" aria-label="Xem trước">
+      <span class="small text-body-secondary">Xem trước ở hộp thoại cá nhân hóa | {{ stickerFee | vnd }}/sticker</span>
+      <div class="sp-pdlg__phead">
+        @if (form.controls.kind.value === 'BST_MUA') {
+          <span class="k">Mùa</span> {{ form.controls.seasonLabel.value || 'Tên BST/mùa' }}
+          @if (form.controls.badge.value) {
+            <span class="sp-badge" [class.sp-badge--hot]="form.controls.badge.value === 'HOT'" [class.sp-badge--new]="form.controls.badge.value === 'MOI'">{{ form.controls.badge.value === 'HOT' ? 'Hot' : 'Mới' }}</span>
+          }
+        } @else {
+          {{ form.controls.name.value || 'Tên bộ' }}
+        }
+      </div>
+      <div class="sp-pdlg__pgrid">
+        @for (row of stickers.controls; track row; let i = $index) {
+          @if (row.get('isActive')?.value && stickerImage(i)) {
+            <span><img [src]="stickerImage(i)" alt="" />{{ row.get('name')?.value }}</span>
+          }
+        }
+      </div>
+    </section>
+
+    <div class="form-check form-switch">
+      <input id="s-active" class="form-check-input" type="checkbox" role="switch" formControlName="isActive" />
+      <label class="form-check-label" for="s-active">Hiện bộ sticker cho khách</label>
+    </div>
+  </form>
+  <div dialog-footer class="d-flex justify-content-end gap-2">
+    <button class="btn btn-outline-secondary" type="button" (click)="done.emit(false)">Hủy</button>
+    <button class="btn btn-primary" type="submit" form="stk-form" [disabled]="saving()">Lưu</button>
+  </div>
+</app-dialog>

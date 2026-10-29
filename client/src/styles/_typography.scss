@@ -1,0 +1,38 @@
+// Thang chữ (design-tokens.md Mục 3). Display, H1, H2 dùng font hiển thị; H3, H4 dùng font thân.
+// Dưới md (768px) dùng cỡ Mobile.
+
+body {
+  font-family: var(--sp-font-body);
+}
+
+h1, .h1, h2, .h2, .display-1 {
+  font-family: var(--sp-font-display);
+  font-weight: 700;
+}
+
+// Thu nhỏ một bậc để trang vừa màn hình laptop (1280-1366px, Windows phóng 125-150%)
+.display-1 { font-size: 48px; line-height: 56px; }
+h1, .h1 { font-size: 32px; line-height: 40px; }
+h2, .h2 { font-size: 26px; line-height: 34px; }
+h3, .h3 { font-size: 20px; line-height: 28px; font-weight: 700; }
+h4, .h4 { font-size: 18px; line-height: 26px; font-weight: 600; }
+
+.text-body-sm { font-size: 14px; line-height: 20px; }
+.text-caption { font-size: 12px; line-height: 16px; font-weight: 500; }
+.text-price { font-size: 18px; line-height: 28px; font-weight: 700; }
+.text-price-lg { font-size: 28px; line-height: 36px; font-weight: 700; }
+
+@media (max-width: 767.98px) {
+  .display-1 { font-size: 34px; line-height: 42px; }
+  h1, .h1 { font-size: 26px; line-height: 34px; }
+  h2, .h2 { font-size: 22px; line-height: 30px; }
+  h3, .h3 { font-size: 18px; line-height: 26px; }
+  h4, .h4 { font-size: 17px; line-height: 24px; }
+  .text-price-lg { font-size: 24px; line-height: 32px; }
+}
+
+// Ô nhập luôn 16px để iOS không tự phóng to
+.form-control,
+.form-select {
+  font-size: 16px;
+}

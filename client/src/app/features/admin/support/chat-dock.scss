@@ -1,0 +1,159 @@
+// Danh sách hội thoại thả xuống dưới thanh đầu, các cửa sổ chat xếp ngang ở góc dưới phải
+.sp-cdl {
+  position: fixed;
+  top: 64px;
+  right: 16px;
+  z-index: 1060;
+  display: flex;
+  flex-direction: column;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 88px);
+  overflow-y: auto;
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-lg);
+}
+
+.sp-cdl__head {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--sp-color-border);
+  background: var(--sp-color-surface);
+}
+
+.sp-cdl__group {
+  margin: 10px 14px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sp-color-text-subtle);
+}
+
+.sp-cdl__note {
+  margin: 10px 14px;
+  font-size: 13px;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-cdl__item {
+  display: flex;
+  gap: 10px;
+  margin: 0 6px;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--sp-radius-md);
+  background: none;
+  color: var(--sp-color-text);
+  text-align: left;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--sp-color-primary-subtle);
+  }
+
+  &.is-unread strong,
+  &.is-unread .sp-cdl__last {
+    font-weight: 700;
+    color: var(--sp-color-text);
+  }
+}
+
+.sp-cdl__av {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--sp-color-primary-subtle);
+  color: var(--sp-color-primary);
+  font-weight: 700;
+}
+
+.sp-cdl__txt {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.sp-cdl__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+
+  strong {
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  time {
+    flex: none;
+    font-size: 11px;
+    color: var(--sp-color-text-subtle);
+  }
+}
+
+.sp-cdl__last {
+  overflow: hidden;
+  color: var(--sp-color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-cdl__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+
+  span {
+    padding: 0 6px;
+    border-radius: var(--sp-radius-pill);
+    background: var(--sp-color-surface-alt);
+    font-size: 11px;
+    line-height: 18px;
+  }
+
+  .is-urgent {
+    background: var(--sp-color-danger-subtle);
+    color: var(--sp-color-danger);
+  }
+}
+
+.sp-cdw {
+  position: fixed;
+  right: 88px;
+  bottom: 0;
+  z-index: 1055;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+
+  // Màn hẹp: chỉ cửa sổ mới nhất, phủ gần hết bề ngang
+  @media (max-width: 767.98px) {
+    right: 8px;
+    left: 8px;
+
+    app-chat-window:not(:last-child) {
+      display: none;
+    }
+  }
+}

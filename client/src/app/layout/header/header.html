@@ -1,0 +1,322 @@
+<header class="sp-header sticky-top">
+  <nav class="navbar navbar-expand-md container" aria-label="Điều hướng chính">
+    <button
+      class="btn sp-icon-btn d-md-none"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#sp-drawer"
+      aria-controls="sp-drawer"
+      aria-label="Mở menu"
+    >
+      <app-icon name="menu" />
+    </button>
+
+    <a class="navbar-brand sp-brand" routerLink="/">
+      <img src="/assets/brand/soulprint-mark.png" alt="" width="36" height="36" />
+      <span>Soulprint</span>
+    </a>
+
+    <!-- Ô tìm kiếm có hộp gợi ý (UC-DIS-03) -->
+    <form class="sp-search d-none d-md-flex" role="search" (submit)="$event.preventDefault(); search(keyword)">
+      <input
+        class="form-control"
+        type="search"
+        name="q"
+        placeholder="Tìm quà cho chàng..."
+        aria-label="Tìm kiếm sản phẩm"
+        autocomplete="off"
+        role="combobox"
+        aria-controls="sp-suggest"
+        [attr.aria-expanded]="open()"
+        [(ngModel)]="keyword"
+        (ngModelChange)="onType($event)"
+        (focus)="open.set(true)"
+        (blur)="onBlur()"
+        (keydown.escape)="open.set(false)"
+      />
+      <!-- Nút tìm xanh gắn liền ô tìm (.sp-search__go) -->
+      <button class="sp-search__go" type="submit" aria-label="Tìm kiếm"><app-icon name="search" [size]="20" /></button>
+      @if (open()) {
+        <div class="sp-suggest" id="sp-suggest" role="listbox">
+          @if (keyword.trim().length < 2) {
+            @if (recent.items().length) {
+              <div class="sp-suggest__head">
+                <p class="sp-suggest__title">Tìm kiếm gần đây</p>
+                <button class="btn btn-link btn-sm p-0" type="button" (mousedown)="$event.preventDefault()" (click)="recent.clear()">Xóa</button>
+              </div>
+              @for (q of recent.items(); track q) {
+                <button class="sp-suggest__item" type="button" role="option" (mousedown)="$event.preventDefault()" (click)="pickPopular(q)">
+                  <span class="sp-suggest__ic"><app-icon name="clock" [size]="18" /></span>
+                  <span>{{ q }}</span>
+                </button>
+              }
+            }
+            <p class="sp-suggest__title">Tìm kiếm phổ biến</p>
+            <div class="sp-suggest__chips">
+              @for (text of popular; track text) {
+                <button class="sp-chip sp-chip--sm" type="button" (mousedown)="$event.preventDefault()" (click)="pickPopular(text)">{{ text }}</button>
+              }
+            </div>
+          } @else if (suggestions().length) {
+            @for (s of suggestions(); track s.type + s.slug) {
+              <button class="sp-suggest__item" type="button" role="option" (mousedown)="$event.preventDefault()" (click)="pick(s)">
+                @if (s.type === 'product' && s.image) {
+                  <img [src]="s.image" alt="" />
+                } @else {
+                  <span class="sp-suggest__ic"><app-icon [name]="s.type === 'category' ? 'grid' : 'search'" [size]="18" /></span>
+                }
+                <span>{{ s.label }}</span>
+                <span class="sp-suggest__type">{{ s.type === 'category' ? 'Danh mục' : 'Sản phẩm' }}</span>
+              </button>
+            }
+            <button class="sp-suggest__all" type="submit">Xem tất cả kết quả cho "{{ keyword.trim() }}"</button>
+          } @else {
+            <button class="sp-suggest__all" type="submit">Tìm "{{ keyword.trim() }}"</button>
+          }
+        </div>
+      }
+    </form>
+
+    <ul class="navbar-nav d-none d-xl-flex ms-3">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="$event.preventDefault(); loadAxisCounts()">
+          Danh mục
+        </a>
+        <div class="dropdown-menu sp-mega">
+          <div class="sp-mega__cats">
+            <p class="sp-mega__title">Theo nhu cầu</p>
+            @for (c of categories(); track c._id) {
+              <a class="dropdown-item sp-mega__item" [routerLink]="['/danh-muc', c.slug]">
+                <span class="sp-mega__ic"><app-icon [name]="categoryIcons[c.slug] || 'gift'" [size]="22" /></span>
+                <span>
+                  <strong>{{ c.name }}</strong>
+                  <span class="m">{{ c.productCount }} sản phẩm</span>
+                </span>
+              </a>
+            }
+          </div>
+          <div class="sp-mega__axes">
+            <p class="sp-mega__title">Theo đam mê</p>
+            @for (a of axes; track a.slug) {
+              <a class="dropdown-item sp-mega__item" [routerLink]="['/san-pham']" [queryParams]="{ axis: a.slug }">
+                <span class="sp-mega__ic" [class]="'is-' + a.css"><app-icon [name]="a.icon" [size]="22" /></span>
+                <span>
+                  <strong>{{ a.name }}</strong>
+                  @if (axisCounts()[a.slug] !== undefined) {
+                    <span class="m">{{ axisCounts()[a.slug] }} sản phẩm</span>
+                  }
+                </span>
+              </a>
+            }
+            <a class="dropdown-item sp-mega__all" routerLink="/san-pham">Xem tất cả sản phẩm</a>
+          </div>
+        </div>
+      </li>
+      <li class="nav-item dropdown sp-navhover">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="$event.preventDefault()">
+          Bộ sưu tập
+        </a>
+        <div class="dropdown-menu sp-colmenu">
+          @for (c of collections(); track c._id) {
+            <a class="dropdown-item sp-colmenu__item" [routerLink]="['/bo-suu-tap', c.slug]">
+              @if (c.coverImage) {
+                <img [src]="c.coverImage" alt="" />
+              } @else {
+                <span class="sp-mega__ic"><app-icon name="gift" [size]="20" /></span>
+              }
+              <span>
+                <strong>{{ c.name }}</strong>
+                <span class="m">{{ c.productCount }} sản phẩm</span>
+              </span>
+            </a>
+          } @empty {
+            <span class="dropdown-item-text text-body-secondary">Chưa có bộ sưu tập đang mở</span>
+          }
+        </div>
+      </li>
+    </ul>
+
+    <div class="sp-actions ms-auto">
+      <!-- Nút chính cỡ nhỏ màu primary (accent chỉ cho nhãn Mới, Thêm gói quà, nút Sâu Béo) -->
+      <a class="btn btn-primary btn-sm d-none d-lg-inline-flex" routerLink="/tu-van-qua">
+        <app-icon name="sparkle" [size]="16" /> Tìm quà cùng AI
+      </a>
+      <a class="btn sp-icon-btn d-md-none" routerLink="/tim-kiem" aria-label="Tìm kiếm">
+        <app-icon name="search" />
+      </a>
+      <a class="btn sp-icon-btn d-none d-md-inline-flex" routerLink="/tai-khoan/yeu-thich" aria-label="Yêu thích">
+        <app-icon name="heart" />
+      </a>
+      <!-- Khách chưa đăng nhập vào Tra cứu đơn hàng ngay trên header (trước đây chỉ ở menu Mobile, chân trang) -->
+      @if (!auth.currentUser()) {
+        <a class="btn sp-icon-btn sp-lookup d-none d-md-inline-flex" routerLink="/tra-cuu-don" aria-label="Tra cứu đơn hàng" title="Tra cứu đơn hàng">
+          <app-icon name="package" /><span class="d-none d-xxl-inline text-nowrap">Tra cứu đơn</span>
+        </a>
+      }
+      <!-- Chuông thông báo của Member: số chưa đọc, 5 thông báo mới nhất -->
+      @if (auth.currentUser()?.role === 'member') {
+        <div class="sp-bell">
+          <button class="btn sp-icon-btn sp-cartbtn" type="button" [attr.aria-label]="'Thông báo' + (notice.unread() ? ', ' + notice.unread() + ' chưa đọc' : '')" [attr.aria-expanded]="bellOpen()" aria-haspopup="menu" (click)="toggleBell()">
+            <app-icon name="bell" />
+            @if (notice.unread()) {
+              <span class="sp-cartbtn__n" aria-hidden="true">{{ notice.unread() > 99 ? '99+' : notice.unread() }}</span>
+            }
+          </button>
+          @if (bellOpen()) {
+            <div class="sp-bell__list" role="menu">
+              <div class="sp-bell__head">
+                <strong>Thông báo</strong>
+                @if (notice.unread()) {
+                  <button class="btn btn-link btn-sm p-0" type="button" (click)="notice.markAllRead()">Đọc hết</button>
+                }
+              </div>
+              @for (n of notice.latest(); track n._id) {
+                <button role="menuitem" type="button" class="sp-bell__item" [class.is-unread]="!n.readAt" (click)="openNotice(n)">
+                  <strong>{{ n.title }}</strong>
+                  <span>{{ n.body }}</span>
+                  <small>{{ n.createdAt | date: 'HH:mm dd/MM' }}</small>
+                </button>
+              } @empty {
+                <p class="sp-bell__empty">Chưa có thông báo nào</p>
+              }
+              <a class="sp-bell__all" routerLink="/tai-khoan/thong-bao" (click)="bellOpen.set(false)">Xem tất cả</a>
+            </div>
+          }
+        </div>
+      }
+      @if (auth.currentUser(); as u) {
+        <a class="btn sp-icon-btn d-md-none" routerLink="/tai-khoan" [attr.aria-label]="'Tài khoản ' + u.shortName">
+          <span class="sp-avatar sp-avatar--sm">{{ u.initials }}</span>
+        </a>
+      }
+      <a class="btn sp-icon-btn sp-cartbtn" routerLink="/gio-hang" [attr.aria-label]="'Giỏ hàng, ' + cart.count() + ' sản phẩm'">
+        <app-icon name="cart" />
+        @if (cart.count()) {
+          <span class="sp-cartbtn__n" aria-hidden="true">{{ cart.count() > 99 ? '99+' : cart.count() }}</span>
+        }
+      </a>
+      <!-- Công tắc Sáng/Tối 2 nút (.sp-theme-toggle) -->
+      <div class="sp-theme-toggle d-none d-md-inline-flex" role="group" aria-label="Chế độ hiển thị">
+        <button type="button" [class.is-on]="theme.mode() !== 'dark'" [attr.aria-pressed]="theme.mode() !== 'dark'" aria-label="Chế độ Sáng" (click)="theme.mode() === 'dark' && theme.toggle()">
+          <app-icon name="sun" [size]="20" />
+        </button>
+        <button type="button" [class.is-on]="theme.mode() === 'dark'" [attr.aria-pressed]="theme.mode() === 'dark'" aria-label="Chế độ Tối" (click)="theme.mode() !== 'dark' && theme.toggle()">
+          <app-icon name="moon" [size]="20" />
+        </button>
+      </div>
+      @if (auth.currentUser(); as u) {
+        <div class="sp-usermenu d-none d-md-block">
+          <button class="btn sp-userbtn" type="button" [attr.aria-label]="'Tài khoản ' + u.shortName" (click)="userMenu.set(!userMenu())" [attr.aria-expanded]="userMenu()" aria-haspopup="menu">
+            <span class="sp-avatar">{{ u.initials }}</span>
+            <span class="d-none d-xxl-inline">{{ u.shortName }}</span>
+          </button>
+          @if (userMenu()) {
+            <div class="sp-usermenu__list" role="menu" (click)="userMenu.set(false)">
+              <a role="menuitem" routerLink="/tai-khoan/thong-tin"><app-icon name="user" [size]="18" /> Tài khoản</a>
+              <a role="menuitem" routerLink="/tai-khoan/don-hang"><app-icon name="package" [size]="18" /> Đơn hàng của tôi</a>
+              <a role="menuitem" routerLink="/tai-khoan/dia-chi"><app-icon name="map-pin" [size]="18" /> Sổ địa chỉ</a>
+              <button role="menuitem" type="button" (click)="logout()"><app-icon name="logout" [size]="18" /> Đăng xuất</button>
+            </div>
+          }
+        </div>
+      } @else {
+        <a class="btn btn-outline-primary d-none d-md-inline-flex" routerLink="/dang-nhap">Đăng nhập</a>
+      }
+    </div>
+  </nav>
+</header>
+
+<!-- Hộp thông báo nổi bật (VD voucher xin lỗi khi đơn không thể thực hiện), hiện 1 lần -->
+@if (notice.highlight(); as h) {
+  <app-dialog [title]="h.title" size="sm" (closed)="notice.closeHighlight()">
+    <div class="text-center">
+      <span class="sp-hl__ic" aria-hidden="true"><app-icon name="ticket" [size]="32" /></span>
+      <p class="mb-0">{{ h.body }}</p>
+    </div>
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-primary" type="button" (click)="notice.closeHighlight()">Đóng</button>
+      @if (h.link) {
+        <button class="btn btn-primary" type="button" (click)="openHighlight(h.link)">Xem ưu đãi</button>
+      }
+    </div>
+  </app-dialog>
+}
+
+<!-- Thẻ nổi góc màn hình khi có thông báo mới hoặc nhân viên nhắn tin lúc khung chat đang đóng -->
+@if (notice.popups().length) {
+  <div class="sp-npop" aria-live="polite">
+    @for (p of notice.popups(); track p.id) {
+      <div class="sp-npop__card" role="status">
+        <span class="sp-npop__ic"><app-icon [name]="p.kind === 'chat' ? 'chat' : 'bell'" [size]="20" /></span>
+        <div class="sp-npop__txt">
+          <strong>{{ p.title }}</strong>
+          <span>{{ p.body }}</span>
+        </div>
+        <div class="sp-npop__acts">
+          <button class="btn btn-sm btn-primary" type="button" (click)="openPopup(p)">Xem</button>
+          <button class="btn btn-sm sp-icon-btn" type="button" aria-label="Đóng" (click)="notice.dismiss(p.id)"><app-icon name="close" [size]="16" /></button>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- Ngăn kéo Mobile: menu, nút AI, yêu thích, đăng nhập, chế độ Sáng/Tối -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sp-drawer" aria-labelledby="sp-drawer-title">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title h4 d-flex align-items-center gap-2" id="sp-drawer-title">
+      @if (auth.currentUser(); as u) {
+        <span class="sp-avatar sp-avatar--sm">{{ u.initials }}</span>
+      }
+      Soulprint
+    </h2>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Đóng menu"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column gap-3">
+    <form class="sp-field__icon sp-drawer-search" role="search" (submit)="$event.preventDefault(); search(qm.value)">
+      <app-icon name="search" [size]="20" />
+      <input #qm class="form-control" type="search" placeholder="Tìm quà cho chàng..." aria-label="Tìm kiếm sản phẩm" />
+    </form>
+    <a class="btn btn-accent" routerLink="/tu-van-qua" data-bs-dismiss="offcanvas">
+      <app-icon name="sparkle" [size]="20" /> Tìm quà cùng AI
+    </a>
+    <nav class="list-group list-group-flush" aria-label="Danh mục">
+      @for (c of categories(); track c._id) {
+        <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" [routerLink]="['/danh-muc', c.slug]" data-bs-dismiss="offcanvas">
+          <app-icon [name]="categoryIcons[c.slug] || 'gift'" [size]="20" /> {{ c.name }}
+        </a>
+      }
+      @for (a of axes; track a.slug) {
+        <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" [routerLink]="['/san-pham']" [queryParams]="{ axis: a.slug }" data-bs-dismiss="offcanvas">
+          <app-icon [name]="a.icon" [size]="20" /> {{ a.name }}
+        </a>
+      }
+      @if (collections().length) {
+        <button class="list-group-item list-group-item-action d-flex align-items-center gap-2" type="button" [attr.aria-expanded]="drawerCollections()" (click)="drawerCollections.set(!drawerCollections())">
+          <app-icon name="grid" [size]="20" /> Bộ sưu tập
+          <app-icon class="ms-auto sp-drawer-caret" [class.is-open]="drawerCollections()" name="chevron-down" [size]="18" />
+        </button>
+        @if (drawerCollections()) {
+          @for (c of collections(); track c._id) {
+            <a class="list-group-item list-group-item-action sp-drawer-sub" [routerLink]="['/bo-suu-tap', c.slug]" data-bs-dismiss="offcanvas">{{ c.name }}</a>
+          }
+        }
+      }
+      <a class="list-group-item list-group-item-action" routerLink="/san-pham" data-bs-dismiss="offcanvas">Tất cả sản phẩm</a>
+      <a class="list-group-item list-group-item-action" routerLink="/tai-khoan/yeu-thich" data-bs-dismiss="offcanvas">Yêu thích</a>
+      <a class="list-group-item list-group-item-action" routerLink="/tra-cuu-don" data-bs-dismiss="offcanvas">Tra cứu đơn hàng</a>
+    </nav>
+    <button class="btn btn-outline-primary" type="button" (click)="theme.toggle()">
+      <app-icon [name]="theme.mode() === 'dark' ? 'sun' : 'moon'" [size]="20" />
+      {{ theme.mode() === 'dark' ? 'Chế độ Sáng' : 'Chế độ Tối' }}
+    </button>
+    @if (auth.currentUser(); as u) {
+      <a class="btn btn-primary" routerLink="/tai-khoan/thong-tin" data-bs-dismiss="offcanvas">
+        <app-icon name="user" [size]="20" /> Tài khoản của {{ u.shortName }}
+      </a>
+      <button class="btn btn-outline-danger" type="button" data-bs-dismiss="offcanvas" (click)="logout()">Đăng xuất</button>
+    } @else {
+      <a class="btn btn-primary" routerLink="/dang-nhap" data-bs-dismiss="offcanvas">Đăng nhập</a>
+    }
+  </div>
+</div>

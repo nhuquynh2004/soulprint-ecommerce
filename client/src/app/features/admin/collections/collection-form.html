@@ -1,0 +1,318 @@
+@if (loading()) {
+  <span class="sp-skel" style="height: 520px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <a class="btn btn-primary" routerLink="/quan-tri/bo-suu-tap">Về danh sách bộ sưu tập</a>
+  </div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="save(isShown() ? 'save' : 'publish')" novalidate>
+    <header class="sp-pf-head">
+      <a class="btn sp-pf-back" routerLink="/quan-tri/bo-suu-tap" aria-label="Về danh sách bộ sưu tập"><app-icon name="arrow-left" [size]="20" /></a>
+      <div class="sp-pf-title">
+        <h1>{{ form.controls.name.value || 'Bộ sưu tập mới' }}</h1>
+        @if (saved(); as s) {
+          <span class="sp-status" [class]="'sp-status sp-status--' + s.displayStatus">{{ statusLabel[s.displayStatus!] }}</span>
+        }
+        @if (hasUnsavedChanges()) {
+          <small class="text-body-secondary">Có thay đổi chưa lưu</small>
+        }
+      </div>
+      @if (canEdit()) {
+        <div class="sp-pf-actions">
+          @if (id()) {
+            <button class="btn btn-outline-secondary d-inline-flex align-items-center gap-1" type="button" (click)="openPreview()"><app-icon name="eye" [size]="18" /> Xem trước</button>
+          }
+          @if (!isShown()) {
+            <button class="btn btn-outline-secondary" type="button" [disabled]="saving()" (click)="save('draft')">Lưu nháp</button>
+          }
+          <button class="btn btn-primary" type="submit" [disabled]="saving()">{{ isShown() ? 'Lưu thay đổi' : 'Xuất bản' }}</button>
+          @if (menuItems().length) {
+            <app-row-menu [items]="menuItems()" label="Thao tác khác" (picked)="onMenu($event)" />
+          }
+        </div>
+      }
+    </header>
+
+    <div class="sp-pf-grid">
+      <div class="sp-pf-main">
+        <section class="sp-acard">
+          <h2>Thông tin chung</h2>
+          <div class="sp-cf-info">
+            <div class="sp-cf-cover">
+              <app-image-picker [images]="form.controls.coverImage.value ? [form.controls.coverImage.value] : []" [max]="1" label="Ảnh bìa" (imagesChange)="form.controls.coverImage.setValue($event[0] || ''); form.controls.coverImage.markAsDirty()" />
+            </div>
+            <div class="flex-grow-1">
+              <label class="form-label" for="cf-name">Tên bộ sưu tập <span class="text-danger">*</span></label>
+              <input id="cf-name" class="form-control mb-1" formControlName="name" maxlength="120" [class.is-invalid]="(form.controls.name.touched && form.controls.name.invalid) || fieldErrors()['name']" />
+              @if (form.controls.name.touched && form.controls.name.invalid) {
+                <div class="invalid-feedback d-block">Nhập tên bộ sưu tập (2-120 ký tự)</div>
+              }
+              <label class="form-label mt-2" for="cf-slug">Đường dẫn</label>
+              <div class="input-group mb-1">
+                <span class="input-group-text">/bo-suu-tap/</span>
+                <input id="cf-slug" class="form-control" formControlName="slug" maxlength="120" [class.is-invalid]="form.controls.slug.invalid || fieldErrors()['slug']" />
+              </div>
+              @if (fieldErrors()['slug']; as e) {
+                <div class="invalid-feedback d-block">{{ e }}</div>
+              }
+              <!-- Mã BST dùng trong SKU sản phẩm, chỉ BST chọn tay -->
+              @if (form.controls.type.value === 'THU_CONG') {
+                <label class="form-label mt-2" for="cf-code">Mã BST</label>
+                <input id="cf-code" class="form-control text-uppercase mb-1" formControlName="code" maxlength="6" placeholder="VD VAL26" (input)="upperCode()" [class.is-invalid]="form.controls.code.invalid || fieldErrors()['code']" />
+                @if (fieldErrors()['code']; as e) {
+                  <div class="invalid-feedback d-block">{{ e }}</div>
+                } @else if (form.controls.code.invalid) {
+                  <div class="invalid-feedback d-block">Mã cần 2-6 ký tự A-Z, 0-9</div>
+                } @else {
+                  <small class="text-body-secondary d-block">Không bắt buộc. Có mã thì form sản phẩm gợi ý SKU kèm mã BST, VD TT-MMN-<strong>VAL26</strong>-008.</small>
+                }
+              }
+              <label class="form-label mt-2" for="cf-desc">Mô tả</label>
+              <textarea id="cf-desc" class="form-control" rows="3" formControlName="description" maxlength="300"></textarea>
+              <small class="text-body-secondary">{{ form.controls.description.value.length }}/300 ký tự</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="sp-acard">
+          <h2>Sản phẩm</h2>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="sp-modecard" [class.is-on]="form.controls.type.value === 'THU_CONG'">
+                <input class="form-check-input" type="radio" value="THU_CONG" formControlName="type" />
+                <span><strong>Chọn tay</strong><small>Tự chọn và sắp xếp từng sản phẩm</small></span>
+              </label>
+            </div>
+            <div class="col-md-6">
+              <label class="sp-modecard" [class.is-on]="form.controls.type.value === 'TU_DONG'">
+                <input class="form-check-input" type="radio" value="TU_DONG" formControlName="type" />
+                <span><strong>Tự động theo điều kiện</strong><small>Sản phẩm mới khớp điều kiện tự vào</small></span>
+              </label>
+            </div>
+          </div>
+
+          @if (form.controls.type.value === 'TU_DONG') {
+            <div class="sp-rules">
+              <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                <strong>Sản phẩm phải khớp</strong>
+                <div class="form-check mb-0"><input id="mm-all" class="form-check-input" type="radio" value="ALL" formControlName="matchMode" /><label class="form-check-label" for="mm-all">Tất cả điều kiện</label></div>
+                <div class="form-check mb-0"><input id="mm-any" class="form-check-input" type="radio" value="ANY" formControlName="matchMode" /><label class="form-check-label" for="mm-any">Bất kỳ điều kiện nào</label></div>
+              </div>
+              <div formArrayName="rules">
+                @for (r of rules.controls; track $index; let i = $index) {
+                  <div class="sp-rule" [formGroupName]="i">
+                    <select class="form-select" formControlName="field" [attr.aria-label]="'Trường điều kiện ' + (i + 1)" (change)="onFieldChange(r)">
+                      @for (f of ruleFields; track f.field) {
+                        <option [value]="f.field">{{ f.label }}</option>
+                      }
+                    </select>
+                    <select class="form-select" formControlName="operator" [attr.aria-label]="'Phép so sánh ' + (i + 1)">
+                      @for (o of opsOf(r); track o.op) {
+                        <option [value]="o.op">{{ o.label }}</option>
+                      }
+                    </select>
+                    @switch (r.controls.field.value) {
+                      @case ('CATEGORY') {
+                        <select class="form-select" formControlName="value" aria-label="Danh mục">
+                          <option value="">Chọn danh mục</option>
+                          @for (c of flatCategories(); track c._id) {
+                            <option [value]="c._id">{{ c.name }}</option>
+                          }
+                        </select>
+                      }
+                      @case ('TAG') {
+                        <select class="form-select" formControlName="value" aria-label="Tag">
+                          <option value="">Chọn tag</option>
+                          @for (t of tags(); track t._id) {
+                            @if (!t.range) {
+                              <option [value]="t._id">{{ t.name }}</option>
+                            }
+                          }
+                        </select>
+                      }
+                      @case ('AXIS') {
+                        <select class="form-select" formControlName="value" aria-label="Trục đam mê">
+                          <option value="THE_THAO">Thể thao</option>
+                          <option value="ANIME">Anime</option>
+                          <option value="GAME">Game</option>
+                        </select>
+                      }
+                      @case ('PRICE') {
+                        <div class="sp-unit"><input class="form-control" type="number" min="1" step="10000" formControlName="value" aria-label="Giá" /><span>đ</span></div>
+                      }
+                      @case ('CREATED_WITHIN_DAYS') {
+                        <div class="sp-unit"><input class="form-control" type="number" min="1" formControlName="value" aria-label="Số ngày" /><span>ngày</span></div>
+                      }
+                      @default {
+                        <select class="form-select" formControlName="value" [attr.aria-label]="r.controls.field.value === 'IN_STOCK' ? 'Tồn kho' : 'Đang giảm giá'">
+                          <option [ngValue]="true">{{ r.controls.field.value === 'IN_STOCK' ? 'Còn hàng' : 'Có' }}</option>
+                          <option [ngValue]="false">{{ r.controls.field.value === 'IN_STOCK' ? 'Hết hàng' : 'Không' }}</option>
+                        </select>
+                      }
+                    }
+                    <button type="button" class="btn sp-rule__x" [attr.aria-label]="'Xóa điều kiện ' + (i + 1)" (click)="removeRule(i)"><app-icon name="close" [size]="18" /></button>
+                  </div>
+                }
+              </div>
+              @if (canEdit()) {
+                <button type="button" class="btn btn-link px-0" (click)="addRule()"><app-icon name="plus" [size]="16" /> Thêm điều kiện</button>
+              }
+              @if (fieldErrors()['rules']; as e) {
+                <div class="invalid-feedback d-block">{{ e }}</div>
+              }
+              <div class="sp-rules__count">
+                <app-icon name="check-circle" [size]="18" />
+                @if (previewLoading()) {
+                  Đang đếm...
+                } @else if (preview(); as p) {
+                  Khớp {{ p.count }} sản phẩm
+                } @else {
+                  Thêm điều kiện để xem sản phẩm khớp
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="position-relative mb-3">
+              <div class="sp-field__icon">
+                <app-icon name="search" [size]="18" />
+                <input class="form-control" type="search" placeholder="Tìm sản phẩm theo tên hoặc SKU để thêm" aria-label="Tìm sản phẩm để thêm" [value]="search()" [disabled]="!canEdit()" (input)="onSearch($any($event.target).value)" />
+              </div>
+              @if (results().length && search()) {
+                <div class="sp-pick" role="listbox">
+                  @for (p of results(); track p._id) {
+                    <button type="button" role="option" (click)="addProduct(p)">
+                      @if (p.image) {
+                        <img [src]="p.image" alt="" />
+                      }
+                      <span class="flex-grow-1 text-start">{{ p.name }} <small class="text-body-secondary">SKU {{ p.sku }}</small></span>
+                      <app-icon name="plus" [size]="16" />
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+            @if (fieldErrors()['productIds']; as e) {
+              <div class="invalid-feedback d-block mb-2">{{ e }}</div>
+            }
+          }
+
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+            <div class="sp-seg" role="group" aria-label="Kiểu hiển thị">
+              <button type="button" [class.is-on]="view() === 'grid'" (click)="view.set('grid')"><app-icon name="grid" [size]="16" /> Lưới</button>
+              <button type="button" [class.is-on]="view() === 'list'" (click)="view.set('list')"><app-icon name="list-ul" [size]="16" /> Danh sách</button>
+            </div>
+            <select class="form-select w-auto" formControlName="sortBy" aria-label="Sắp xếp">
+              @if (form.controls.type.value === 'THU_CONG') {
+                <option value="THU_CONG">Sắp xếp: Thủ công</option>
+              }
+              @if (form.controls.type.value === 'TU_DONG') {
+                <option value="LIEN_QUAN">Sắp xếp: Liên quan nhất</option>
+              }
+              <option value="BAN_CHAY">Sắp xếp: Bán chạy</option>
+              <option value="MOI_NHAT">Sắp xếp: Mới nhất</option>
+              <option value="TEN_AZ">Sắp xếp: Tên A - Z</option>
+              <option value="TEN_ZA">Sắp xếp: Tên Z - A</option>
+              <option value="GIA_TANG">Sắp xếp: Giá tăng</option>
+              <option value="GIA_GIAM">Sắp xếp: Giá giảm</option>
+            </select>
+          </div>
+
+          @if (form.controls.type.value === 'THU_CONG') {
+            @if (!picked().length) {
+              <p class="text-body-secondary small mb-0">Chưa có sản phẩm. Tìm ở ô trên để thêm.</p>
+            } @else {
+              <div [class]="view() === 'grid' ? 'sp-pgrid' : 'sp-plist'">
+                @for (p of picked(); track p._id; let i = $index) {
+                  <div class="sp-pitem" [attr.draggable]="canEdit()" (dragstart)="onDragStart(i)" (dragover)="$event.preventDefault()" (drop)="onDrop(i, $event)">
+                    @if (view() === 'list') {
+                      <app-icon name="grip" [size]="16" class="text-body-secondary" />
+                    }
+                    @if (imageOf(p)) {
+                      <img [src]="imageOf(p)" alt="" />
+                    } @else {
+                      <span class="sp-pitem__ph"><app-icon name="image" [size]="18" /></span>
+                    }
+                    <div class="sp-pitem__txt">
+                      <strong>{{ p.name }}</strong>
+                      <small>{{ (p.salePrice ?? p.price) | vnd }}@if (p.status !== 'DANG_HIEN_THI') { | <span class="text-danger">không hiện cho khách</span> }</small>
+                    </div>
+                    @if (canEdit()) {
+                      <button type="button" class="btn sp-pitem__x" [attr.aria-label]="'Bỏ ' + p.name" (click)="removeProduct(p._id)"><app-icon name="close" [size]="14" /></button>
+                    }
+                  </div>
+                }
+              </div>
+              <small class="text-body-secondary d-block mt-2">{{ picked().length }} sản phẩm | kéo thả để đổi thứ tự (sắp xếp chuyển sang Thủ công)</small>
+            }
+          } @else if (preview(); as p) {
+            <div [class]="view() === 'grid' ? 'sp-pgrid' : 'sp-plist'">
+              @for (x of p.items; track x._id) {
+                <div class="sp-pitem">
+                  @if (x.image) {
+                    <img [src]="x.image" alt="" />
+                  } @else {
+                    <span class="sp-pitem__ph"><app-icon name="image" [size]="18" /></span>
+                  }
+                  <div class="sp-pitem__txt">
+                    <strong>{{ x.name }}</strong>
+                    <small>{{ x.finalPrice | vnd }}</small>
+                  </div>
+                </div>
+              }
+            </div>
+            @if (p.count) {
+              <small class="text-body-secondary d-block mt-2">Hiển thị {{ p.items.length }} trong {{ p.count }} sản phẩm khớp</small>
+            }
+          }
+        </section>
+      </div>
+
+      <aside class="sp-pf-side">
+        <section class="sp-acard">
+          <h2>Trạng thái</h2>
+          @for (s of ['HIEN_THI', 'BAN_NHAP', 'AN']; track s) {
+            <label class="sp-modecard mb-2" [class.is-on]="form.controls.status.value === s">
+              <input class="form-check-input" type="radio" [value]="s" formControlName="status" />
+              <span>
+                <strong>{{ s === 'HIEN_THI' ? 'Đang hiện' : s === 'BAN_NHAP' ? 'Bản nháp' : 'Ẩn' }}</strong>
+                <small>{{ s === 'HIEN_THI' ? 'Khách xem được trong thời gian hiển thị' : s === 'BAN_NHAP' ? 'Chỉ nhân viên thấy' : 'Gỡ khỏi trang chủ, trang BST báo không tìm thấy' }}</small>
+              </span>
+            </label>
+          }
+        </section>
+
+        <section class="sp-acard" formGroupName="time">
+          <h2>Thời gian hiển thị</h2>
+          <label class="form-label" for="cf-start">Bắt đầu</label>
+          <input id="cf-start" class="form-control mb-2" type="datetime-local" formControlName="startAt" />
+          <label class="form-label" for="cf-end">Kết thúc</label>
+          <input id="cf-end" class="form-control" type="datetime-local" formControlName="endAt" [class.is-invalid]="form.controls.time.errors?.['dateRange'] || fieldErrors()['endAt']" />
+          @if (form.controls.time.errors?.['dateRange']; as e) {
+            <div class="invalid-feedback d-block">{{ e }}</div>
+          }
+          <small class="text-body-secondary d-block mt-1">Không bắt buộc. Sau ngày kết thúc, trang hiện "Bộ sưu tập này đã kết thúc".</small>
+        </section>
+
+        <section class="sp-acard">
+          <h2>Hiển thị</h2>
+          <div class="d-flex justify-content-between align-items-start gap-3">
+            <div>
+              <label class="fw-semibold d-block" for="cf-home">Hiện trên trang chủ</label>
+              <small class="text-body-secondary">Đặt vào khối Bộ sưu tập ở trình chỉnh sửa Trang chủ</small>
+            </div>
+            <div class="form-check form-switch"><input id="cf-home" class="form-check-input" type="checkbox" role="switch" formControlName="showOnHome" /></div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </form>
+}
+
+@if (leaveDialog()) {
+  <app-confirm-dialog title="Rời trang khi chưa lưu?" message="Bạn có thay đổi chưa lưu. Rời trang thì các thay đổi này sẽ mất." confirmLabel="Rời trang" cancelLabel="Ở lại" [danger]="true" (confirm)="answerLeave(true)" (cancel)="answerLeave(false)" />
+}
+
+@if (confirmDelete()) {
+  <app-confirm-dialog title="Xóa bộ sưu tập?" message="Sản phẩm trong bộ sưu tập không bị ảnh hưởng. Không hoàn tác được." confirmLabel="Xóa" [danger]="true" (confirm)="doDelete()" (cancel)="confirmDelete.set(false)" />
+}

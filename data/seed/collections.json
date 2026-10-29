@@ -1,0 +1,51 @@
+[
+  {
+    "name": "Quà sinh nhật cho chàng mê bóng đá",
+    "slug": "qua-sinh-nhat-me-bong-da",
+    "code": "SNBD",
+    "description": "Áo đấu in tên, bóng khắc chữ và hộp quà fan - trọn vẹn một ngày sinh nhật đậm chất sân cỏ",
+    "coverImage": "/images/collections/sinh-nhat-bong-da.svg",
+    "type": "THU_CONG",
+    "productSkus": [
+      "TT-DNC-SNBD-001",
+      "TT-MMN-SNBD-001",
+      "TT-MMN-SNBD-002",
+      "TT-MMN-SNBD-003",
+      "TT-GBX-SNBD-001"
+    ],
+    "matchMode": null,
+    "rules": [],
+    "sortBy": "THU_CONG",
+    "startAt": "2026-10-01T00:00:00+07:00",
+    "endAt": null,
+    "status": "HIEN_THI",
+    "showOnHome": true,
+    "sortOrder": 1
+  },
+  {
+    "name": "Góc chill của otaku",
+    "slug": "goc-chill-cua-otaku",
+    "code": "GCO",
+    "description": "Mô hình, đèn ngủ và đồ dùng anime cho góc phòng riêng",
+    "coverImage": "/images/collections/goc-chill-otaku.svg",
+    "type": "THU_CONG",
+    "productSkus": [
+      "AN-MMN-GCO-001",
+      "AN-KGC-GCO-001",
+      "AN-MMN-GCO-002",
+      "AN-MMN-GCO-003",
+      "AN-DNC-GCO-001",
+      "AN-DNC-GCO-002",
+      "AN-DNC-GCO-003",
+      "AN-VBL-GCO-001"
+    ],
+    "matchMode": null,
+    "rules": [],
+    "sortBy": "THU_CONG",
+    "startAt": "2026-10-01T00:00:00+07:00",
+    "endAt": null,
+    "status": "HIEN_THI",
+    "showOnHome": true,
+    "sortOrder": 2
+  }
+]

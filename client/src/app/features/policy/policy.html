@@ -1,0 +1,48 @@
+<div class="container sp-policy">
+  <nav aria-label="Vị trí trang">
+    <ol class="breadcrumb sp-crumbs">
+      <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+      <li class="breadcrumb-item">Chính sách</li>
+      @if (policy(); as p) {
+        <li class="breadcrumb-item active" aria-current="page">{{ p.title }}</li>
+      }
+    </ol>
+  </nav>
+
+  <div class="sp-policy__body">
+    <nav class="sp-policy__toc" aria-label="Mục lục chính sách">
+      <h2 class="h4">Chính sách</h2>
+      @for (item of policies; track item.slug) {
+        <a [routerLink]="['/chinh-sach', item.slug]" [class.is-on]="item.slug === slug()" [attr.aria-current]="item.slug === slug() ? 'page' : null">
+          {{ item.title }}
+        </a>
+      }
+    </nav>
+
+    <article class="sp-policy__content">
+      @if (loading()) {
+        <span class="sp-skel mb-3" style="height: 40px; width: 60%"></span>
+        <span class="sp-skel" style="height: 240px"></span>
+      } @else if (notFound()) {
+        <div class="sp-state">
+          <span class="sp-state__ic"><app-icon name="file" [size]="32" /></span>
+          <h1 class="h3">Không tìm thấy trang chính sách</h1>
+          <p>Bạn chọn một chính sách trong mục lục nhé.</p>
+        </div>
+      } @else if (errMessage()) {
+        <div class="sp-state" role="alert">
+          <span class="sp-state__ic"><app-icon name="alert-circle" [size]="32" /></span>
+          <p>{{ errMessage() }}</p>
+          <button class="btn btn-primary" type="button" (click)="reload()">Thử lại</button>
+        </div>
+      } @else if (policy(); as p) {
+        <h1>{{ p.title }}</h1>
+        @if (p.updatedAt) {
+          <p class="text-body-secondary small">Cập nhật {{ p.updatedAt | date: 'dd/MM/yyyy' }}</p>
+        }
+        <!-- Nội dung HTML giới hạn do Quản trị soạn, server đã thay biến (BR-35) -->
+        <div class="sp-prose" [innerHTML]="p.content"></div>
+      }
+    </article>
+  </div>
+</div>

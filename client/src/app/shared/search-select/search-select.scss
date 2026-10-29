@@ -1,0 +1,56 @@
+// Ô chọn có gõ tìm: giữ dáng .form-select (mũi tên), danh sách nổi bên dưới
+:host {
+  display: block;
+}
+
+.sp-ss {
+  position: relative;
+
+  .form-select {
+    cursor: text;
+  }
+
+  &.is-open .form-select {
+    border-color: var(--sp-color-primary);
+    box-shadow: 0 0 0 3px var(--sp-focus-ring);
+  }
+}
+
+.sp-ss__list {
+  position: absolute;
+  z-index: 1060; // trên hộp thoại (app-dialog)
+  inset: calc(100% + 4px) 0 auto;
+  max-height: 264px;
+  margin: 0;
+  padding: var(--sp-space-1);
+  overflow-y: auto;
+  overscroll-behavior: contain; // vuốt hết danh sách không kéo theo trang
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  list-style: none;
+  background: var(--sp-color-surface);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+  box-shadow: var(--sp-shadow-md);
+
+  li {
+    padding: 8px 12px;
+    border-radius: var(--sp-radius-sm);
+    color: var(--sp-color-text);
+    cursor: pointer;
+
+    &.is-active {
+      background: var(--sp-color-primary-subtle);
+    }
+
+    &[aria-selected='true'] {
+      font-weight: 600;
+      color: var(--sp-color-primary);
+    }
+  }
+
+  .sp-ss__empty {
+    color: var(--sp-color-text-muted);
+    cursor: default;
+  }
+}

@@ -1,0 +1,110 @@
+@let r = request;
+<article class="sp-rc" [class.is-stop]="stopped" [class.is-done]="r.status === 'DA_HOAN_TAT' || r.status === 'HOAN_TAT'">
+  <header class="sp-rc__head">
+    @if (compact && image) {
+      <img [src]="image" alt="" width="56" height="56" />
+    }
+    <div class="flex-grow-1">
+      <span class="sp-rc__kind">{{ r.kind === 'RETURN' ? 'Đổi trả' : 'Bảo hành' }} {{ r.code }}</span>
+      <strong>{{ title }}</strong>
+      <small>
+        @if (ret; as x) {
+          {{ compact ? products + ' | ' : '' }}Hình thức: {{ x.resolutionLabel }} | Lý do: {{ x.items[0]?.reasonLabel }}
+        } @else if (war; as w) {
+          {{ compact ? products + ' | ' : '' }}{{ w.symptomLabel }} | {{ w.shippingMethodLabel }}{{ w.resolutionLabel ? ' | ' + w.resolutionLabel : '' }}
+        }
+      </small>
+      @if (compact) {
+        <small>Đơn gốc {{ r.orderCode }} | Gửi {{ r.createdAt | date: 'dd/MM/yyyy HH:mm' }}</small>
+      }
+    </div>
+    <span class="sp-status" [class]="'sp-status--' + r.status">{{ r.statusLabel }}</span>
+  </header>
+
+  @if (r.status !== 'DA_HUY') {
+    <ol class="sp-steps sp-rc__steps">
+      @for (s of r.progress; track $index) {
+        <li [class.is-done]="s.state === 'done'" [class.is-current]="s.state === 'current' && !stopped">
+          <strong>{{ s.label }}</strong>
+          @if (s.at) {
+            {{ s.at | date: 'dd/MM HH:mm' }}
+          } @else if (s.state === 'current' && $index === 1 && (r.status === 'DANG_YEU_CAU' || r.status === 'DANG_XEM_XET')) {
+            Trước {{ r.slaDeadline | date: 'dd/MM HH:mm' }}
+          }
+        </li>
+      }
+      @if (stopped && r.reject) {
+        <li class="is-stop"><strong>Bị từ chối</strong>{{ r.reject.at | date: 'dd/MM HH:mm' }}</li>
+      }
+    </ol>
+  }
+
+  <!-- Đã duyệt: hướng dẫn gửi hàng và địa chỉ kho (UC-OPS-07 bước 3) -->
+  @if (r.returnInstruction && (r.status === 'DONG_Y' || r.status === 'DA_DUYET')) {
+    <div class="sp-rc__box">
+      <strong>Hướng dẫn gửi hàng</strong>
+      <p class="sp-rc__pre">{{ r.returnInstruction }}</p>
+      @if (r.returnAddress) {
+        <p><app-icon name="map-pin" [size]="16" /> Kho nhận hàng: {{ r.returnAddress }}</p>
+      }
+      @if (r.returnCarrierLabel) {
+        <p><app-icon name="truck" [size]="16" /> {{ r.returnCarrierLabel }}{{ r.returnTrackingCode ? ' | Mã vận đơn ' + r.returnTrackingCode : '' }} sẽ đến lấy hàng.</p>
+      }
+    </div>
+  } @else if (war?.shippingMethod === 'TU_GUI' && war?.returnAddress && (r.status === 'DANG_XEM_XET' || r.status === 'DA_DUYET')) {
+    <p class="sp-rc__note"><app-icon name="map-pin" [size]="16" /> Gửi sản phẩm về: {{ war!.returnAddress }}, ghi mã {{ r.code }} ngoài thùng.</p>
+  }
+
+  @if (war?.progressNotes?.length) {
+    <ul class="sp-rc__notes">
+      @for (n of war!.progressNotes; track $index) {
+        <li><small>{{ n.at | date: 'dd/MM HH:mm' }}</small> {{ n.text }}</li>
+      }
+    </ul>
+  }
+
+  <!-- Từ chối: lý do, mô tả, ảnh/video đối chứng của shop (AC6) -->
+  @if (r.reject; as rej) {
+    <div class="sp-rc__box is-danger">
+      <strong>Lý do từ chối: {{ rej.reasonLabel }}</strong>
+      <p>{{ rej.detail }}</p>
+      @if (rej.evidence.length) {
+        <p class="sp-rc__label">Ảnh và video đối chứng của shop</p>
+        <ul class="sp-photos">
+          @for (e of rej.evidence; track e) {
+            <li>
+              <a [href]="e" target="_blank" rel="noopener" [attr.aria-label]="'Bằng chứng ' + ($index + 1)">
+                @if (notImage().has(e)) {
+                  <span class="sp-rc__vid"><app-icon name="video" [size]="24" /></span>
+                } @else {
+                  <img [src]="e" alt="" (error)="markVideo(e)" />
+                }
+              </a>
+            </li>
+          }
+        </ul>
+      }
+      @if (rej.allowResubmit) {
+        <p class="mt-2 mb-0">Soulprint cho phép bạn gửi lại yêu cầu với ảnh mới nếu còn trong 7 ngày kể từ khi nhận hàng.</p>
+      }
+    </div>
+  }
+
+  @if (ret?.refundAmount && r.status === 'DA_HOAN_TAT') {
+    <p class="sp-rc__note is-ok"><app-icon name="check-circle" [size]="16" /> Soulprint hoàn {{ ret!.refundAmount | vnd }}{{ ret!.refundWithoutReturn ? ', bạn không cần gửi trả hàng' : '' }}. Tiền về tài khoản trong tối đa 5 ngày làm việc.</p>
+  }
+  @if (r.replacementOrderCode) {
+    <p class="sp-rc__note"><app-icon name="package" [size]="16" /> Đơn thay thế 0đ: <a [routerLink]="['/tai-khoan/don-hang', r.replacementOrderCode]">{{ r.replacementOrderCode }}</a></p>
+  }
+
+  @if (compact || ret?.canCancel) {
+    <footer class="sp-rc__foot">
+      @if (ret?.canCancel) {
+        <button class="btn btn-sm btn-outline-danger" type="button" [disabled]="busy" (click)="cancelReturn.emit(ret!)">Hủy yêu cầu</button>
+      }
+      @if (compact) {
+        <a class="btn btn-sm btn-outline-primary" [routerLink]="['/tai-khoan/don-hang', r.orderCode]">Xem yêu cầu</a>
+      }
+    </footer>
+  }
+</article>

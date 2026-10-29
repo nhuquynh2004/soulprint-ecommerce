@@ -1,0 +1,33 @@
+<div class="sp-imgs" [class.is-compact]="compact">
+  @for (src of images; track src; let i = $index) {
+    <figure class="sp-imgs__item" [class.is-main]="i === 0 && max > 1 && !compact" draggable="true" (dragstart)="onDragStart(i)" (dragover)="$event.preventDefault()" (drop)="onDrop(i, $event)">
+      <img [src]="src" alt="" loading="lazy" />
+      @if (i === 0 && max > 1 && !compact) {
+        <span class="sp-imgs__main">Ảnh đại diện</span>
+      }
+      <div class="sp-imgs__acts">
+        @if (i > 0) {
+          <button type="button" class="btn btn-sm" title="Đặt làm ảnh đại diện" aria-label="Đặt làm ảnh đại diện" (click)="makeMain(i)"><app-icon name="star" [size]="16" /></button>
+        }
+        <button type="button" class="btn btn-sm" title="Xóa ảnh" aria-label="Xóa ảnh" (click)="remove(i)"><app-icon name="trash" [size]="16" /></button>
+      </div>
+    </figure>
+  }
+  @if (images.length < max) {
+    <label class="sp-imgs__add" [class.is-busy]="uploading()">
+      <input type="file" accept="image/jpeg,image/png,image/webp" [multiple]="max > 1" class="visually-hidden" [disabled]="uploading()" (change)="onFiles($any($event.target))" />
+      @if (uploading()) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Đang tải...
+      } @else {
+        <app-icon name="upload" [size]="22" />
+        <span>{{ label }}</span>
+        @if (max > 1) {
+          <small>{{ images.length }}/{{ max }}</small>
+        }
+      }
+    </label>
+  }
+</div>
+@if (error()) {
+  <div class="invalid-feedback d-block" role="alert">{{ error() }}</div>
+}

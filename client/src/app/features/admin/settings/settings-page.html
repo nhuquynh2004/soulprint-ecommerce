@@ -1,0 +1,287 @@
+<header class="sp-aph">
+  <div>
+    <h1>Cài đặt cửa hàng</h1>
+    <p>Chỉ Quản trị thấy và thay đổi</p>
+  </div>
+  @if (tab() !== 'faq') {
+    <button class="btn btn-primary" type="button" [disabled]="saving() || !canSave()" (click)="onSave()">Lưu thay đổi</button>
+  }
+</header>
+
+<nav class="sp-tabs2" role="tablist" aria-label="Cài đặt cửa hàng">
+  @for (t of tabs; track t.key) {
+    <button role="tab" type="button" [class.is-on]="tab() === t.key" [attr.aria-selected]="tab() === t.key" (click)="setTab(t.key)">{{ t.label }}</button>
+  }
+</nav>
+
+@if (loading()) {
+  <span class="sp-skel" style="height: 420px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert"><p>{{ errMessage() }}</p></div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="onSave()" novalidate>
+    @switch (tab()) {
+      @case ('fees') {
+        <div class="sp-st">
+          <section class="sp-acard" formGroupName="fees">
+            <h2>Phí</h2>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label" for="st-ship">Phí vận chuyển đồng giá <span class="text-danger">*</span></label>
+                <div class="sp-unit"><input id="st-ship" class="form-control" type="number" min="0" step="1000" formControlName="shippingFee" [class.is-invalid]="form.controls.fees.controls.shippingFee.invalid" /><span>đ</span></div>
+                @if (form.controls.fees.controls.shippingFee.invalid) {
+                  <div class="invalid-feedback d-block">Phí không được âm</div>
+                } @else {
+                  <small class="text-body-secondary">Áp dụng toàn quốc</small>
+                }
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="st-dep">Tỷ lệ đặt cọc <span class="text-danger">*</span></label>
+                <div class="sp-unit"><input id="st-dep" class="form-control" type="number" min="10" max="100" formControlName="depositPercent" [class.is-invalid]="form.controls.fees.controls.depositPercent.invalid" /><span>%</span></div>
+                @if (form.controls.fees.controls.depositPercent.invalid) {
+                  <div class="invalid-feedback d-block">Tỷ lệ cọc từ 10% đến 100%</div>
+                } @else {
+                  <small class="text-body-secondary">Cho đơn có món cá nhân hóa</small>
+                }
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="st-stk">Phí mỗi sticker/lời nhắn <span class="text-danger">*</span></label>
+                <div class="sp-unit"><input id="st-stk" class="form-control" type="number" min="0" step="1000" formControlName="stickerFee" [class.is-invalid]="form.controls.fees.controls.stickerFee.invalid" /><span>đ</span></div>
+                @if (form.controls.fees.controls.stickerFee.invalid) {
+                  <div class="invalid-feedback d-block">Phí không được âm</div>
+                }
+              </div>
+            </div>
+          </section>
+
+          <section class="sp-acard" formGroupName="payments">
+            <h2>Thanh toán</h2>
+            <div class="sp-st-gw">
+              <small class="text-body-secondary">Cổng thanh toán</small>
+              <strong>Cổng giả lập (môi trường thử nghiệm)</strong>
+              <span class="sp-badge sp-badge--neutral ms-auto">Chỉ đọc</span>
+            </div>
+            <p class="fw-semibold mt-3 mb-2">Phương thức khách được chọn</p>
+            @for (m of [
+              { key: 'onlineFull', label: 'Thanh toán online 100%', note: 'Khách trả đủ khi đặt hàng, áp dụng mọi đơn' },
+              { key: 'depositCod', label: 'Cọc online, còn lại thu khi giao (COD)', note: 'Cho đơn có món cá nhân hóa, cọc theo tỷ lệ ở trên' },
+              { key: 'codFull', label: 'Thu tiền khi giao toàn bộ (COD)', note: 'Chỉ hiện với đơn không có món cá nhân hóa' }
+            ]; track m.key) {
+              <div class="sp-st-row">
+                <div>
+                  <label class="fw-semibold d-block" [for]="'pm-' + m.key">{{ m.label }}</label>
+                  <small class="text-body-secondary">{{ m.note }}</small>
+                </div>
+                <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" [id]="'pm-' + m.key" [formControlName]="m.key" /></div>
+              </div>
+            }
+            @if (form.controls.payments.errors?.['payments']; as e) {
+              <div class="sp-alert sp-alert--danger mt-2 mb-0" role="alert"><app-icon name="alert-circle" [size]="20" /><p>{{ e }}: đơn có món cá nhân hóa cần "Online 100%" hoặc "Cọc + COD"; đơn không cá nhân hóa cần "Online 100%" hoặc "COD toàn bộ".</p></div>
+            } @else if (!form.controls.payments.controls.onlineFull.value) {
+              <div class="sp-alert sp-alert--warning mt-2 mb-0" role="status"><app-icon name="alert" [size]="20" /><p>Khách sẽ không chọn được Giao người nhận (BR-02).</p></div>
+            }
+          </section>
+          <p class="small text-body-secondary d-flex align-items-center gap-1"><app-icon name="info" [size]="16" /> Áp dụng cho giỏ và đơn tạo sau khi lưu. Đơn đã tạo giữ nguyên phí cũ.</p>
+        </div>
+      }
+
+      @case ('info') {
+        <section class="sp-acard sp-st" formGroupName="info">
+          <h2>Thông tin cửa hàng</h2>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="in-name">Tên cửa hàng <span class="text-danger">*</span></label>
+              <input id="in-name" class="form-control" formControlName="storeName" maxlength="60" [class.is-invalid]="form.controls.info.controls.storeName.invalid" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="in-hot">Hotline</label>
+              <input id="in-hot" class="form-control" formControlName="hotline" maxlength="20" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="in-mail">Email</label>
+              <input id="in-mail" class="form-control" type="email" formControlName="email" maxlength="100" [class.is-invalid]="form.controls.info.controls.email.invalid || serverErrors()['info.email']" />
+              @if (form.controls.info.controls.email.invalid || serverErrors()['info.email']) {
+                <div class="invalid-feedback">Email không hợp lệ</div>
+              }
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="in-hours">Giờ làm việc</label>
+              <input id="in-hours" class="form-control" formControlName="workingHours" maxlength="80" placeholder="8:00 - 21:00 hằng ngày" />
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="in-ret">Địa chỉ kho nhận hàng trả về</label>
+              <input id="in-ret" class="form-control" formControlName="returnAddress" maxlength="200" />
+              <small class="text-body-secondary">Hiện trong hướng dẫn gửi hàng đổi trả cho khách (UC-OPS-07)</small>
+            </div>
+          </div>
+          <p class="fw-semibold mt-4 mb-2">Mạng xã hội</p>
+          <div class="row g-3" formGroupName="social">
+            @for (k of ['facebook', 'zalo', 'instagram', 'tiktok']; track k) {
+              <div class="col-md-6">
+                <label class="form-label text-capitalize" [for]="'so-' + k">{{ k }}</label>
+                <input class="form-control" [id]="'so-' + k" [formControlName]="k" placeholder="https://..." [class.is-invalid]="form.controls.info.controls.social.get(k)?.invalid" />
+                @if (form.controls.info.controls.social.get(k)?.invalid) {
+                  <div class="invalid-feedback">Liên kết cần bắt đầu bằng http:// hoặc https://</div>
+                }
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @case ('policies') {
+        <div class="sp-pol">
+          <section class="sp-acard sp-pol__list">
+            <h2>{{ policies().length }} trang</h2>
+            @for (p of policies(); track p.slug) {
+              <button type="button" class="sp-pol__item" [class.is-on]="policySlug() === p.slug" (click)="openPolicy(p.slug)">
+                <span>
+                  <strong>{{ p.title }}</strong>
+                  <small>Cập nhật {{ p.updatedAt | date: 'dd/MM/yyyy' }}</small>
+                </span>
+                <app-icon name="chevron-right" [size]="16" />
+              </button>
+            }
+          </section>
+          @if (policySlug()) {
+            <section class="sp-acard flex-grow-1">
+              <h2>{{ policyTitle() || 'Chính sách' }}</h2>
+              @if (policyError()) {
+                <div class="sp-alert sp-alert--danger" role="alert"><app-icon name="alert-circle" [size]="20" /><p>{{ policyError() }}</p></div>
+              }
+              <label class="form-label" for="pol-title">Tiêu đề trang <span class="text-danger">*</span></label>
+              <input id="pol-title" class="form-control mb-3" maxlength="120" [value]="policyTitle()" (input)="policyTitle.set($any($event.target).value); policyDirty.set(true)" />
+              <label class="form-label d-block">Nội dung</label>
+              @if (policyPreview()) {
+                <div class="sp-pol__preview" [innerHTML]="fillVars(policyContent())"></div>
+                <button type="button" class="btn btn-outline-secondary btn-sm mt-2" (click)="policyPreview.set(false)"><app-icon name="edit" [size]="16" /> Quay lại soạn</button>
+              } @else {
+                <app-rich-editor label="Nội dung chính sách" [maxLength]="5000" [minHeight]="220" [value]="policyContent()" (valueChange)="policyContent.set($event); policyDirty.set(true)">
+                  <span editor-tools class="ms-auto d-inline-flex gap-1 position-relative">
+                    <button type="button" (mousedown)="$event.preventDefault()" (click)="varMenu.set(!varMenu())" [attr.aria-expanded]="varMenu()"><app-icon name="braces" [size]="18" /> Chèn biến <app-icon name="chevron-down" [size]="14" /></button>
+                    <button type="button" (click)="policyPreview.set(true)"><app-icon name="eye" [size]="18" /> Xem trước</button>
+                    @if (varMenu()) {
+                      <span class="sp-rowmenu__list sp-pol__vars" role="menu">
+                        @for (v of variables(); track v.key) {
+                          <button type="button" role="menuitem" (mousedown)="$event.preventDefault()" (click)="insertVar(v.key)">{{ v.label }} <code [textContent]="tokenOf(v.key)"></code></button>
+                        }
+                      </span>
+                    }
+                  </span>
+                </app-rich-editor>
+              }
+              <small class="d-block text-body-secondary mt-2">Biến được thay bằng giá trị thật ở tab Phí và thanh toán, VD <code [textContent]="tokenOf('phi_van_chuyen')"></code> hiện là {{ fillVars(tokenOf('phi_van_chuyen')) }}.</small>
+            </section>
+          }
+        </div>
+      }
+
+      @case ('faq') {
+        <div class="sp-atools">
+          <div class="sp-field__icon flex-grow-1">
+            <app-icon name="search" [size]="18" />
+            <input class="form-control" type="search" placeholder="Tìm câu hỏi, từ khóa" aria-label="Tìm câu hỏi" [value]="faqQ()" (input)="faqQ.set($any($event.target).value)" />
+          </div>
+          <select class="form-select sp-atools__sel" aria-label="Lọc theo nhóm" [value]="faqCat()" (change)="faqCat.set($any($event.target).value)">
+            <option value="">Mọi nhóm</option>
+            @for (c of faqCategories; track c) {
+              <option [value]="c">{{ faqLabel[c] }}</option>
+            }
+          </select>
+          <button class="btn btn-outline-secondary d-inline-flex align-items-center gap-1" type="button" (click)="editingFaq.set('new')"><app-icon name="plus" [size]="18" /> Thêm câu hỏi</button>
+        </div>
+        <div class="sp-table-wrap">
+          <table class="table sp-atable align-middle">
+            <thead>
+              <tr>
+                <th scope="col">Câu hỏi</th>
+                <th scope="col">Từ khóa</th>
+                <th scope="col">Nhóm</th>
+                <th scope="col" class="text-end">Số lần dùng</th>
+                <th scope="col">Bật</th>
+                <th scope="col"><span class="visually-hidden">Thao tác</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (f of filteredFaqs(); track f._id) {
+                <tr>
+                  <td><strong>{{ f.question }}</strong><small class="d-block text-body-secondary sp-faq-ans">{{ fillVars(f.answer) }}</small></td>
+                  <td class="text-body-secondary">{{ f.keywords.join(', ') }}</td>
+                  <td>{{ faqLabel[f.category] }}</td>
+                  <td class="text-end">{{ f.hitCount || 0 }}</td>
+                  <td><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" [checked]="f.isActive" [attr.aria-label]="'Bật câu hỏi ' + f.question" (change)="toggleFaq(f)" /></div></td>
+                  <td class="text-end">
+                    <app-row-menu [items]="[{ key: 'edit', label: 'Sửa', icon: 'edit' }, { key: 'delete', label: 'Xóa', icon: 'trash', danger: true }]" [label]="'Thao tác với ' + f.question" (picked)="$event === 'edit' ? editingFaq.set(f) : deletingFaq.set(f)" />
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="6" class="text-center text-body-secondary py-4">Không có câu hỏi khớp</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <section class="sp-acard mt-3">
+          <h2>Thử hỏi</h2>
+          <div class="d-flex gap-2">
+            <div class="sp-field__icon flex-grow-1">
+              <app-icon name="chat" [size]="18" />
+              <input class="form-control" placeholder="Gõ thử câu của khách, VD ship về Đà Nẵng mất bao nhiêu tiền" aria-label="Câu hỏi thử" [value]="askText()" (input)="askText.set($any($event.target).value)" (keydown.enter)="$event.preventDefault(); ask()" />
+            </div>
+            <button class="btn btn-primary d-inline-flex align-items-center gap-1" type="button" (click)="ask()"><app-icon name="send" [size]="18" /> Hỏi</button>
+          </div>
+          @if (askResult(); as r) {
+            @if (r.faq) {
+              <div class="sp-ask">
+                <small>Khớp câu "{{ r.faq.question }}" | từ khóa "{{ r.keyword }}"</small>
+                <p class="mb-0">{{ fillVars(r.faq.answer) }}</p>
+              </div>
+            } @else {
+              <div class="sp-ask is-none"><p class="mb-0">Không có câu trả lời khớp. Chatbot sẽ đề nghị chuyển nhân viên hỗ trợ.</p></div>
+            }
+          }
+        </section>
+      }
+
+      @case ('insights') {
+        <section class="sp-acard sp-st" formGroupName="insights">
+          <h2>Ngưỡng gợi ý</h2>
+          <p class="text-body-secondary">Dùng cho các gợi ý hành động ở Tổng quan và Báo cáo (UC-CAT-03).</p>
+          <div class="row g-3">
+            @for (f of [
+              { key: 'stockoutDays', label: 'Dự báo hết hàng trong', note: 'Cảnh báo sản phẩm dự kiến hết hàng trong số ngày này' },
+              { key: 'expiryDays', label: 'Báo sắp hết hạn trước', note: 'Voucher, bộ sưu tập sắp hết hạn' },
+              { key: 'abandonedCartDays', label: 'Giỏ bỏ quên sau', note: 'Giỏ có hàng không thanh toán quá số ngày này' }
+            ]; track f.key) {
+              <div class="col-md-4">
+                <label class="form-label" [for]="'ins-' + f.key">{{ f.label }}</label>
+                <div class="sp-unit"><input class="form-control" type="number" min="1" max="60" [id]="'ins-' + f.key" [formControlName]="f.key" [class.is-invalid]="form.controls.insights.get(f.key)?.invalid" /><span>ngày</span></div>
+                @if (form.controls.insights.get(f.key)?.invalid) {
+                  <div class="invalid-feedback d-block">Từ 1 đến 60 ngày</div>
+                } @else {
+                  <small class="text-body-secondary">{{ f.note }}</small>
+                }
+              </div>
+            }
+          </div>
+        </section>
+      }
+    }
+  </form>
+}
+
+@if (confirmFees()) {
+  <app-confirm-dialog title="Lưu phí mới?" message="Phí mới áp dụng cho giỏ và đơn tạo từ bây giờ. Đơn đã đặt không đổi." confirmLabel="Lưu cài đặt" (confirm)="saveSettings()" (cancel)="confirmFees.set(false)" />
+}
+
+@if (editingFaq(); as f) {
+  <app-faq-dialog [faq]="f === 'new' ? null : f" [variables]="variables()" (done)="onFaqSaved($event)" />
+}
+
+@if (deletingFaq(); as f) {
+  <app-confirm-dialog title="Xóa câu hỏi?" [message]="f.question" confirmLabel="Xóa" [danger]="true" (confirm)="doDeleteFaq()" (cancel)="deletingFaq.set(null)" />
+}
+
+@if (leaveDialog()) {
+  <app-confirm-dialog title="Rời trang khi chưa lưu?" message="Bạn có thay đổi chưa lưu. Rời trang thì các thay đổi này sẽ mất." confirmLabel="Rời trang" cancelLabel="Ở lại" [danger]="true" (confirm)="answerLeave(true)" (cancel)="answerLeave(false)" />
+}

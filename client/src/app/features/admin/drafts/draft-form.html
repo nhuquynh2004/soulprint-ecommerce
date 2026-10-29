@@ -1,0 +1,364 @@
+@if (loading()) {
+  <span class="sp-skel d-block" style="height: 520px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert"><p>{{ errMessage() }}</p><a class="btn btn-primary" routerLink="/quan-tri/don-nhap">Về danh sách đơn nháp</a></div>
+} @else {
+  <header class="sp-pf-head">
+    <a class="sp-pf-back" routerLink="/quan-tri/don-nhap" aria-label="Về danh sách đơn nháp"><app-icon name="arrow-left" [size]="20" /></a>
+    <div class="sp-pf-title">
+      <h1>{{ code() ? '#' + code() : 'Tạo đơn nháp' }}</h1>
+      @if (draft(); as d) {
+        <span [class]="'sp-status sp-status--' + (d.status === 'HOAN_TAT' ? 'HOAN_THANH' : d.status === 'DA_GUI_LINK' ? 'DANG_VAN_CHUYEN' : 'CHO_XAC_NHAN')">{{ statusLabel[d.status] }}</span>
+        <small class="d-block text-body-secondary w-100">Tạo {{ d.createdAt | date: 'dd/MM/yyyy HH:mm' }}{{ d.createdByName ? ' bởi ' + d.createdByName : '' }} | {{ d.status === 'DA_GUI_LINK' ? (d.payFailedAt ? 'khách vừa thanh toán không thành công lúc ' + (d.payFailedAt | date: 'HH:mm dd/MM') : 'đã gửi liên kết, hạn ' + (d.paymentExpiresAt | date: 'dd/MM HH:mm')) : d.status === 'HOAN_TAT' ? 'đã thành đơn ' + d.orderCode : 'chưa gửi cho khách' }}</small>
+      }
+    </div>
+    <div class="sp-pf-actions">
+      @if (readonly()) {
+        @if (draft()!.orderCode) {
+          <a class="btn btn-primary" [routerLink]="['/quan-tri/don-hang', draft()!.orderCode]">Xem đơn hàng {{ draft()!.orderCode }}</a>
+        }
+      } @else if (isUrgent()) {
+        <!-- Đơn gấp: không Xóa, không Tạo đơn hay Gửi liên kết; khách tự thanh toán sau khi chốt -->
+        @if (auth.can('DON_NHAP.SUA')) {
+          <button class="btn btn-link text-danger" type="button" [disabled]="saving()" (click)="rejectOpen.set(true)">Từ chối</button>
+          <button class="btn btn-outline-secondary" type="button" [disabled]="saving()" (click)="save()">Lưu</button>
+          @if (urgentStatus() === 'DA_CHOT') {
+            <button class="btn btn-outline-primary" type="button" [disabled]="saving()" (click)="reopenUrgent()">Mở lại để sửa</button>
+          } @else {
+            <button class="btn btn-primary" type="button" [disabled]="saving() || !canComplete()" [title]="canComplete() ? '' : 'Cần khách, sản phẩm còn hàng và thông tin giao hàng'" (click)="confirmUrgent()">Chốt đơn gấp</button>
+          }
+        }
+      } @else {
+        @if (code() && auth.can('DON_NHAP.XOA')) {
+          <button class="btn btn-link text-danger" type="button" (click)="remove()">Xóa nháp</button>
+        }
+        <button class="btn btn-outline-secondary" type="button" [disabled]="saving()" (click)="save()">Lưu nháp</button>
+        @if (auth.can('DON_NHAP.KICH_HOAT')) {
+          <button class="btn btn-primary" type="button" [disabled]="saving() || !canComplete()" [title]="canComplete() ? '' : 'Cần khách, sản phẩm còn hàng và thông tin giao hàng'" (click)="complete()">
+            {{ primary() === 'PAYMENT_LINK' ? (draft()?.status === 'DA_GUI_LINK' ? 'Gửi liên kết mới' : 'Gửi liên kết thanh toán') : 'Tạo đơn' }}
+          </button>
+        }
+      }
+    </div>
+  </header>
+
+  @if (draft()?.urgent; as u) {
+    <div class="sp-urg" [class.is-locked]="u.status === 'DA_CHOT'">
+      <div class="sp-urg__main">
+        <span class="d-inline-flex flex-wrap align-items-center gap-2 mb-1">
+          <span class="sp-urgent-tag"><app-icon name="clock" [size]="12" /> Đơn gấp</span>
+          <span [class]="'sp-status sp-status--URG_' + u.status">{{ urgentLabel[u.status] }}</span>
+        </span>
+        <p class="m-0">Khách cần nhận <strong>{{ u.requestedDate | date: 'dd/MM/yyyy' }}</strong>, giao thường sớm nhất {{ u.earliestDate | date: 'dd/MM' }}</p>
+        @if (u.confirmedAt) {
+          <p class="m-0 small text-body-secondary">Chốt lúc {{ u.confirmedAt | date: 'HH:mm dd/MM' }}</p>
+        }
+        @switch (u.status) {
+          @case ('CHO_XEM_XET') { <small>Trao đổi với khách trong chat, sửa sản phẩm, ngày giao, nhập phụ phí giao gấp rồi bấm "Chốt đơn gấp".</small> }
+          @case ('DA_CHOT') { <small>Khách đang thấy đơn đã khóa. Sửa bất kỳ thông tin nào rồi Lưu thì đơn tự mở lại, bạn cần chốt lại.</small> }
+          @case ('TU_CHOI') { <small>Đã từ chối: {{ u.rejectReason }}</small> }
+          @case ('KHACH_HUY') { <small>Khách đã hủy yêu cầu.</small> }
+        }
+      </div>
+      @if (u.conversationId) {
+        <button class="btn btn-sm btn-outline-primary" type="button" (click)="dock.open(u.conversationId, draft()?.customer?.fullName || 'Khách')"><app-icon name="chat" [size]="16" /> Chat với khách</button>
+      }
+    </div>
+  }
+
+  <!-- UC-OPS-02 6a, 6b: mã QR và liên kết gửi khách; trả xong hệ thống tự tạo đơn; cổng giả lập thì nhân viên xác nhận -->
+  @if (draft()?.status === 'DA_GUI_LINK' && draft()?.paymentUrl && !isUrgent()) {
+    @let d = draft()!;
+    <section class="sp-alert sp-alert--info">
+      <p class="mb-2"><strong>Đã gửi liên kết thanh toán</strong>, hạn {{ d.paymentExpiresAt | date: 'dd/MM/yyyy HH:mm' }}. Khách trả xong, hệ thống tự tạo đơn. Sửa đơn nháp sẽ hủy liên kết cũ.</p>
+      @if (d.payFailedAt) {
+        <!-- Khách vừa trả lỗi, liên kết còn hạn nên khách bấm Thử lại được -->
+        <p class="mb-2 text-danger-emphasis"><app-icon name="alert-circle" [size]="16" /> Khách vừa thanh toán không thành công lúc {{ d.payFailedAt | date: 'HH:mm dd/MM' }}. Liên kết vẫn dùng được tới {{ d.paymentExpiresAt | date: 'HH:mm' }}, khách bấm Thử lại trên trang kết quả để trả lại.</p>
+      }
+      @if (d.payment; as p) {
+        <!-- Cùng bố cục với thanh toán thêm ở SCR-48 -->
+        <app-pay-qr [code]="p.code" [url]="d.paymentUrl!" [amount]="p.amount" [expiresAt]="d.paymentExpiresAt" [messageIntro]="'Soulprint gửi bạn liên kết thanh toán đơn đặt qua ' + (d.customer?.fullName || 'bạn')">
+          @if (p.canConfirm && auth.can('DON_NHAP.KICH_HOAT')) {
+            <button payqr-actions class="btn btn-sm btn-primary" type="button" [disabled]="saving()" (click)="confirmPaid(p.code)">Xác nhận đã thanh toán</button>
+          }
+        </app-pay-qr>
+      } @else {
+        <button class="btn btn-sm btn-outline-secondary" type="button" (click)="copyLink()">Sao chép liên kết</button>
+      }
+    </section>
+  }
+  <!-- Thành đơn: mẫu tin nhắn mã đơn để gửi khách -->
+  @if (draft()?.status === 'HOAN_TAT' && draft()?.order; as made) {
+    <section class="sp-alert sp-alert--success d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <span><strong>Đã thành đơn {{ made.code }}.</strong> Gửi khách tin nhắn: “{{ orderMessage() }}”</span>
+      <button class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" type="button" (click)="copyOrderMessage()"><app-icon name="copy" [size]="16" /> Sao chép tin nhắn</button>
+    </section>
+  }
+
+  <div class="sp-pf-grid" [formGroup]="form">
+    <div class="sp-pf-main">
+      <!-- Sản phẩm -->
+      <section class="sp-acard" [class.has-error]="missing().includes('items') && dirty()">
+        <h2>Sản phẩm <small class="text-body-secondary fw-normal">{{ itemsArray.length }} sản phẩm</small></h2>
+        @if (!readonly()) {
+          <div class="sp-dsearch">
+            <div class="sp-field__icon">
+              <app-icon name="search" [size]="18" />
+              <input class="form-control" type="search" placeholder="Tìm sản phẩm theo tên hoặc SKU" aria-label="Tìm sản phẩm" [value]="prodQuery()" (input)="onProdSearch($any($event.target).value)" />
+            </div>
+            @if (prodResults().length) {
+              <ul class="sp-dsearch__list" role="listbox">
+                @for (p of prodResults(); track p._id) {
+                  <li role="option" tabindex="0" (click)="addProduct(p)" (keydown.enter)="addProduct(p)">
+                    @if (p.image) { <img [src]="p.image" alt="" width="36" height="36" /> }
+                    <span class="flex-grow-1">{{ p.name }}</span>
+                    <strong>{{ p.finalPrice | vnd }}</strong>
+                    @if (!p.inStock) { <small class="text-danger">Hết hàng</small> }
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+        <div formArrayName="items">
+          @for (g of itemsArray.controls; track $index; let i = $index) {
+            <div class="sp-dline" [formGroupName]="i">
+              @if (quoteLine(i)?.image) { <img [src]="quoteLine(i)!.image" alt="" width="56" height="56" /> }
+              <div class="flex-grow-1 min-w-0">
+                <strong class="d-block">{{ quoteLine(i)?.name || infoOf(i)?.name || 'Đang tải...' }}</strong>
+                <div class="d-flex flex-wrap gap-2 align-items-center mt-1">
+                  @if ((infoOf(i)?.variants?.length || 0) > 1) {
+                    <select class="form-select form-select-sm sp-dline__var" formControlName="variantSku" aria-label="Biến thể">
+                      @for (v of infoOf(i)!.variants; track v.sku) { <option [value]="v.sku" [disabled]="v.stock <= 0">{{ v.name }}{{ v.stock <= 0 ? ' (hết)' : '' }}</option> }
+                    </select>
+                  } @else {
+                    <small class="text-body-secondary">{{ quoteLine(i)?.variantName }}</small>
+                  }
+                  <small class="text-body-secondary">SKU {{ g.value.variantSku }}</small>
+                  @if (infoOf(i)?.personalization?.allowed && !readonly()) {
+                    <button class="btn btn-sm btn-link p-0" type="button" (click)="openPersonalize(i)">{{ g.value.personalization ? 'Sửa cá nhân hóa' : 'Thêm cá nhân hóa' }}</button>
+                  }
+                </div>
+                @if (g.value.personalization) {
+                  <small class="d-block">Cá nhân hóa: {{ describe(g.value.personalization) }}</small>
+                }
+                @if (quoteLine(i)?.warning) {
+                  <small class="d-block text-danger">{{ quoteLine(i)!.warning!.message }}</small>
+                } @else if (quoteLine(i)) {
+                  <small class="d-block" [class.text-warning-emphasis]="quoteLine(i)!.stock <= 5">{{ quoteLine(i)!.stock <= 5 ? 'Sắp hết: ' : '' }}Còn {{ quoteLine(i)!.stock }}</small>
+                }
+              </div>
+              <input class="form-control form-control-sm sp-dline__qty" type="number" min="1" max="99" formControlName="quantity" aria-label="Số lượng" />
+              <div class="text-end sp-dline__price">
+                <small class="d-block text-body-secondary">{{ quoteLine(i)?.unitPrice | vnd }} x {{ g.value.quantity }}</small>
+                <strong>{{ quoteLine(i)?.lineValue | vnd }}</strong>
+              </div>
+              @if (!readonly()) {
+                <button class="btn sp-iconbtn" type="button" [attr.aria-label]="'Bỏ ' + (quoteLine(i)?.name || 'sản phẩm')" (click)="removeLine(i)"><app-icon name="trash" [size]="18" /></button>
+              }
+            </div>
+          } @empty {
+            <p class="text-body-secondary mb-0 mt-2">Chưa có sản phẩm. Tìm và thêm sản phẩm khách muốn đặt.</p>
+          }
+        </div>
+        @if (quote()?.giftWrap; as gw) {
+          <!-- Nhân viên thấy rõ mẫu gói quà đang áp dụng để duyệt -->
+          <app-gift-preview class="mt-3" [gift]="gw">
+            @if (draft()?.customerGiftWrap && !isCustomerWrap()) {
+              <span class="sp-badge sp-badge--warning">Đã đổi so với mẫu của khách</span>
+            }
+            @if (!readonly()) {
+              <button class="btn btn-sm btn-outline-primary" type="button" (click)="dialog.set('gift')">Đổi</button>
+              <button class="btn btn-sm btn-link text-danger p-0" type="button" (click)="removeGift()">Bỏ</button>
+            }
+          </app-gift-preview>
+        }
+      </section>
+
+      <!-- Thanh toán -->
+      <section class="sp-acard">
+        <h2>Thanh toán</h2>
+        @if (quote()?.money; as m) {
+          <dl class="sp-dmoney">
+            <div><dt>Tạm tính ({{ itemsArray.length }} sản phẩm)</dt><dd>{{ m.subtotal | vnd }}</dd></div>
+            <div><dt>Phí cá nhân hóa</dt><dd>{{ m.personalizationFee ? (m.personalizationFee | vnd) : 'Miễn phí' }}</dd></div>
+            @if (!readonly() || quote()?.giftWrap) {
+            <div>
+              <dt>
+                @if (quote()?.giftWrap; as gw) {
+                  Gói quà: {{ gw.name }}
+                  @if (!gw.available) { <small class="d-block text-danger">Tạm hết vật liệu</small> }
+                } @else if (!readonly()) {
+                  <button class="btn btn-link p-0" type="button" (click)="dialog.set('gift')">Thêm gói quà</button>
+                }
+              </dt>
+              <dd>{{ quote()?.giftWrap ? (m.giftWrapFee ? (m.giftWrapFee | vnd) : 'Miễn phí') : '' }}</dd>
+            </div>
+            }
+            @if (!readonly()) {
+            <div>
+              <dt><button class="btn btn-link p-0" type="button" (click)="openDiscount()">{{ voucherCodes().length ? 'Sửa khoản giảm giá' : 'Thêm khoản giảm giá' }}</button></dt>
+              <dd></dd>
+            </div>
+            }
+            @for (v of quote()!.vouchers; track v.code) {
+              <div><dt>Mã {{ v.code }}</dt><dd>-{{ v.discount | vnd }}</dd></div>
+            }
+            @for (e of quote()!.voucherErrors; track e.code) {
+              <div class="text-danger"><dt>Mã {{ e.code }}</dt><dd>{{ e.message }}</dd></div>
+            }
+            <div><dt>Phí vận chuyển <small class="d-block text-body-secondary">Đồng giá toàn quốc theo cài đặt cửa hàng</small></dt><dd>{{ m.shippingFee | vnd }}</dd></div>
+            @if (isUrgent()) {
+              <div class="sp-urg__fee">
+                <dt><label for="urg-fee">Phụ phí giao gấp</label> <small class="d-block text-body-secondary">Thống nhất với khách trong chat, không bị voucher giảm</small></dt>
+                <dd>
+                  <input id="urg-fee" class="form-control form-control-sm text-end" inputmode="numeric" [disabled]="readonly()" [value]="urgentFee()" (change)="setUrgentFee($any($event.target).value)" />
+                </dd>
+              </div>
+            }
+            <div [class.text-danger]="missing().includes('shipping') && dirty()">
+              <dt>
+                @if (shipping()) {
+                  Giao đến {{ shippingText() }} @if (!readonly()) { <button class="btn btn-link btn-sm p-0" type="button" (click)="dialog.set('shipping')">Sửa</button> }
+                } @else {
+                  <button class="btn btn-link p-0" type="button" (click)="dialog.set('shipping')">Thêm thông tin giao hàng</button> <small class="d-block">Bắt buộc trước khi tạo đơn hoặc gửi liên kết</small>
+                }
+              </dt>
+              <dd></dd>
+            </div>
+            <div class="is-total"><dt>Tổng</dt><dd>{{ m.total | vnd }}</dd></div>
+            @if (option() === 'DEPOSIT_COD') {
+              <div><dt>Tiền cọc (món cá nhân hóa)</dt><dd>{{ m.depositAmount | vnd }}</dd></div>
+              <div><dt>Thu khi giao (COD)</dt><dd>{{ m.remainingAmount | vnd }}</dd></div>
+            }
+          </dl>
+        } @else {
+          <p class="text-body-secondary mb-0">Thêm sản phẩm để tính tiền.</p>
+        }
+      </section>
+    </div>
+
+    <aside class="sp-pf-side">
+      <!-- Khách hàng -->
+      <section class="sp-acard" [class.has-error]="missing().includes('customer') && dirty()">
+        <h2>Khách hàng</h2>
+        @if (customer(); as c) {
+          <div class="d-flex align-items-start gap-2">
+            <span class="sp-avatar" aria-hidden="true">{{ c.fullName.slice(0, 1) }}</span>
+            <div class="flex-grow-1">
+              <strong class="d-block">{{ c.fullName }}</strong>
+              <small class="d-block text-body-secondary">{{ customerUserId() ? customerOrders() + ' đơn đã đặt' : 'Khách mới (tạo tài khoản chờ kích hoạt khi tạo đơn)' }}</small>
+              <small class="d-block text-body-secondary">{{ c.phone }}{{ c.email ? ' | ' + c.email : '' }}</small>
+            </div>
+            @if (!readonly() && !isUrgent()) { <button class="btn btn-sm btn-link" type="button" (click)="clearCustomer()">Đổi</button> }
+          </div>
+        } @else if (newCustomer()) {
+          <label class="sp-field w-100"><span>Họ tên *</span><input class="form-control" maxlength="60" [value]="newCust().fullName" (input)="setNewCust('fullName', $any($event.target).value)" /></label>
+          <label class="sp-field w-100 mt-2"><span>Số điện thoại *</span><input class="form-control" inputmode="tel" maxlength="11" [value]="newCust().phone" [class.is-invalid]="!!newCustPhoneErr()" (input)="setNewCust('phone', $any($event.target).value)" (blur)="newCustPhoneTouched.set(true)" /><span class="invalid-feedback">{{ newCustPhoneErr() }}</span></label>
+          <label class="sp-field w-100 mt-2"><span>Email</span><input class="form-control" type="email" [value]="newCust().email" (input)="setNewCust('email', $any($event.target).value)" /></label>
+          <div class="d-flex justify-content-end gap-2 mt-2">
+            <button class="btn btn-sm btn-link" type="button" (click)="newCustomer.set(false)">Hủy</button>
+            <button class="btn btn-sm btn-primary" type="button" (click)="useNewCustomer()">Dùng khách này</button>
+          </div>
+        } @else {
+          <div class="sp-dsearch">
+            <div class="sp-field__icon">
+              <app-icon name="search" [size]="18" />
+              <input class="form-control" type="search" placeholder="Tìm theo tên, số điện thoại, email" aria-label="Tìm khách hàng" [value]="custQuery()" (input)="onCustSearch($any($event.target).value)" />
+            </div>
+            @if (custResults().length) {
+              <ul class="sp-dsearch__list" role="listbox">
+                @for (c of custResults(); track c._id) {
+                  <li role="option" tabindex="0" (click)="pickCustomer(c)" (keydown.enter)="pickCustomer(c)">
+                    <span class="flex-grow-1"><strong class="d-block">{{ c.fullName }}</strong><small class="text-body-secondary">{{ c.phone }} | {{ c.orderCount }} đơn</small></span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+          <div class="d-flex flex-wrap justify-content-between gap-2 mt-1">
+            <button class="btn btn-sm btn-link px-0" type="button" (click)="newCustomer.set(true)">+ Tạo khách mới</button>
+            @if (prevCustomer(); as p) {
+              <button class="btn btn-sm btn-link px-0" type="button" (click)="restoreCustomer()">Giữ khách cũ ({{ p.customer.fullName }})</button>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="sp-acard">
+        <h2>Thông tin đơn</h2>
+        <label class="sp-field w-100"><span>Nguồn đơn</span>
+          <select class="form-select" formControlName="source">
+            @for (s of isUrgent() ? allSources : sources; track s.key) { <option [value]="s.key">{{ s.label }}</option> }
+          </select>
+        </label>
+        <label class="sp-field w-100 mt-2"><span>Ghi chú nội bộ</span><textarea class="form-control" rows="2" maxlength="500" formControlName="internalNote" placeholder="Chỉ nhân viên thấy"></textarea></label>
+        <label class="sp-field w-100 mt-2"><span>Ghi chú cho cửa hàng (của khách)</span><textarea class="form-control" rows="2" maxlength="200" formControlName="noteForShop"></textarea></label>
+        <div class="mt-2">
+          <span class="sp-field__label">Thẻ</span>
+          <div class="d-flex flex-wrap gap-1 my-1">
+            @for (t of tags(); track t) {
+              <span class="sp-badge sp-badge--primary">{{ t }} @if (!readonly()) { <button type="button" class="sp-x" [attr.aria-label]="'Gỡ thẻ ' + t" (click)="removeTag(t)"><app-icon name="close" [size]="12" /></button> }</span>
+            }
+          </div>
+          @if (!readonly()) {
+            <div class="d-flex gap-2"><input class="form-control form-control-sm" maxlength="30" placeholder="Thêm thẻ" aria-label="Thêm thẻ" [value]="tagInput()" (input)="tagInput.set($any($event.target).value)" (keydown.enter)="addTag()" /><button class="btn btn-sm btn-outline-secondary" type="button" (click)="addTag()">Thêm</button></div>
+          }
+        </div>
+      </section>
+
+      <section class="sp-acard">
+        <h2>Phương thức thanh toán</h2>
+        @if (quote()?.paymentOptions?.length) {
+          <select class="form-select" aria-label="Phương thức thanh toán" [disabled]="readonly()" [value]="option() || ''" (change)="setOption($any($event.target).value)">
+            @for (o of quote()!.paymentOptions; track o.key) { <option [value]="o.key">{{ optionText(o.key, o.amountDueNow) }}</option> }
+          </select>
+          <small class="d-block text-body-secondary mt-2">Chỉ hiện phương thức hợp lệ với đơn này. Nút chính đổi theo phương thức: không trả trước thì tạo đơn ngay, cần trả trước thì gửi liên kết thanh toán (hạn 1 giờ, hết hạn bấm gửi lại).</small>
+        } @else {
+          <p class="text-body-secondary small mb-0">Thêm sản phẩm để xem phương thức hợp lệ.</p>
+        }
+      </section>
+    </aside>
+  </div>
+
+  @if (rejectOpen()) {
+    <app-dialog title="Từ chối yêu cầu đặt gấp?" subtitle="Khách nhận lý do trong khung chat, sản phẩm vẫn còn trong giỏ để đặt bình thường." size="sm" (closed)="rejectOpen.set(false)">
+      <label class="sp-field w-100"><span>Lý do *</span>
+        <textarea class="form-control" rows="3" maxlength="300" placeholder="VD: Xưởng in đã kín lịch ngày 19/10" [value]="rejectReason()" (input)="rejectReason.set($any($event.target).value)"></textarea>
+      </label>
+      <div dialog-footer class="d-flex justify-content-end gap-2">
+        <button class="btn btn-outline-secondary" type="button" (click)="rejectOpen.set(false)">Quay lại</button>
+        <button class="btn btn-danger" type="button" (click)="rejectUrgent()">Từ chối yêu cầu</button>
+      </div>
+    </app-dialog>
+  }
+
+  @switch (dialog()) {
+    @case ('shipping') {
+      <app-draft-shipping-dialog [urgent]="isUrgent()" [value]="shipping()" [addresses]="addresses()" [delivery]="quote()?.delivery || null" [shippingFee]="quote()?.shippingFee || 30000" [subtitle]="(code() ? '#' + code() : 'Đơn nháp mới') + (customer() ? ' | ' + customer()!.fullName : '')" [defaultName]="customer()?.fullName || ''" [defaultPhone]="customer()?.phone || ''" (saved)="saveShipping($event)" (closed)="dialog.set(null)" />
+    }
+    @case ('discount') {
+      <app-draft-discount-dialog [initial]="voucherCodes()" [quote]="quote()" [form]="discountForm" (changed)="setVouchers($event)" (closed)="dialog.set(null)" />
+    }
+    @case ('gift') {
+      <app-gift-dialog mode="cart" [staff]="true" [current]="quote()?.giftWrap ?? null" [customerWrap]="draft()?.customerGiftWrap ?? null" (applied)="applyGift($event)" (closed)="dialog.set(null)" />
+    }
+    @case ('personalize') {
+      @if (personalizeProduct(personalizeIndex()!); as p) {
+        <app-personalize-dialog [product]="p" [allowSave]="false" [staffMode]="true" [variants]="infoOf(personalizeIndex()!)!.variants" [variantSku]="itemsArray.at(personalizeIndex()!).value.variantSku" [initial]="itemsArray.at(personalizeIndex()!).value.personalization" [quantity]="itemsArray.at(personalizeIndex()!).value.quantity" [unitPrice]="quoteLine(personalizeIndex()!)?.unitPrice || 0" (applied)="applyPersonalize($event)" (closed)="dialog.set(null)" />
+      }
+    }
+    @case ('link') {
+      @if (link(); as l) {
+        <app-dialog title="Đã tạo liên kết thanh toán" (closed)="dialog.set(null)">
+          <p>Gửi liên kết này cho khách qua kênh đang trao đổi. Khách trả {{ l.amount | vnd }} trước {{ l.expiresAt | date: 'HH:mm dd/MM/yyyy' }}; trả xong hệ thống tự tạo đơn.</p>
+          <input class="form-control" readonly aria-label="Liên kết thanh toán" [value]="l.paymentUrl" />
+          <div dialog-footer class="d-flex justify-content-end gap-2">
+            <button class="btn btn-outline-secondary" type="button" (click)="dialog.set(null)">Đóng</button>
+            <button class="btn btn-primary" type="button" (click)="copyLink()">Sao chép liên kết</button>
+          </div>
+        </app-dialog>
+      }
+    }
+  }
+}

@@ -1,0 +1,147 @@
+<header class="sp-aph">
+  <div>
+    <h1>Đơn nháp</h1>
+    <p>Đơn tạo hộ khách qua Zalo, Facebook, điện thoại</p>
+  </div>
+  @if (auth.can('DON_NHAP.TAO')) {
+    <a class="btn btn-primary d-inline-flex align-items-center gap-2" routerLink="/quan-tri/don-nhap/moi"><app-icon name="plus" [size]="18" /> Tạo đơn nháp</a>
+  }
+</header>
+
+<nav class="sp-tabs2" role="tablist" aria-label="Trạng thái đơn nháp">
+  @for (t of tabs; track t) {
+    <button type="button" role="tab" [class.is-on]="status() === t" [attr.aria-selected]="status() === t" (click)="setTab(t)">
+      {{ t === 'DAT_GAP' ? 'Đặt gấp' : t ? statusLabel[t] : 'Tất cả' }}
+      @if (t === 'DAT_GAP') {
+        @if (counts()['urgent']) { <span class="sp-count sp-count--danger" [attr.aria-label]="counts()['urgent'] + ' chờ chốt'">{{ counts()['urgent'] }}</span> }
+      } @else if (t) { <span class="sp-count">{{ counts()[t] || 0 }}</span> }
+    </button>
+  }
+</nav>
+
+@if (sel.count()) {
+  <app-bulk-bar class="d-block mb-3" [count]="sel.count()" unit="đơn nháp" [actions]="bulkActions()" [busy]="busy()" (action)="onBulk($event)" (cleared)="sel.clear()" />
+} @else {
+  <div class="sp-atools">
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm mã nháp, tên khách, số điện thoại" aria-label="Tìm đơn nháp" [value]="q()" (input)="onSearch($any($event.target).value)" />
+    </div>
+    <select class="form-select sp-atools__sel" aria-label="Nguồn đơn" [value]="source()" (change)="setSource($any($event.target).value)">
+      <option value="">Mọi nguồn</option>
+      @for (s of sources; track s.key) { <option [value]="s.key">{{ s.label }}</option> }
+    </select>
+  </div>
+}
+
+@if (loading()) {
+  <span class="sp-skel d-block" style="height: 300px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert"><p>{{ errMessage() }}</p><button class="btn btn-primary" type="button" (click)="load()">Thử lại</button></div>
+} @else if (!items().length) {
+  <div class="sp-state">
+    <app-icon name="file" [size]="40" />
+    <p>{{ q() || status() || source() ? 'Không có đơn nháp khớp bộ lọc.' : 'Chưa có đơn nháp. Tạo đơn nháp khi khách đặt qua điện thoại, Zalo, Facebook.' }}</p>
+  </div>
+} @else {
+  <div class="sp-table-wrap">
+    <table class="table sp-atable align-middle sp-dtable">
+      <thead>
+        <tr>
+          <th scope="col" class="sp-cb"><input class="form-check-input" type="checkbox" aria-label="Chọn tất cả" [checked]="sel.allOf(pageCodes())" [indeterminate]="sel.someOf(pageCodes())" (change)="sel.togglePage(pageCodes())" /></th>
+          <th scope="col">Đơn nháp</th><th scope="col">Ngày</th><th scope="col">Khách hàng</th><th scope="col">Trạng thái</th><th scope="col" class="text-end">Tổng</th><th scope="col">Thẻ</th><th scope="col">Nguồn</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (d of items(); track d.code) {
+          <tr [class.is-selected]="sel.has(d.code)">
+            <td class="sp-cb"><input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn #' + d.code" [checked]="sel.has(d.code)" (change)="sel.toggle(d.code)" /></td>
+            <td>
+              <a class="fw-bold" [routerLink]="['/quan-tri/don-nhap', d.code]">#{{ d.code }}</a>
+              @if (d.hasNote) { <app-icon name="edit" [size]="14" class="ms-1 text-body-secondary" title="Có ghi chú" /> }
+            </td>
+            <td>{{ d.updatedAt | date: 'dd/MM HH:mm' }}</td>
+            <td class="sp-dcust">
+              @if (d.customer) {
+                <button type="button" class="sp-dcust__btn" [attr.aria-expanded]="openCustomer() === d.code" (click)="openCustomer.set(openCustomer() === d.code ? null : d.code)">
+                  {{ d.customer.fullName || d.customer.phone }} <app-icon name="chevron-down" [size]="14" />
+                </button>
+                @if (openCustomer() === d.code) {
+                  <div class="sp-dcust__pop">
+                    <strong>{{ d.customer.fullName }}</strong>
+                    <span>{{ d.customer.orderCount }} đơn đã đặt</span>
+                    <span>{{ d.customer.email || '' }}</span>
+                    <span>{{ d.customer.phone }}</span>
+                    @if (d.customer.userId && auth.can('KHACH_HANG.XEM')) {
+                      <a [routerLink]="['/quan-tri/khach-hang', d.customer.userId]">Xem khách hàng</a>
+                    }
+                  </div>
+                }
+              } @else {
+                <span class="text-body-secondary">Chưa chọn khách</span>
+              }
+            </td>
+            <td>
+              @if (d.kind === 'DAT_GAP') {
+                <!-- Đơn gấp: thẻ Đơn gấp + trạng thái của yêu cầu, ngày khách cần nhận ở dòng dưới -->
+                <span class="d-inline-flex flex-wrap gap-1">
+                  <span class="sp-urgent-tag"><app-icon name="clock" [size]="12" /> Đơn gấp</span>
+                  <span [class]="'sp-status sp-status--URG_' + d.urgentStatus">{{ urgentLabel[d.urgentStatus || ''] }}</span>
+                </span>
+                @if (d.requestedDate) {
+                  <small class="d-block text-body-secondary mt-1">Cần nhận {{ d.requestedDate | date: 'dd/MM' }}</small>
+                }
+              } @else {
+                <span [class]="'sp-status sp-status--' + (d.status === 'HOAN_TAT' ? 'HOAN_THANH' : d.status === 'DA_GUI_LINK' ? 'DANG_VAN_CHUYEN' : 'CHO_XAC_NHAN')">{{ statusLabel[d.status] }}</span>
+              }
+              @if (d.orderCode) { <a class="d-block small" [routerLink]="['/quan-tri/don-hang', d.orderCode]">{{ d.orderCode }}</a> }
+            </td>
+            <td class="text-end">{{ d.total !== null ? (d.total | vnd) : '-' }}</td>
+            <td>{{ d.tags.join(', ') || '-' }}</td>
+            <td>{{ sourceLabel(d.source) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+    <span class="text-body-secondary small">Hiển thị {{ (page() - 1) * pageSize() + 1 }} - {{ (page() - 1) * pageSize() + items().length }} trong {{ total() }} đơn nháp</span>
+    @if (total() > pageSize()) { <app-pagination [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="goPage($event)" /> }
+  </div>
+}
+
+@if (confirmDelete(); as codes) {
+  <app-confirm-dialog [title]="'Xóa ' + codes.length + ' đơn nháp?'" confirmLabel="Xóa" [danger]="true" [busy]="busy()" (confirm)="run('DELETE', codes)" (cancel)="confirmDelete.set(null)">
+    <p class="m-0">Đơn nháp đã gửi liên kết thì liên kết cũ bị hủy. Đơn nháp đã thành đơn không xóa được và sẽ được bỏ qua.</p>
+  </app-confirm-dialog>
+}
+
+@if (tagFor(); as codes) {
+  <app-confirm-dialog [title]="'Gắn thẻ cho ' + codes.length + ' đơn nháp'" confirmLabel="Gắn thẻ" [busy]="busy() || !tagInput().trim()" (confirm)="run('ADD_TAGS', codes, [tagInput().trim()])" (cancel)="tagFor.set(null)">
+    <label class="sp-field w-100"><span>Thẻ (tối đa 30 ký tự)</span><input class="form-control" maxlength="30" [value]="tagInput()" (input)="tagInput.set($any($event.target).value)" /></label>
+  </app-confirm-dialog>
+}
+
+@if (result(); as r) {
+  <app-dialog [title]="r.action === 'COMPLETE' ? 'Đã kích hoạt ' + r.orders.length + ' đơn nháp' : 'Đã gửi lại ' + r.links.length + ' liên kết'" (closed)="result.set(null)">
+    @if (r.orders.length) {
+      <p>Đơn hàng mới {{ r.orders.join(' và ') }} đã vào danh sách Đơn hàng, trạng thái Chờ xác nhận.</p>
+    }
+    @for (l of r.links; track l.code) {
+      <div class="sp-dlink">
+        <span><strong>#{{ l.code }}</strong> | {{ l.amount | vnd }} | hạn {{ l.expiresAt | date: 'dd/MM HH:mm' }}</span>
+        <button class="btn btn-sm btn-outline-secondary" type="button" (click)="copy(l.paymentUrl)">Sao chép liên kết</button>
+      </div>
+    }
+    @if (r.failed.length) {
+      <p class="mt-3 mb-1 fw-semibold">Bỏ qua {{ r.failed.length }} đơn nháp:</p>
+      <ul class="mb-0">
+        @for (f of r.failed; track f.code) { <li>#{{ f.code }}: {{ f.reason }}</li> }
+      </ul>
+    }
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      @if (r.orders.length) { <a class="btn btn-primary" routerLink="/quan-tri/don-hang" [queryParams]="{ view: 'to-confirm' }">Xem đơn hàng</a> }
+      <button class="btn btn-outline-secondary" type="button" (click)="result.set(null)">Đóng</button>
+    </div>
+  </app-dialog>
+}

@@ -1,0 +1,250 @@
+<div class="container sp-ur">
+  @if (error()) {
+    <div class="sp-state">
+      <img src="/assets/brand/sau-beo.png" alt="" width="96" height="96" />
+      <strong>{{ error() }}</strong>
+      <p>Bạn mở lại liên kết trong khung chat hoặc tin nhắn Soulprint gửi nhé.</p>
+      <a class="btn btn-primary" routerLink="/">Về trang chủ</a>
+    </div>
+  } @else if (!view()) {
+    <span class="sp-skel d-block my-4" style="height: 320px"></span>
+  } @else {
+    @if (view(); as v) {
+      <header class="sp-ur__head">
+        <div>
+          <p class="sp-ur__eyebrow"><app-icon name="clock" [size]="16" /> Yêu cầu đặt gấp</p>
+          <h1 class="m-0">#{{ v.code }}</h1>
+          <p class="text-body-secondary m-0">Gửi lúc {{ v.createdAt | date: 'HH:mm dd/MM/yyyy' }}</p>
+        </div>
+        <span [class]="'sp-status sp-ur__status sp-status--URG_' + v.status">{{ v.statusLabel }}</span>
+      </header>
+
+      @if (!closed()) {
+        <ol class="sp-ur__steps" aria-label="Tiến trình yêu cầu">
+          @for (s of steps; track s.key; let i = $index) {
+            <li [class.is-done]="i < stepIndex()" [class.is-on]="i === stepIndex()" [attr.aria-current]="i === stepIndex() ? 'step' : null">
+              <span class="dot">
+                @if (i < stepIndex()) {
+                  <app-icon name="check" [size]="14" />
+                } @else {
+                  {{ i + 1 }}
+                }
+              </span>
+              <span class="lb">{{ s.label }}</span>
+            </li>
+          }
+        </ol>
+      }
+
+      <!-- Thông báo theo trạng thái -->
+      @switch (v.status) {
+        @case ('CHO_XEM_XET') {
+          <div class="sp-alert sp-alert--warning">
+            <app-icon name="headset" [size]="20" />
+            <div>
+              <strong>Soulprint đang xem yêu cầu của bạn</strong>
+              <p>Shop kiểm tra xem có kịp làm và giao vào {{ dayLabel(v.deliveryDate) }} không, rồi nhắn bạn trong khung chat. Trang này tự cập nhật khi shop chốt đơn.</p>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" (click)="openChat()"><app-icon name="chat" [size]="16" /> Nhắn shop</button>
+          </div>
+        }
+        @case ('DA_CHOT') {
+          <div class="sp-alert sp-alert--success">
+            <app-icon name="check-circle" [size]="20" />
+            <div>
+              <strong>Shop đã chốt đơn gấp{{ v.confirmedAt ? ' lúc ' + (v.confirmedAt | date: 'HH:mm dd/MM') : '' }}</strong>
+              <p>Thông tin bên dưới đã được khóa. Cần đổi gì bạn nhắn shop, shop sẽ cập nhật và chốt lại cho bạn.</p>
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm" (click)="openChat()"><app-icon name="chat" [size]="16" /> Nhắn shop</button>
+          </div>
+        }
+        @case ('DA_DAT') {
+          <div class="sp-alert sp-alert--success">
+            <app-icon name="check-circle" [size]="20" />
+            <div>
+              <strong>Đã đặt hàng thành công đơn {{ v.orderCode }}</strong>
+              <p>Shop ưu tiên xử lý để giao vào {{ dayLabel(v.deliveryDate) }}.</p>
+            </div>
+            @if (auth.currentUser()?.role === 'member') {
+              <a class="btn btn-primary btn-sm" [routerLink]="['/tai-khoan/don-hang', v.orderCode]">Xem đơn hàng</a>
+            } @else {
+              <a class="btn btn-primary btn-sm" [routerLink]="['/dat-hang', v.orderCode, 'ket-qua']">Xem đơn hàng</a>
+            }
+          </div>
+        }
+        @case ('TU_CHOI') {
+          <div class="sp-alert sp-alert--info">
+            <app-icon name="info" [size]="20" />
+            <div>
+              <strong>Soulprint rất tiếc chưa nhận được yêu cầu này</strong>
+              <p>{{ v.rejectReason }}. Bạn vẫn đặt hàng bình thường được, sản phẩm còn trong giỏ.</p>
+            </div>
+            <a class="btn btn-primary btn-sm" routerLink="/gio-hang">Về giỏ hàng</a>
+          </div>
+        }
+        @case ('KHACH_HUY') {
+          <div class="sp-alert sp-alert--info">
+            <app-icon name="info" [size]="20" />
+            <div>
+              <strong>Bạn đã hủy yêu cầu đặt gấp</strong>
+              <p>Sản phẩm vẫn còn trong giỏ nếu bạn muốn đặt bình thường.</p>
+            </div>
+            <a class="btn btn-primary btn-sm" routerLink="/gio-hang">Về giỏ hàng</a>
+          </div>
+        }
+      }
+
+      <div class="sp-ur__layout">
+        <div class="d-flex flex-column gap-3">
+          <section class="sp-panel" aria-label="Giao hàng">
+            <h2 class="sp-ur__h">
+              Giao hàng
+              @if (v.locked) {
+                <span class="sp-ur__lock"><app-icon name="lock" [size]="14" /> Đã khóa</span>
+              }
+            </h2>
+            <dl class="sp-ur__dl">
+              <div>
+                <dt>Ngày giao</dt>
+                <dd>
+                  <strong>{{ dayLabel(v.deliveryDate) }}</strong>{{ v.deliveryWindow ? ' | ' + v.deliveryWindow : '' }}
+                  @if (v.requestedDate !== v.deliveryDate) {
+                    <small class="d-block text-body-secondary">Bạn mong nhận {{ dayLabel(v.requestedDate) }}, shop đã thống nhất ngày trên</small>
+                  }
+                  <small class="d-block text-body-secondary">Giao thường sớm nhất {{ dayLabel(v.earliestDate) }}</small>
+                </dd>
+              </div>
+              <div>
+                <dt>{{ v.recipientType === 'OTHER' ? 'Người nhận' : 'Nhận tại' }}</dt>
+                <dd>
+                  <strong>{{ v.shippingAddress.recipientName }}</strong> | {{ v.shippingAddress.phone }}
+                  <span class="d-block">{{ v.shippingAddress.street }}, {{ v.shippingAddress.ward }}, {{ v.shippingAddress.province }}</span>
+                </dd>
+              </div>
+              @if (v.noteForShop) {
+                <div>
+                  <dt>Ghi chú cho shop</dt>
+                  <dd>{{ v.noteForShop }}</dd>
+                </div>
+              }
+            </dl>
+          </section>
+
+          <section class="sp-panel" aria-label="Sản phẩm">
+            <h2 class="sp-ur__h">Sản phẩm ({{ v.items.length }})</h2>
+            <ul class="sp-ur__items">
+              @for (it of v.items; track it._id) {
+                <li>
+                  <span class="thumb">
+                    @if (it.image) {
+                      <img [src]="it.image" alt="" />
+                    }
+                  </span>
+                  <span class="flex-grow-1 min-w-0">
+                    <strong class="d-block">{{ it.name }}</strong>
+                    <small class="text-body-secondary">
+                      {{ it.variantName && it.variantName !== 'Mặc định' ? it.variantName + ', ' : '' }}x{{ it.quantity }}{{ it.personalization ? ', có cá nhân hóa' : '' }}
+                    </small>
+                  </span>
+                  <span class="text-nowrap">{{ it.lineValue | vnd }}</span>
+                </li>
+              }
+            </ul>
+            @if (v.giftWrap) {
+              <p class="sp-ur__gift mb-0"><app-icon name="gift" [size]="16" /> Gói quà: {{ v.giftWrap.name }}</p>
+            }
+          </section>
+        </div>
+
+        <aside class="sp-co__sum sp-ur__sum" aria-label="Thanh toán">
+          <h2 class="h5">Thanh toán</h2>
+          @if (v.money; as m) {
+            <div class="sp-co__rows">
+              <div class="sp-summary__row"><span>Tạm tính</span><span>{{ m.subtotal | vnd }}</span></div>
+              @if (m.personalizationFee) {
+                <div class="sp-summary__row"><span>Phí cá nhân hóa</span><span>{{ m.personalizationFee | vnd }}</span></div>
+              }
+              <div class="sp-summary__row"><span>Phí vận chuyển</span><span>{{ m.shippingFee | vnd }}</span></div>
+              <div class="sp-summary__row sp-ur__fee">
+                <span>Phụ phí giao gấp</span>
+                <span>{{ v.status === 'CHO_XEM_XET' ? 'Shop đang báo giá' : m.urgentFee ? (m.urgentFee | vnd) : 'Miễn phí' }}</span>
+              </div>
+              @for (vc of v.vouchers; track vc.code) {
+                <div class="sp-summary__row is-minus"><span>Mã {{ vc.code }}</span><span>-{{ vc.discount | vnd }}</span></div>
+              }
+            </div>
+            <div class="sp-co__total">
+              <span>{{ v.status === 'CHO_XEM_XET' ? 'Tạm tính tổng' : 'Tổng cộng' }}</span>
+              <span><strong>{{ m.total | vnd }}</strong><small>Đã bao gồm VAT</small></span>
+            </div>
+          }
+
+          @if (v.status === 'DA_CHOT') {
+            @if (v.recipientType === 'OTHER') {
+              <p class="sp-alert sp-alert--warning m-0"><app-icon name="alert" [size]="20" /> Đơn giao người nhận cần thanh toán online 100% để shipper không thu tiền của người được tặng.</p>
+            }
+            <!-- UC-PAY-04 5c: thanh toán đúng phương thức shop đã chốt, khách không đổi được -->
+            @if (v.paymentFixed) {
+              <p class="small text-body-secondary m-0">Phương thức thanh toán shop đã chốt cho đơn này. Cần đổi bạn nhắn shop để chốt lại.</p>
+            }
+            <div class="d-flex flex-column gap-2" role="radiogroup" aria-label="Cách thanh toán">
+              @for (o of v.paymentOptions; track o.key) {
+                <label class="sp-modecard" [class.is-on]="option()?.key === o.key">
+                  <input class="form-check-input" type="radio" name="upay" [checked]="option()?.key === o.key" (change)="optionKey.set(o.key)" />
+                  <span class="flex-grow-1">
+                    @switch (o.key) {
+                      @case ('COD') {
+                        <strong>Thanh toán khi nhận (COD)</strong><small>Trả {{ v.money?.total | vnd }} khi nhận hàng</small>
+                      }
+                      @case ('DEPOSIT_COD') {
+                        <strong>Cọc trước, còn lại COD</strong><small>Cọc {{ o.amountDueNow | vnd }}, còn lại trả khi nhận</small>
+                      }
+                      @case ('ONLINE') {
+                        <strong>Thanh toán online</strong><small>Qua cổng Soulprint | {{ o.amountDueNow | vnd }}</small>
+                      }
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+            <label class="sp-co__policy" [class.is-error]="policyError()">
+              <input class="form-check-input" type="checkbox" [(ngModel)]="acceptPolicy" (change)="policyError.set(false)" />
+              <span>Tôi đã đọc và đồng ý <a routerLink="/chinh-sach/thanh-toan" target="_blank">Chính sách thanh toán và đặt cọc</a> của Soulprint.</span>
+            </label>
+            @if (policyError()) {
+              <span class="sp-field__error">Vui lòng đồng ý Chính sách thanh toán và đặt cọc</span>
+            }
+            @if (formError()) {
+              <p class="sp-alert sp-alert--danger m-0" role="alert"><app-icon name="alert-circle" [size]="20" /> {{ formError() }}</p>
+            }
+            <button class="btn btn-primary btn-lg w-100" type="button" [disabled]="paying()" (click)="pay()">
+              @if (paying()) {
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+              }
+              {{ payLabel() }}{{ dueNow() ? ' ' + (dueNow() | vnd) : '' }}
+            </button>
+            @if (v.pendingPayment) {
+              <p class="sp-field__hint m-0">Bạn có một lần thanh toán chưa hoàn tất, bấm nút trên để tiếp tục.</p>
+            }
+          } @else if (v.status === 'CHO_XEM_XET') {
+            <button class="btn btn-primary btn-lg w-100" type="button" disabled>Chờ shop chốt đơn</button>
+            <p class="sp-field__hint m-0">Bạn chỉ thanh toán sau khi shop chốt đơn và phụ phí giao gấp.</p>
+          }
+
+          @if (open()) {
+            <button type="button" class="btn btn-link btn-sm text-danger p-0 align-self-center" (click)="cancelConfirm.set(true)">Hủy yêu cầu đặt gấp</button>
+          }
+        </aside>
+      </div>
+    }
+  }
+</div>
+
+@if (cancelConfirm()) {
+  <app-dialog title="Hủy yêu cầu đặt gấp?" subtitle="Shop sẽ dừng xử lý yêu cầu này. Sản phẩm vẫn còn trong giỏ để bạn đặt bình thường." size="sm" (closed)="cancelConfirm.set(false)">
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="cancelConfirm.set(false)">Giữ yêu cầu</button>
+      <button type="button" class="btn btn-danger" (click)="cancel()">Hủy yêu cầu</button>
+    </div>
+  </app-dialog>
+}

@@ -1,0 +1,17 @@
+@if (variant === 'band') {
+  <section class="container sp-sec">
+    <div class="sp-bulk sp-bulk--band">
+      <span class="sp-bulk__ic" aria-hidden="true"><app-icon name="users" [size]="28" /></span>
+      <div class="sp-bulk__text">
+        <h2>Đặt quà số lượng lớn?</h2>
+        <p>Quà cho cả đội bóng, câu lạc bộ hay buổi offline của fan: nhắn Soulprint để được tư vấn mẫu, cá nhân hóa và báo giá riêng.</p>
+      </div>
+      <button class="btn btn-primary" type="button" (click)="openChat()"><app-icon name="chat" [size]="20" /> Nhắn Soulprint ngay</button>
+    </div>
+  </section>
+} @else {
+  <p class="sp-bulk">
+    <app-icon name="users" [size]="18" />
+    <span>Cần đặt số lượng lớn cho đội nhóm hay sự kiện? <button class="btn btn-link p-0 align-baseline" type="button" (click)="openChat()">Nhắn Soulprint để nhận báo giá riêng</button></span>
+  </p>
+}

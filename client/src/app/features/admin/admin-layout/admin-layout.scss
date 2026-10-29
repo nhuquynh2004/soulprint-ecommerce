@@ -1,0 +1,551 @@
+// Khung quản trị - bám SCR-57-Desktop: thanh trái nền surface-alt, nội dung bên phải.
+// Từ 992px thanh trái là cột icon 72px; rê chuột / Tab tới thì mở 264px đè lên nội dung (cột lưới vẫn 72px nên
+// nội dung không co lại); ghim (.is-pinned) thì cột lưới 264px. Dưới 992px là menu trượt mở bằng nút ☰.
+$rail: 72px;
+$wide: 264px;
+
+:host {
+  display: block;
+}
+
+.sp-adm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--sp-color-bg);
+
+  @media (min-width: 992px) {
+    grid-template-columns: $rail minmax(0, 1fr);
+
+    &.is-pinned {
+      grid-template-columns: $wide minmax(0, 1fr);
+    }
+  }
+}
+
+.sp-adm__side {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 1045;
+  display: flex;
+  flex-direction: column;
+  width: 280px;
+  padding: var(--sp-space-4) var(--sp-space-3);
+  background: var(--sp-color-surface-alt);
+  border-right: 1px solid var(--sp-color-border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transform: translateX(-100%);
+  transition: transform var(--sp-dur-dialog);
+
+  .is-nav-open & {
+    transform: none;
+  }
+
+  @media (min-width: 992px) {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: $rail;
+    padding: var(--sp-space-3) 12px;
+    transform: none;
+    transition: width 0.18s ease, box-shadow 0.18s ease;
+
+    // Mở rộng khi rê chuột hoặc khi dùng bàn phím
+    &:hover,
+    &:focus-within {
+      width: $wide;
+      box-shadow: var(--sp-shadow-lg);
+    }
+
+    .is-pinned & {
+      width: $wide;
+      box-shadow: none;
+    }
+  }
+}
+
+// Chữ trong thanh: ẩn khi thanh thu gọn (chỉ còn icon)
+@media (min-width: 992px) {
+  .sp-adm:not(.is-pinned) .sp-adm__side:not(:hover):not(:focus-within) {
+    .lb {
+      display: none;
+    }
+
+    .sp-adm__group {
+      height: 1px;
+      margin: var(--sp-space-2) 6px;
+      background: var(--sp-color-border);
+    }
+
+    .sp-adm__nav a {
+      justify-content: center;
+      padding: 0;
+    }
+
+    .sp-adm__me {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .sp-adm__brand {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .sp-adm__pin {
+      display: none;
+    }
+  }
+
+  .sp-adm__side:hover .sp-adm__dot,
+  .sp-adm__side:focus-within .sp-adm__dot,
+  .is-pinned .sp-adm__dot {
+    display: none;
+  }
+}
+
+.sp-adm__brandrow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: var(--sp-space-2);
+  border-bottom: 1px solid var(--sp-color-border);
+
+  .sp-adm__brand {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    border: 0;
+  }
+}
+
+.sp-adm__pin {
+  display: none;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: var(--sp-space-4);
+  border: 1px solid var(--sp-color-border);
+  border-radius: 50%;
+  background: var(--sp-color-surface);
+  color: var(--sp-color-text-muted);
+
+  &:hover,
+  &[aria-pressed='true'] {
+    color: var(--sp-color-primary);
+    border-color: var(--sp-color-primary);
+  }
+
+  @media (min-width: 992px) {
+    display: inline-grid;
+  }
+}
+
+.ic {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+// Số việc chờ trên icon khi thanh thu gọn
+.sp-adm__dot {
+  position: absolute;
+  top: -7px;
+  right: -10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-danger);
+  color: var(--sp-color-on-danger);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+
+  @media (max-width: 991.98px) {
+    display: none;
+  }
+}
+
+.sp-adm__scrim {
+  display: none;
+
+  .is-nav-open & {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    background: color-mix(in srgb, var(--sp-primary-900) 45%, transparent);
+
+    @media (min-width: 992px) {
+      display: none;
+    }
+  }
+}
+
+.sp-adm__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  padding: 0 var(--sp-space-2) var(--sp-space-4);
+  margin-bottom: var(--sp-space-2);
+  border-bottom: 1px solid var(--sp-color-border);
+  color: var(--sp-color-text);
+  text-decoration: none;
+
+  img {
+    border-radius: 50%;
+  }
+
+  strong {
+    display: block;
+    font-family: var(--sp-font-display);
+    font-size: 18px;
+  }
+
+  small {
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-adm__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-3);
+    min-height: 40px;
+    padding: 0 var(--sp-space-3);
+    border-radius: var(--sp-radius-md);
+    color: var(--sp-color-text);
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &:hover {
+      background: var(--sp-color-primary-subtle);
+    }
+
+    &.is-on {
+      background: var(--sp-color-primary-subtle);
+      color: var(--sp-color-primary);
+      font-weight: 700;
+      box-shadow: inset 3px 0 0 var(--sp-color-primary);
+    }
+  }
+}
+
+.sp-adm__group {
+  margin: var(--sp-space-3) var(--sp-space-3) 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sp-color-text-subtle);
+}
+
+.sp-adm__me {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  white-space: nowrap;
+  margin-top: auto;
+  padding: var(--sp-space-3) var(--sp-space-2) 0;
+  border-top: 1px solid var(--sp-color-border);
+  color: var(--sp-color-text);
+  text-decoration: none;
+
+  .lb {
+    min-width: 0;
+  }
+
+  // Tên dài cắt "..." ở cuối, đủ tên ở title
+  strong,
+  small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  small {
+    font-size: 12px;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-adm__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sp-adm__top {
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+  min-height: 64px;
+  padding: 0 var(--sp-space-4);
+  background: var(--sp-color-bg);
+  border-bottom: 1px solid var(--sp-color-border);
+
+  @media (min-width: 768px) {
+    padding: 0 var(--sp-space-6);
+  }
+}
+
+.sp-adm__burger {
+  display: inline-flex;
+  padding: 8px;
+
+  @media (min-width: 992px) {
+    display: none;
+  }
+}
+
+.sp-adm__crumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  min-width: 0;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  a {
+    color: var(--sp-color-text-muted);
+    text-decoration: none;
+  }
+
+  strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Điện thoại chỉ còn tên trang để đủ chỗ
+  @media (max-width: 575.98px) {
+    a,
+    app-icon {
+      display: none;
+    }
+  }
+}
+
+.sp-adm__tools {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  min-width: 0;
+  margin-left: auto;
+
+  // Điện thoại: hàng nút giữ nguyên, đường dẫn trang (crumb) rút gọn "..." thay vì đẩy nút ra ngoài màn hình
+  @media (max-width: 575.98px) {
+    flex: none;
+  }
+}
+
+.sp-adm__ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sp-tap-min);
+  height: var(--sp-tap-min);
+  padding: 0;
+  border-radius: 50%;
+}
+
+.sp-adm__user {
+  position: relative;
+  min-width: 0;
+
+  // Điện thoại: nút chỉ còn avatar, không co nhỏ hơn avatar (bị bóp thì avatar tràn ra làm trang rộng hơn màn hình)
+  @media (max-width: 575.98px) {
+    flex: none;
+
+    .sp-adm__userbtn {
+      padding: 4px;
+
+      app-icon {
+        display: none;
+      }
+    }
+  }
+}
+
+// Thanh hep thi ten rut gon bang "...", khong de avatar de len chu.
+.sp-adm__userbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--sp-space-2);
+  max-width: 100%;
+  min-width: 0;
+  padding: 4px 10px 4px 4px;
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-pill);
+
+  .sp-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .sp-adm__username {
+    min-width: 0;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.sp-adm__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 1030;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 6px;
+  border-radius: var(--sp-radius-lg);
+  border: 1px solid var(--sp-color-border);
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-lg);
+
+  a,
+  button {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-2);
+    min-height: 40px;
+    padding: 0 var(--sp-space-3);
+    border: 0;
+    border-radius: var(--sp-radius-md);
+    background: none;
+    color: var(--sp-color-text);
+    text-decoration: none;
+    text-align: left;
+
+    &:hover {
+      background: var(--sp-color-primary-subtle);
+    }
+  }
+}
+
+.sp-adm__content {
+  padding: var(--sp-space-5) var(--sp-space-4) var(--sp-space-7);
+
+  @media (min-width: 768px) {
+    padding: var(--sp-space-5) var(--sp-space-6) var(--sp-space-7);
+  }
+
+  &.has-chat {
+    padding-bottom: 480px;
+  }
+}
+
+// Ô tìm và chuông trên thanh đầu (theo SCR-41)
+.sp-adm__search {
+  position: relative;
+  align-items: center;
+  flex: 0 1 280px;
+  margin-left: auto;
+
+  app-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--sp-color-text-subtle);
+    pointer-events: none;
+  }
+
+  .form-control {
+    padding-left: 40px;
+  }
+
+  + .sp-adm__tools {
+    margin-left: var(--sp-space-3);
+  }
+}
+
+.sp-adm__bell {
+  position: relative;
+}
+
+.sp-adm__bellnum {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-danger);
+  color: var(--sp-color-on-danger);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.sp-adm__menu--bell {
+  min-width: 280px;
+
+  b {
+    margin-left: auto;
+  }
+}
+
+.sp-adm__menuhead {
+  margin: 4px var(--sp-space-3) 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sp-color-text-subtle);
+  text-transform: uppercase;
+}
+
+// Chuông: dòng "Nhắc đến bạn" khi được gắn thẻ @ trong ghi chú đơn
+.sp-adm__mention {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-space-2);
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  background: var(--sp-color-primary-subtle);
+  color: var(--sp-color-text);
+  text-align: left;
+  font-size: 13px;
+
+  & + & {
+    border-top: 1px solid var(--sp-color-border);
+  }
+
+  // Đã đọc: nền trong, chữ nhạt hơn (vẫn bấm mở lại đơn được)
+  &.is-read {
+    background: transparent;
+    color: var(--sp-color-text-muted, var(--bs-secondary-color));
+  }
+
+  small {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}

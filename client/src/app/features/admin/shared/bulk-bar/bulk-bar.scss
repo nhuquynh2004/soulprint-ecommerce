@@ -1,0 +1,54 @@
+// SCR-41-ChonNhieu: khung viền màu chính, nền nhạt, tiêu đề "Đã chọn n sản phẩm" và hàng nút
+.sp-bulk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+  padding: var(--sp-space-3);
+  border: 1.5px solid var(--sp-color-primary);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-primary-subtle);
+}
+
+.sp-bulk__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+
+  .form-check-input {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+  }
+}
+
+.sp-bulk__x {
+  margin-left: auto;
+  display: inline-flex;
+  padding: 6px;
+  border-radius: 50%;
+}
+
+.sp-bulk__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    background: var(--sp-color-surface);
+  }
+
+  .btn-danger {
+    background: var(--sp-color-danger);
+  }
+}
+
+.sp-bulk__hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sp-color-text-subtle);
+}

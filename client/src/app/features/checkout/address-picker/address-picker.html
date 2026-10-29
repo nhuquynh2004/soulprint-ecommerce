@@ -1,0 +1,30 @@
+<app-dialog title="Kho địa chỉ" subtitle="Chọn địa chỉ nhận hàng cho đơn này" (closed)="closed.emit()">
+  <div class="sp-apick" role="radiogroup" aria-label="Địa chỉ trong kho">
+    @for (a of addresses; track a._id) {
+      <label class="sp-apick__item" [class.is-on]="a._id === selectedId">
+        <input class="form-check-input" type="radio" name="apick" [value]="a._id" [(ngModel)]="selectedId" />
+        <span class="sp-apick__body">
+          <span class="sp-apick__head">
+            <strong>{{ a.recipientName }}</strong>
+            @if (a.isDefault) {
+              <span class="sp-badge sp-badge--primary">Địa chỉ của tôi</span>
+            }
+            <span class="text-body-secondary">{{ a.phone }}</span>
+          </span>
+          <span class="sp-apick__line">{{ a.street }}, {{ a.ward }}, {{ a.province }}</span>
+        </span>
+      </label>
+    }
+  </div>
+  @if (showSetDefault && selected && !selected.isDefault) {
+    <label class="form-check d-flex align-items-center gap-2 p-0 mt-3">
+      <input class="form-check-input m-0" type="checkbox" [(ngModel)]="setAsDefault" />
+      <span class="form-check-label">Đặt làm địa chỉ của tôi</span>
+    </label>
+  }
+  <div dialog-footer>
+    <button class="btn btn-link me-auto" type="button" (click)="addNew.emit()"><app-icon name="plus" [size]="18" /> Thêm địa chỉ mới</button>
+    <button class="btn btn-outline-primary" type="button" (click)="closed.emit()">Hủy</button>
+    <button class="btn btn-primary" type="button" [disabled]="!selected" (click)="use()">Dùng địa chỉ này</button>
+  </div>
+</app-dialog>

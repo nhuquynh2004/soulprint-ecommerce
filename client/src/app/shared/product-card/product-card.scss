@@ -1,0 +1,262 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.sp-pcard {
+  // Container query: thẻ hẹp (2 cột trên điện thoại) thì sao đánh giá thu gọn (rating.scss)
+  container: pcard / inline-size;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  padding: 12px;
+  background: var(--sp-color-surface);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  box-shadow: var(--sp-shadow-sm);
+  transition:
+    box-shadow var(--sp-dur-fast),
+    border-color var(--sp-dur-fast),
+    transform var(--sp-dur-fast);
+
+  &:hover {
+    box-shadow: var(--sp-shadow-hover);
+    border-color: var(--sp-primary-200);
+    transform: translateY(-2px);
+  }
+
+  &:focus-within {
+    box-shadow:
+      0 0 0 2px var(--sp-color-bg),
+      0 0 0 4px var(--sp-color-primary);
+  }
+}
+
+.sp-pcard__media {
+  display: block;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-primary-subtle);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.is-oos .sp-pcard__media img {
+  filter: grayscale(1);
+  opacity: 0.7;
+}
+
+.sp-pcard__badges {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 56px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sp-pcard__fav {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--sp-color-surface);
+  color: var(--sp-color-text);
+  box-shadow: var(--sp-shadow-sm);
+
+  &.is-on {
+    color: var(--sp-color-danger);
+  }
+
+  &:hover {
+    color: var(--sp-color-danger);
+  }
+}
+
+.sp-pcard__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 20px;
+
+  app-rating {
+    flex: none;
+  }
+}
+
+.sp-pcard__axis {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &.is-sport {
+    color: var(--sp-axis-sport);
+  }
+
+  &.is-anime {
+    color: var(--sp-axis-anime);
+  }
+
+  &.is-game {
+    color: var(--sp-axis-game);
+  }
+}
+
+.sp-pcard__name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: var(--sp-color-text);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--sp-color-primary);
+  }
+}
+
+.sp-pcard__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+
+  .sp-price {
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+  }
+}
+
+// Nút chỉ có biểu tượng để giá không bị đè khi thẻ hẹp (lưới 4 cột, Mobile)
+.sp-pcard__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--sp-tap-min);
+  height: var(--sp-tap-min);
+  padding: 0;
+  border-radius: var(--sp-radius-pill);
+}
+
+.sp-pcard--compact {
+  padding: 8px;
+  gap: 6px;
+
+  .sp-pcard__name {
+    font-size: 14px;
+    line-height: 20px;
+    min-height: 40px;
+  }
+
+  .sp-pcard__badges {
+    top: 14px;
+    left: 14px;
+  }
+
+  .sp-pcard__fav {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .sp-pcard {
+    padding: 8px;
+  }
+
+  .sp-pcard__badges {
+    top: 14px;
+    left: 14px;
+    right: 50px;
+  }
+
+  .sp-pcard__fav {
+    top: 12px;
+    right: 12px;
+  }
+
+  .sp-pcard__name {
+    font-size: 14px;
+    line-height: 20px;
+    min-height: 40px;
+  }
+}
+
+// Nhãn trên ảnh mỗi loại một màu (giảm giá đỏ, Mới xanh lá, Bán chạy cam, Cá nhân hóa tím, Tạm hết hàng xám)
+.sp-pcard__b {
+  --b-bg: var(--sp-color-surface-alt);
+  --b-fg: var(--sp-color-text-muted);
+  background: var(--b-bg);
+  color: var(--b-fg);
+  border-color: transparent;
+
+  &--sale {
+    --b-bg: #bc1010;
+    --b-fg: #fff;
+  }
+
+  &--new {
+    --b-bg: #0c7a55;
+    --b-fg: #fff;
+  }
+
+  &--hot {
+    --b-bg: #c2410c;
+    --b-fg: #fff;
+  }
+
+  &--perso {
+    --b-bg: #6d3fd0;
+    --b-fg: #fff;
+  }
+
+  &--out {
+    --b-bg: #5b6474;
+    --b-fg: #fff;
+  }
+}
+
+// Thẻ hẹp: nhãn chỉ còn icon để không che ảnh, riêng -% giữ chữ (cùng ngưỡng với rating.scss)
+@container pcard (max-width: 230px) {
+  .sp-pcard__b:not(.sp-pcard__b--sale) {
+    width: 24px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .sp-pcard__bt {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

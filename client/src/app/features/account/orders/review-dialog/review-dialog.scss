@@ -1,0 +1,104 @@
+// SCR-27 Hộp thoại đánh giá
+.sp-rv__item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+  width: 100%;
+  padding: var(--sp-space-3);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface-alt);
+  color: inherit;
+
+  img {
+    flex: none;
+    border-radius: var(--sp-radius-md);
+    object-fit: cover;
+  }
+
+  small {
+    display: block;
+    color: var(--sp-color-text-muted);
+  }
+
+  &:disabled {
+    opacity: 1;
+  }
+}
+
+.sp-rv__list {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--sp-space-1);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  overflow: hidden;
+
+  button {
+    min-height: var(--sp-tap-min);
+    padding: 0 var(--sp-space-3);
+    border: 0;
+    background: var(--sp-color-surface);
+    color: inherit;
+    text-align: left;
+
+    &:hover,
+    &[aria-selected="true"] {
+      background: var(--sp-color-primary-subtle);
+    }
+  }
+}
+
+.sp-rv__rate {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: var(--sp-space-4);
+
+  button {
+    display: inline-flex;
+    padding: 2px;
+    border: 0;
+    background: none;
+    color: var(--sp-color-border-strong);
+
+    &.is-on {
+      color: var(--sp-color-warning);
+    }
+  }
+
+  strong {
+    margin-left: var(--sp-space-2);
+  }
+}
+
+.sp-rv__hint {
+  margin: 4px 0 0;
+  color: var(--sp-color-text-muted);
+  font-size: 13px;
+}
+
+.sp-rv__done {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: var(--sp-space-3);
+
+  p {
+    margin: 0;
+  }
+}
+
+.sp-rv__stars {
+  display: inline-flex;
+  color: var(--sp-color-warning);
+}
+
+.sp-rv__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+}

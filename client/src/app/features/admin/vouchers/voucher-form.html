@@ -1,0 +1,384 @@
+@if (loading()) {
+  <span class="sp-skel d-block" style="height: 520px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <a class="btn btn-primary" routerLink="/quan-tri/voucher">Về danh sách voucher</a>
+  </div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="save(isDraft() ? 'publish' : 'save')" novalidate>
+    <header class="sp-pf-head">
+      <a class="btn sp-pf-back" routerLink="/quan-tri/voucher" aria-label="Về danh sách voucher"><app-icon name="arrow-left" [size]="20" /></a>
+      <div class="sp-pf-title">
+        <h1>{{ saved()?.code || 'Tạo voucher' }}</h1>
+        @if (saved(); as s) {
+          <span [class]="'sp-status sp-status--' + s.displayStatus">{{ statusLabel[s.displayStatus!] }}</span>
+          <small class="text-body-secondary">{{ s.name }}{{ s.createdAt ? ' | tạo ' + (s.createdAt | date: 'dd/MM/yyyy') : '' }}{{ s.createdByName ? ' bởi ' + s.createdByName : '' }}</small>
+        }
+        @if (hasUnsavedChanges()) {
+          <small class="text-body-secondary">Có thay đổi chưa lưu</small>
+        }
+      </div>
+      @if (canEdit()) {
+        <div class="sp-pf-actions">
+          @if (saved() && (saved()!.status === 'HOAT_DONG' || saved()!.status === 'TAM_NGUNG')) {
+            <button class="btn btn-outline-primary d-inline-flex align-items-center gap-1" type="button" (click)="togglePause()">
+              <app-icon [name]="saved()!.status === 'TAM_NGUNG' ? 'play' : 'pause'" [size]="18" /> {{ saved()!.status === 'TAM_NGUNG' ? 'Bật lại' : 'Tạm ngừng' }}
+            </button>
+          }
+          @if (saved() && auth.can('VOUCHER.TAO')) {
+            <button class="btn btn-link d-inline-flex align-items-center gap-1" type="button" (click)="duplicate()"><app-icon name="copy" [size]="18" /> Nhân bản</button>
+          }
+          @if (isDraft()) {
+            <button class="btn btn-outline-secondary" type="button" [disabled]="saving()" (click)="save('draft')">Lưu bản nháp</button>
+          }
+          <button class="btn btn-primary" type="submit" [disabled]="saving()">{{ isDraft() ? 'Tạo voucher' : 'Lưu thay đổi' }}</button>
+        </div>
+      }
+    </header>
+
+    @if (live()) {
+      <p class="sp-alert sp-alert--info"><app-icon name="info" [size]="20" /> Voucher đang hoạt động chỉ sửa được mô tả, ngày kết thúc và tổng số lượt; thay đổi áp dụng cho lượt dùng sau.</p>
+    }
+    @if (saved()?.status === 'LUU_TRU') {
+      <p class="sp-alert sp-alert--warning"><app-icon name="archive" [size]="20" /> Voucher đã lưu trữ: khách không áp dụng được, các đơn cũ vẫn giữ mã.</p>
+    }
+
+    <div class="sp-pf-grid">
+      <div class="sp-pf-main">
+        <!-- 1. Thông tin chung -->
+        <section class="sp-acard" id="vf-1">
+          <h2><span class="sp-vf__n">1</span> Thông tin chung</h2>
+          <div class="sp-vf__g2">
+            <div class="sp-field">
+              <label for="vf-code">Mã voucher <span class="req">*</span></label>
+              <input id="vf-code" class="form-control text-uppercase" formControlName="code" maxlength="16" placeholder="VD SOULPRINT10" [class.is-invalid]="err('code')" />
+              @if (err('code')) {
+                <span class="sp-field__error">{{ err('code') }}</span>
+              } @else {
+                <span class="sp-field__hint">Chữ in hoa, không dấu, 4 - 16 ký tự</span>
+              }
+            </div>
+            <div class="sp-field">
+              <label for="vf-name">Tên hiển thị <span class="req">*</span></label>
+              <input id="vf-name" class="form-control" formControlName="name" maxlength="120" placeholder="VD Thành viên mới giảm 10%" [class.is-invalid]="err('name')" />
+              @if (err('name')) {
+                <span class="sp-field__error">{{ err('name') }}</span>
+              }
+            </div>
+          </div>
+          <div class="sp-field mb-0">
+            <label for="vf-desc">Mô tả cho khách</label>
+            <input id="vf-desc" class="form-control" formControlName="description" maxlength="300" placeholder="VD Giảm 10% cho đơn từ 300.000đ, áp dụng cả món In/Khắc" />
+          </div>
+        </section>
+
+        <!-- 2. Loại ưu đãi -->
+        <section class="sp-acard" id="vf-2">
+          <h2><span class="sp-vf__n">2</span> Loại ưu đãi</h2>
+          <div class="sp-vf__g3 mb-3">
+            @for (t of [{ k: 'PERCENT', l: 'Giảm theo %', s: 'VD: giảm 10%' }, { k: 'FIXED', l: 'Giảm số tiền', s: 'VD: giảm 50.000đ' }, { k: 'FREESHIP', l: 'Miễn phí vận chuyển', s: 'Trừ vào phí ship' }]; track t.k) {
+              <label class="sp-modecard" [class.is-on]="form.controls.type.value === t.k">
+                <input class="form-check-input" type="radio" formControlName="type" [value]="t.k" />
+                <span><strong>{{ t.l }}</strong><small>{{ t.s }}</small></span>
+              </label>
+            }
+          </div>
+          <div class="sp-vf__g2">
+            <div class="sp-field mb-0">
+              <label for="vf-value">{{ form.controls.type.value === 'FREESHIP' ? 'Phí ship hỗ trợ tối đa' : 'Mức giảm' }} <span class="req">*</span></label>
+              <div class="sp-unit">
+                <input id="vf-value" class="form-control" type="number" min="1" formControlName="value" [class.is-invalid]="err('value')" />
+                <span>{{ form.controls.type.value === 'PERCENT' ? '%' : 'đ' }}</span>
+              </div>
+              @if (err('value')) {
+                <span class="sp-field__error">{{ err('value') }}</span>
+              }
+            </div>
+            @if (form.controls.type.value === 'PERCENT') {
+              <div class="sp-field mb-0">
+                <label for="vf-max">Giảm tối đa</label>
+                <div class="sp-unit">
+                  <input id="vf-max" class="form-control" type="number" min="1" step="1000" formControlName="maxDiscount" placeholder="Không giới hạn" [class.is-invalid]="err('maxDiscount')" />
+                  <span>đ</span>
+                </div>
+                @if (err('maxDiscount')) {
+                  <span class="sp-field__error">{{ err('maxDiscount') }}</span>
+                }
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- 3. Điều kiện áp dụng -->
+        <section class="sp-acard" id="vf-3">
+          <h2><span class="sp-vf__n">3</span> Điều kiện áp dụng</h2>
+          <div class="sp-vf__g2">
+            <div class="sp-field">
+              <label for="vf-min">Giá trị đơn tối thiểu</label>
+              <div class="sp-unit">
+                <input id="vf-min" class="form-control" type="number" min="0" step="10000" formControlName="minOrderValue" [class.is-invalid]="err('minOrderValue')" />
+                <span>đ</span>
+              </div>
+              @if (err('minOrderValue')) {
+                <span class="sp-field__error">{{ err('minOrderValue') }}</span>
+              }
+            </div>
+            <div class="sp-field">
+              <label for="vf-items">Số lượng sản phẩm tối thiểu</label>
+              <div class="sp-unit">
+                <input id="vf-items" class="form-control" type="number" min="0" formControlName="minItems" />
+                <span>sản phẩm</span>
+              </div>
+            </div>
+          </div>
+          <span class="sp-field__label fw-semibold d-block mb-2">Áp dụng cho</span>
+          <div class="sp-vf__seg mb-3" role="radiogroup" aria-label="Phạm vi áp dụng">
+            @for (k of [{ k: 'ALL', l: 'Toàn bộ sản phẩm' }, { k: 'CATEGORY', l: 'Danh mục' }, { k: 'PRODUCT', l: 'Sản phẩm' }]; track k.k) {
+              <button type="button" role="radio" [attr.aria-checked]="form.controls.scopeKind.value === k.k" [class.is-on]="form.controls.scopeKind.value === k.k" [disabled]="form.controls.scopeKind.disabled" (click)="setScopeKind($any(k.k))">{{ k.l }}</button>
+            }
+          </div>
+          @if (form.controls.scopeKind.value === 'CATEGORY') {
+            <div class="sp-chips mb-2">
+              @for (c of categories(); track c._id) {
+                <button type="button" class="sp-chip" [class.is-on]="hasCategory(c._id)" [disabled]="form.controls.scopeKind.disabled" (click)="toggleCategory(c)">{{ c.name }}</button>
+              }
+            </div>
+          }
+          @if (form.controls.scopeKind.value === 'PRODUCT') {
+            <div class="sp-vf__search mb-2">
+              <input class="form-control" type="search" placeholder="Tìm sản phẩm đang bán theo tên để thêm" aria-label="Tìm sản phẩm áp dụng" [value]="productTarget() === 'scope' ? productQ() : ''" [disabled]="form.controls.scopeKind.disabled" (input)="searchProduct('scope', $any($event.target).value)" />
+              @if (productTarget() === 'scope' && productResults().length) {
+                <ul class="sp-vf__results">
+                  @for (p of productResults(); track p._id) {
+                    <li><button type="button" (click)="addProduct(p)">{{ p.name }} <small>{{ p.sub }}</small></button></li>
+                  }
+                </ul>
+              }
+            </div>
+            <div class="sp-vf__picked">
+              @for (p of scopeItems(); track p._id) {
+                <span class="sp-vf__tag">{{ p.name }} <button type="button" [attr.aria-label]="'Bỏ ' + p.name" [disabled]="form.controls.scopeKind.disabled" (click)="removePicked('scope', p._id)"><app-icon name="close" [size]="14" /></button></span>
+              }
+            </div>
+          }
+          @if (listError('scope')) {
+            <span class="sp-field__error sp-vf__err d-block">{{ listError('scope') }}</span>
+          }
+          <span class="sp-field__label fw-semibold d-block mt-3 mb-2">Trừ sản phẩm</span>
+          <div class="sp-vf__search mb-2">
+            <input class="form-control" type="search" placeholder="Tìm sản phẩm không áp dụng (VD Giftbox)" aria-label="Tìm sản phẩm loại trừ" [value]="productTarget() === 'exclude' ? productQ() : ''" [disabled]="form.controls.scopeKind.disabled" (input)="searchProduct('exclude', $any($event.target).value)" />
+            @if (productTarget() === 'exclude' && productResults().length) {
+              <ul class="sp-vf__results">
+                @for (p of productResults(); track p._id) {
+                  <li><button type="button" (click)="addProduct(p)">{{ p.name }} <small>{{ p.sub }}</small></button></li>
+                }
+              </ul>
+            }
+          </div>
+          <div class="sp-vf__picked">
+            @for (p of excluded(); track p._id) {
+              <span class="sp-vf__tag is-ex">{{ p.name }} <button type="button" [attr.aria-label]="'Bỏ ' + p.name" [disabled]="form.controls.scopeKind.disabled" (click)="removePicked('exclude', p._id)"><app-icon name="close" [size]="14" /></button></span>
+            } @empty {
+              <small class="text-body-secondary">Không loại trừ sản phẩm nào</small>
+            }
+          </div>
+        </section>
+
+        <!-- 4. Đối tượng -->
+        <section class="sp-acard" id="vf-4">
+          <h2><span class="sp-vf__n">4</span> Đối tượng</h2>
+          <div class="sp-vf__g2 sp-vf__g4">
+            @for (a of [{ k: 'PUBLIC', l: 'Mọi khách', s: 'Ai nhập mã cũng dùng được' }, { k: 'ALL_MEMBERS', l: 'Mọi thành viên', s: 'Phát vào Ưu đãi của tôi' }, { k: 'NEW_MEMBERS', l: 'Thành viên mới', s: 'Tạo tài khoản trong 30 ngày' }, { k: 'SELECTED', l: 'Danh sách chọn', s: 'Chọn khách hoặc tải lên SĐT/email' }]; track a.k) {
+              <label class="sp-modecard" [class.is-on]="form.controls.audience.value === a.k">
+                <input class="form-check-input" type="radio" formControlName="audience" [value]="a.k" />
+                <span><strong>{{ a.l }}</strong><small>{{ a.s }}</small></span>
+              </label>
+            }
+          </div>
+          @if (form.controls.audience.value === 'SELECTED') {
+            <div class="sp-vf__sel mt-3">
+              <div class="d-flex flex-wrap gap-2 mb-2">
+                <div class="sp-vf__search flex-grow-1">
+                  <input class="form-control" type="search" placeholder="Tìm khách theo tên, SĐT hoặc email" aria-label="Tìm khách hàng" [disabled]="form.controls.audience.disabled" (input)="searchCustomer($any($event.target).value)" />
+                  @if (customerResults().length) {
+                    <ul class="sp-vf__results">
+                      @for (u of customerResults(); track u._id) {
+                        <li><button type="button" (click)="addCustomer(u)">{{ u.fullName }} <small>{{ u.phone }}{{ u.email ? ' | ' + u.email : '' }}</small></button></li>
+                      }
+                    </ul>
+                  }
+                </div>
+                <label class="btn btn-outline-primary d-inline-flex align-items-center gap-1 mb-0" [class.disabled]="uploading() || form.controls.audience.disabled">
+                  <app-icon name="upload" [size]="18" /> {{ uploading() ? 'Đang đọc tệp...' : 'Tải lên SĐT/email' }}
+                  <input class="visually-hidden" type="file" accept=".csv,.txt,text/csv,text/plain" (change)="onFile($any($event.target))" />
+                </label>
+              </div>
+              <small class="text-body-secondary d-block mb-2">Tệp .csv hoặc .txt, mỗi dòng 1 số điện thoại hoặc email, tối đa 1.000 dòng.</small>
+              @if (upload(); as up) {
+                <div class="sp-alert py-2" [class.sp-alert--success]="!up.unmatched.length" [class.sp-alert--warning]="up.unmatched.length">
+                  <app-icon name="file" [size]="20" />
+                  <div>
+                    <p>{{ up.file }}: khớp {{ up.matched }} khách{{ up.unmatched.length ? ', ' + up.unmatched.length + ' dòng không khớp tài khoản nào' : '' }}.</p>
+                    @if (up.unmatched.length) {
+                      <p class="small">{{ up.unmatched.slice(0, 10).join(', ') }}{{ up.unmatched.length > 10 ? '...' : '' }}</p>
+                    }
+                  </div>
+                </div>
+              }
+              <div class="sp-vf__picked">
+                @for (u of selectedUsers(); track u._id) {
+                  <span class="sp-vf__tag">{{ u.fullName }} | {{ u.phone }} <button type="button" [attr.aria-label]="'Bỏ ' + u.fullName" [disabled]="form.controls.audience.disabled" (click)="removeCustomer(u._id)"><app-icon name="close" [size]="14" /></button></span>
+                }
+              </div>
+              <small class="text-body-secondary">{{ selectedUsers().length }} khách được chọn</small>
+            </div>
+          }
+          @if (listError('audience')) {
+            <span class="sp-field__error sp-vf__err d-block">{{ listError('audience') }}</span>
+          }
+        </section>
+
+        <!-- 5. Giới hạn sử dụng -->
+        <section class="sp-acard" id="vf-5">
+          <h2><span class="sp-vf__n">5</span> Giới hạn sử dụng</h2>
+          <div class="sp-vf__g3">
+            <div class="sp-field mb-0">
+              <label for="vf-total">Tổng số lượt</label>
+              <div class="sp-unit"><input id="vf-total" class="form-control" type="number" min="1" formControlName="totalQuantity" placeholder="Không giới hạn" [class.is-invalid]="err('totalQuantity')" /><span>lượt</span></div>
+              @if (err('totalQuantity')) {
+                <span class="sp-field__error">{{ err('totalQuantity') }}</span>
+              }
+            </div>
+            <div class="sp-field mb-0">
+              <label for="vf-per">Mỗi khách dùng tối đa</label>
+              <div class="sp-unit"><input id="vf-per" class="form-control" type="number" min="1" formControlName="perUserLimit" [class.is-invalid]="err('perUserLimit')" /><span>lượt</span></div>
+              @if (err('perUserLimit')) {
+                <span class="sp-field__error">{{ err('perUserLimit') }}</span>
+              }
+            </div>
+            <div class="sp-field mb-0">
+              <label for="vf-budget">Ngân sách tối đa</label>
+              <div class="sp-unit"><input id="vf-budget" class="form-control" type="number" min="1" step="100000" formControlName="maxBudget" placeholder="Không giới hạn" [class.is-invalid]="err('maxBudget')" /><span>đ</span></div>
+              @if (err('maxBudget')) {
+                <span class="sp-field__error">{{ err('maxBudget') }}</span>
+              } @else {
+                <span class="sp-field__hint">Tổng tiền giảm đạt mức này thì mã ngừng</span>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. Thời gian -->
+        <section class="sp-acard" id="vf-6">
+          <h2><span class="sp-vf__n">6</span> Thời gian</h2>
+          <div class="sp-vf__g3">
+            <div class="sp-field mb-0">
+              <label for="vf-start">Bắt đầu</label>
+              <input id="vf-start" class="form-control" type="datetime-local" formControlName="startAt" [class.is-invalid]="err('startAt')" />
+              @if (err('startAt')) {
+                <span class="sp-field__error">{{ err('startAt') }}</span>
+              }
+            </div>
+            <div class="sp-field mb-0">
+              <label for="vf-end">Kết thúc</label>
+              <input id="vf-end" class="form-control" type="datetime-local" formControlName="endAt" [class.is-invalid]="err('endAt')" />
+              @if (err('endAt')) {
+                <span class="sp-field__error">{{ err('endAt') }}</span>
+              }
+            </div>
+            <div class="sp-field mb-0">
+              <label for="vf-days">Hạn dùng sau khi nhận</label>
+              <div class="sp-unit"><input id="vf-days" class="form-control" type="number" min="1" max="365" formControlName="validDays" placeholder="Theo ngày kết thúc" [class.is-invalid]="err('validDays')" /><span>ngày</span></div>
+              @if (err('validDays')) {
+                <span class="sp-field__error">{{ err('validDays') }}</span>
+              } @else {
+                <span class="sp-field__hint">Áp cho voucher phát vào Ưu đãi của tôi</span>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. Hiển thị -->
+        <section class="sp-acard" id="vf-7">
+          <h2><span class="sp-vf__n">7</span> Hiển thị</h2>
+          <div class="sp-vf__sw">
+            <div>
+              <label class="fw-semibold d-block" for="vf-wallet">Hiện trong kho ưu đãi khi thanh toán</label>
+              <small class="text-body-secondary">Khách thấy và chọn nhanh; tắt thì khách phải tự gõ mã</small>
+            </div>
+            <div class="form-check form-switch m-0"><input id="vf-wallet" class="form-check-input" type="checkbox" role="switch" formControlName="showInWallet" /></div>
+          </div>
+          <div class="sp-vf__sw">
+            <div>
+              <label class="fw-semibold d-block" for="vf-signup">Tặng tự động khi đăng ký</label>
+              <small class="text-body-secondary">Phát vào Ưu đãi của tôi của Member đăng ký sau đó (chỉ với Mọi thành viên, Thành viên mới)</small>
+            </div>
+            <div class="form-check form-switch m-0"><input id="vf-signup" class="form-check-input" type="checkbox" role="switch" formControlName="autoOnSignup" /></div>
+          </div>
+          @if (err('autoOnSignup')) {
+            <span class="sp-field__error">{{ err('autoOnSignup') }}</span>
+          }
+        </section>
+
+        <!-- 8. Kết hợp ưu đãi (BR-23: chỉ hiển thị quy tắc) -->
+        <section class="sp-acard" id="vf-8">
+          <h2><span class="sp-vf__n">8</span> Kết hợp ưu đãi</h2>
+          <p class="sp-alert sp-alert--info m-0">
+            <app-icon name="layers" [size]="20" />
+            @if (form.controls.type.value === 'FREESHIP') {
+              Dùng chung được với 1 voucher giảm giá (theo % hoặc số tiền). Không dùng chung với voucher miễn phí vận chuyển khác.
+            } @else {
+              Dùng chung được với 1 voucher miễn phí vận chuyển. Không dùng chung với voucher giảm giá khác.
+            }
+          </p>
+        </section>
+      </div>
+
+      <aside class="sp-pf-side">
+        <section class="sp-acard">
+          <h2>8 vùng thông tin</h2>
+          <ol class="sp-vf__toc">
+            @for (r of regions; track r.n) {
+              <li>
+                <button type="button" (click)="goto(r.id)">
+                  @if (regionHasError(r.fields)) {
+                    <span class="sp-vf__dot" aria-label="Có lỗi"></span>
+                  } @else {
+                    <app-icon name="check-circle" [size]="16" />
+                  }
+                  {{ r.n }}. {{ r.label }}
+                </button>
+              </li>
+            }
+          </ol>
+        </section>
+
+        @if (saved()?.stats; as st) {
+          <section class="sp-acard">
+            <h2>Thống kê</h2>
+            <div class="sp-vf__stat"><span>Đã dùng</span><strong>{{ st.used }}{{ st.totalQuantity ? ' / ' + st.totalQuantity : '' }} lượt</strong></div>
+            @if (st.totalQuantity) {
+              <span class="sp-vf__bar"><span [style.width.%]="(st.used / st.totalQuantity) * 100"></span></span>
+            }
+            <div class="sp-vf__stat"><span>Doanh thu có dùng mã</span><strong>{{ st.revenue | vnd }}</strong></div>
+            <div class="sp-vf__stat"><span>Tổng tiền đã giảm</span><strong>{{ st.discountTotal | vnd }}</strong></div>
+            <div class="sp-vf__stat"><span>Tỷ lệ dùng / nhận</span><strong>{{ st.useRate === null ? 'Không áp dụng' : st.useRate + '%' }}</strong></div>
+            <div class="sp-vf__chart">
+              <small>Lượt dùng 14 ngày qua</small>
+              <svg viewBox="-4 0 248 60" role="img" [attr.aria-label]="'Lượt dùng 14 ngày qua, tổng ' + st.used">
+                <polyline [attr.points]="sparkline()" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+              </svg>
+            </div>
+          </section>
+        }
+      </aside>
+    </div>
+  </form>
+}
+
+@if (leaveDialog()) {
+  <app-confirm-dialog title="Rời trang khi chưa lưu?" confirmLabel="Rời trang" cancelLabel="Ở lại" [danger]="true" (confirm)="answerLeave(true)" (cancel)="answerLeave(false)">
+    <p class="m-0">Các thay đổi của voucher này sẽ mất.</p>
+  </app-confirm-dialog>
+}

@@ -1,0 +1,90 @@
+<header class="sp-ph">
+  <h1>Ưu đãi của tôi</h1>
+  <p>Mã đã lưu sẽ tự hiện ở bước thanh toán</p>
+</header>
+
+<nav class="sp-tabs2" role="tablist" aria-label="Nhóm ưu đãi">
+  @for (t of tabs; track t.key) {
+    <button type="button" role="tab" [class.is-on]="tab() === t.key" [attr.aria-selected]="tab() === t.key" (click)="setTab(t.key)">
+      {{ t.label }} ({{ data()?.counts?.[t.key] ?? 0 }})
+    </button>
+  }
+</nav>
+
+@if (error()) {
+  <div class="sp-state" role="alert">
+    <p>{{ error() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!data()) {
+  <div class="sp-vgrid">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <span class="sp-skel" style="height: 134px"></span>
+    }
+  </div>
+} @else if (!data()!.items.length) {
+  @switch (tab()) {
+    @case ('CO_THE_DUNG') {
+      <div class="sp-state">
+        <span class="sp-state__ic"><app-icon name="ticket" [size]="32" /></span>
+        <h2 class="h4">Chưa có ưu đãi nào</h2>
+        <p>Theo dõi Soulprint để nhận mã ưu đãi theo bộ sưu tập và dịp đặc biệt.</p>
+        <a class="btn btn-primary" routerLink="/san-pham">Xem bộ sưu tập</a>
+      </div>
+    }
+    @case ('SAP_HET_HAN') {
+      <div class="sp-state"><p>Không có mã nào sắp hết hạn.</p></div>
+    }
+    @default {
+      <div class="sp-state"><p>Chưa có mã nào đã dùng hoặc hết hạn.</p></div>
+    }
+  }
+} @else {
+  <div class="sp-vgrid">
+    @for (v of data()!.items; track v.code) {
+      <article class="sp-ticket" [class.is-off]="v.status === 'DA_DUNG' || v.status === 'HET_HAN'" [attr.data-type]="v.type">
+        <div class="sp-ticket__stub">
+          <strong>{{ badge(v) }}</strong>
+          <span>{{ label(v) }}</span>
+        </div>
+        <div class="sp-ticket__body">
+          <div class="d-flex align-items-center gap-1">
+            <h2 class="sp-ticket__code">{{ v.code }}</h2>
+            @if (v.status === 'CO_THE_DUNG' || v.status === 'CHUA_DEN_HAN') {
+              <button class="btn btn-sm btn-link p-1" type="button" [attr.aria-label]="'Sao chép mã ' + v.code" (click)="copy(v)"><app-icon name="copy" [size]="16" /></button>
+            }
+          </div>
+          <p class="sp-ticket__desc">{{ v.description || condition(v) }}</p>
+          <div class="sp-ticket__foot">
+            @switch (v.status) {
+              @case ('CO_THE_DUNG') {
+                <span class="sp-ticket__exp" [class.is-soon]="v.daysLeft !== null && v.daysLeft! <= 3">
+                  @if ((v.usesLeft ?? 0) > 1) {
+                    Còn {{ v.usesLeft }} lượt |
+                  }
+                  @if (v.daysLeft !== null && v.daysLeft! <= 3) {
+                    Còn {{ v.daysLeft }} ngày |
+                  }
+                  HSD: {{ v.expiresAt | date: 'dd/MM/yyyy' }}
+                </span>
+                <button class="btn btn-primary btn-sm" type="button" (click)="use(v)">Dùng ngay</button>
+              }
+              @case ('CHUA_DEN_HAN') {
+                <span class="sp-ticket__exp">Từ {{ v.startAt | date: 'dd/MM/yyyy' }}</span>
+                <button class="btn btn-sm sp-ticket__wait" type="button" disabled>Chưa đến hạn</button>
+              }
+              @case ('DA_DUNG') {
+                <span class="sp-ticket__exp">{{ v.lastOrderCode ? 'Đã dùng cho đơn ' + v.lastOrderCode : 'Đã dùng hết lượt' }}</span>
+                <span class="sp-badge sp-badge--neutral">Đã dùng</span>
+              }
+              @default {
+                <span class="sp-ticket__exp">Hết hạn {{ v.expiresAt | date: 'dd/MM/yyyy' }}</span>
+                <span class="sp-badge sp-badge--neutral">Hết hạn</span>
+              }
+            }
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+}

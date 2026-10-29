@@ -1,0 +1,173 @@
+<a class="sp-more" [routerLink]="['/tai-khoan/don-hang', code]"><app-icon name="arrow-left" [size]="18" /> Chi tiết đơn {{ code }}</a>
+
+@if (done(); as r) {
+  <!-- Trang "Đã gửi yêu cầu đổi trả" (UC-TRK-04 bước 8) -->
+  <section class="sp-rr-done">
+    <span class="sp-rr-done__ic"><app-icon name="check-circle" [size]="40" /></span>
+    <h1>Đã gửi yêu cầu đổi trả</h1>
+    <p>Mã yêu cầu <strong>{{ r.code }}</strong> | Soulprint phản hồi trong 48 giờ làm việc (trước {{ r.slaDeadline | date: 'HH:mm, dd/MM/yyyy' }}).</p>
+    <ol class="sp-steps">
+      @for (s of r.progress; track $index) {
+        <li [class.is-done]="s.state === 'done'" [class.is-current]="s.state === 'current'">
+          <strong>{{ s.label }}</strong>
+          {{ s.at ? (s.at | date: 'dd/MM HH:mm') : s.state === 'current' ? 'Trong 48 giờ' : '' }}
+        </li>
+      }
+    </ol>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+      <a class="btn btn-primary" [routerLink]="['/tai-khoan/don-hang', code]">Theo dõi yêu cầu</a>
+      <a class="btn btn-outline-primary" routerLink="/tai-khoan/don-hang">Về đơn hàng của tôi</a>
+    </div>
+  </section>
+} @else if (loadError()) {
+  <div class="sp-state" role="alert">
+    <h1 class="h4">{{ loadError() }}</h1>
+    <a class="btn btn-primary" routerLink="/tai-khoan/don-hang">Về Đơn hàng của tôi</a>
+  </div>
+} @else if (!order()) {
+  <span class="sp-skel d-block mt-3" style="height: 480px"></span>
+} @else {
+  @let o = order()!;
+  <header class="sp-rr-head">
+    <h1>Yêu cầu đổi/trả</h1>
+    <p>Đơn {{ o.code }} | giao ngày {{ o.deliveredAt | date: 'dd/MM/yyyy' }}</p>
+  </header>
+
+  @if (!o.actions?.return) {
+    <!-- 1Ea: quá 7 ngày hoặc đơn đang có yêu cầu -->
+    <div class="sp-alert sp-alert--warning mb-0">
+      <app-icon name="alert" [size]="20" />
+      <div>
+        <strong>Đơn hàng không thể gửi yêu cầu đổi/trả</strong>
+        <p>{{ o.returnStatus !== 'KHONG_CO' ? 'Đơn đang có yêu cầu đổi trả. Xem tiến độ ở chi tiết đơn.' : 'Đã quá 7 ngày kể từ khi nhận hàng. Sản phẩm còn bảo hành thì bạn có thể gửi yêu cầu bảo hành.' }}</p>
+      </div>
+    </div>
+  } @else {
+    @if (topError || error()) {
+      <div class="sp-alert sp-alert--danger mb-3" role="alert">
+        <app-icon name="alert-circle" [size]="20" />
+        <div>
+          <strong>Còn thiếu thông tin</strong>
+          <p>{{ topError || error() }}{{ topError ? '.' : '' }}</p>
+        </div>
+      </div>
+    }
+
+    <form class="sp-pf-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="sp-pf-main">
+        <!-- 1. Sản phẩm -->
+        <section class="sp-acard" formArrayName="items">
+          <h2 class="sp-rr-h"><span class="sp-stepno">1</span> Chọn sản phẩm cần đổi/trả</h2>
+          @for (g of itemControls; track g.controls.orderItemId.value; let i = $index) {
+            @let it = itemOf(g.controls.orderItemId.value);
+            <div class="sp-rr-item" [formGroupName]="i" [class.is-on]="g.controls.selected.value">
+              <input class="form-check-input" type="checkbox" formControlName="selected" [attr.aria-label]="'Chọn ' + it.name" />
+              @if (it.image) {
+                <img [src]="it.image" [alt]="it.name" width="64" height="64" />
+              }
+              <div class="flex-grow-1">
+                <strong>{{ it.name }}</strong>
+                <small>{{ it.variantName }}{{ it.personalizationText ? ', ' + (it.personalization?.type === 'THIET_KE' ? 'Thiết kế: ' : 'In/Khắc: ') + it.personalizationText : '' }} | {{ it.unitPrice | vnd }}</small>
+                @if (it.isPersonalized) {
+                  <small class="sp-rr-item__warn">Món cá nhân hóa chỉ đổi/trả khi lỗi từ Soulprint</small>
+                }
+              </div>
+              @if (it.quantity > 1 && g.controls.selected.value) {
+                <div class="sp-rr-qty" role="group" [attr.aria-label]="'Số lượng muốn trả ' + it.name">
+                  <button class="btn btn-sm btn-outline-secondary" type="button" aria-label="Giảm" (click)="quantityStep(g, -1)"><app-icon name="minus" [size]="16" /></button>
+                  <span>{{ g.controls.quantity.value }}/{{ it.quantity }}</span>
+                  <button class="btn btn-sm btn-outline-secondary" type="button" aria-label="Tăng" (click)="quantityStep(g, 1)"><app-icon name="plus" [size]="16" /></button>
+                </div>
+              }
+            </div>
+          }
+        </section>
+
+        <!-- 2. Lý do -->
+        <section class="sp-acard">
+          <h2 class="sp-rr-h"><span class="sp-stepno">2</span> Lý do</h2>
+          <div class="sp-rr-choices" role="radiogroup" aria-label="Lý do đổi/trả">
+            @for (r of reasons; track r.key) {
+              <label class="sp-modecard" [class.is-on]="value().reason === r.key" [class.is-off]="reasonDisabled(r.key)">
+                <input class="form-check-input" type="radio" name="rr-reason" [checked]="value().reason === r.key" [disabled]="reasonDisabled(r.key)" (change)="pickReason(r.key)" />
+                <span>
+                  <strong>{{ r.label }}</strong>
+                  @if (reasonDisabled(r.key)) {
+                    <small>Không áp dụng cho món cá nhân hóa</small>
+                  } @else if (r.soulprintFault && value().reason === r.key) {
+                    <small>Soulprint chịu phí vận chuyển 2 chiều</small>
+                  }
+                </span>
+              </label>
+            }
+          </div>
+        </section>
+
+        <!-- 3. Hình thức xử lý -->
+        <section class="sp-acard">
+          <h2 class="sp-rr-h"><span class="sp-stepno">3</span> Hình thức xử lý</h2>
+          <div class="sp-rr-choices">
+            @for (r of resolutions; track r.key) {
+              <label class="sp-modecard" [class.is-on]="value().resolution === r.key">
+                <input class="form-check-input" type="radio" formControlName="resolution" [value]="r.key" />
+                <span><strong>{{ r.label }}</strong><small>{{ r.hint }}</small></span>
+              </label>
+            }
+          </div>
+        </section>
+
+        <!-- 4. Ảnh, mô tả -->
+        <section class="sp-acard">
+          <h2 class="sp-rr-h"><span class="sp-stepno">4</span> Ảnh bằng chứng</h2>
+          <app-photo-input formControlName="images" [invalid]="submitted() && !!form.errors?.['photoRequired']"
+            [hint]="photoNeeded() ? 'Cần ít nhất 1 ảnh chụp rõ chỗ lỗi và tem sản phẩm. Tối đa 5 ảnh JPG, PNG, mỗi ảnh dưới 10MB.' : 'Tối đa 5 ảnh JPG, PNG, mỗi ảnh dưới 10MB. Chụp rõ chỗ lỗi và tem sản phẩm.'" />
+          @if (submitted() && form.errors?.['photoRequired']) {
+            <p class="sp-field__error mt-1">Thêm ảnh bằng chứng để gửi yêu cầu</p>
+          }
+          <label class="sp-field mt-3 mb-0">
+            <span class="sp-field__label">Mô tả thêm</span>
+            <textarea class="form-control" rows="3" formControlName="description" [maxlength]="textMax" placeholder="VD chữ in thành MIHN ANH thay vì MINH ANH"></textarea>
+            <span class="sp-field__hint text-end">{{ value().description.length }}/{{ textMax }}</span>
+          </label>
+          @if (anyNormal()) {
+            <label class="form-check mt-2 mb-0">
+              <input class="form-check-input" type="checkbox" formControlName="conditionConfirmed" [class.is-invalid]="submitted() && !!form.errors?.['conditionRequired']" />
+              <span class="form-check-label">Tôi xác nhận sản phẩm còn nguyên tem, nhãn, bao bì gốc, chưa qua sử dụng</span>
+            </label>
+          }
+        </section>
+
+        <!-- 5. Lấy hàng tại -->
+        <section class="sp-acard">
+          <h2 class="sp-rr-h"><span class="sp-stepno">5</span> Lấy hàng tại</h2>
+          <app-address-select prefix="pickupAddress" [fieldErrors]="fieldErrors()" (changed)="address.set($event)" />
+        </section>
+
+        @if (value().resolution === 'HOAN_TIEN') {
+          <section class="sp-acard">
+            <h2 class="sp-rr-h"><span class="sp-stepno">6</span> Tài khoản nhận tiền hoàn</h2>
+            <app-refund-account [saved]="o.refundAccount" [fieldErrors]="fieldErrors()" (changed)="account.set($event)" />
+          </section>
+        }
+      </div>
+
+      <aside class="sp-pf-side">
+        <section class="sp-acard sp-rr-sum">
+          <h2>Đơn {{ o.code }}</h2>
+          <dl>
+            <dt>Ngày nhận</dt><dd>{{ o.deliveredAt | date: 'dd/MM/yyyy' }}</dd>
+            <dt>Sản phẩm</dt><dd>{{ pickedItems().length || o.items.length }}</dd>
+            <dt>Đã thanh toán</dt><dd>{{ o.paidAmount | vnd }}</dd>
+            @if (value().resolution === 'HOAN_TIEN' && returnValue()) {
+              <dt>Giá trị trả</dt><dd>{{ returnValue() | vnd }}</dd>
+            }
+            <dt>Phí đổi trả</dt><dd class="text-success fw-semibold">Miễn phí</dd>
+          </dl>
+          <p class="sp-rr-sum__left"><app-icon name="clock" [size]="16" /> Còn {{ o.returnDaysLeft }} ngày để gửi yêu cầu (7 ngày từ khi nhận {{ o.deliveredAt | date: 'dd/MM' }}).</p>
+          <button class="btn btn-primary w-100" type="submit" [disabled]="sending()">{{ sending() ? 'Đang gửi...' : 'Gửi yêu cầu' }}</button>
+          <a class="btn btn-link w-100" routerLink="/chinh-sach/doi-tra" target="_blank">Xem chính sách đầy đủ</a>
+        </section>
+      </aside>
+    </form>
+  }
+}

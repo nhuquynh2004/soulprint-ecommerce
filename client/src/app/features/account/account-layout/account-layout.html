@@ -1,0 +1,48 @@
+<div class="container sp-acct" [class.is-root]="atRoot()">
+  <nav class="sp-acct__crumbs" aria-label="Vị trí trang">
+    <ol class="breadcrumb sp-crumbs">
+      <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+      @if (current()) {
+        <li class="breadcrumb-item"><a routerLink="/tai-khoan/thong-tin">Tài khoản</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ current() }}</li>
+      } @else {
+        <li class="breadcrumb-item active" aria-current="page">Tài khoản</li>
+      }
+    </ol>
+  </nav>
+  @if (topLevel()) {
+    <a class="sp-more sp-acct__back" routerLink="/tai-khoan"><app-icon name="arrow-left" [size]="18" /> Tài khoản</a>
+  }
+  @if (atRoot()) {
+    <h1 class="sp-acct__title">Tài khoản</h1>
+  }
+
+  <div class="sp-acct__body">
+    <aside class="sp-acct__side">
+      @if (auth.currentUser(); as u) {
+        <div class="sp-acct__me">
+          <span class="sp-avatar">{{ u.initials }}</span>
+          <div>
+            <strong>{{ u.fullName }}</strong>
+            <span>{{ u.phone }}</span>
+          </div>
+        </div>
+      }
+      <nav class="sp-acct__menu" aria-label="Menu tài khoản">
+        @for (m of menu; track m.link) {
+          <a [routerLink]="m.link" routerLinkActive="is-on" ariaCurrentWhenActive="page">
+            <app-icon [name]="m.icon" [size]="20" /> {{ m.link === 'mat-khau' && auth.currentUser()?.hasPassword === false ? 'Đặt mật khẩu' : m.label }}
+            @if (m.link === 'thong-bao' && notice.unread()) {
+              <span class="sp-count sp-count--danger ms-auto sp-acct__count" [attr.aria-label]="notice.unread() + ' chưa đọc'">{{ notice.unread() }}</span>
+            }
+            <app-icon class="sp-acct__chev" name="chevron-right" [size]="18" />
+          </a>
+        }
+        <button type="button" class="sp-acct__logout" (click)="logout()"><app-icon name="logout" [size]="20" /> Đăng xuất</button>
+      </nav>
+    </aside>
+    <section class="sp-acct__main">
+      <router-outlet />
+    </section>
+  </div>
+</div>

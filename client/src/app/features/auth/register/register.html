@@ -1,0 +1,92 @@
+<app-auth-shell tab="register" [returnUrl]="returnUrl" heading="Tham gia Soulprint" lead="Tạo tài khoản để lưu thiết kế, theo dõi đơn và nhận ưu đãi dành riêng cho thành viên.">
+  <h2 class="sp-af__title">Tạo tài khoản</h2>
+  <p class="sp-af__lead">Chỉ mất chưa tới 1 phút.</p>
+
+  @if (errMessage()) {
+    <div class="sp-alert sp-alert--danger" role="alert"><app-icon name="alert-circle" [size]="20" /><p>{{ errMessage() }}</p></div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="sp-field">
+      <label for="fullName">Họ và tên <span class="req">*</span></label>
+      <input id="fullName" class="form-control" formControlName="fullName" autocomplete="name" [class.is-invalid]="error('fullName')" />
+      @if (error('fullName')) {
+        <span class="sp-field__error">{{ error('fullName') }}</span>
+      }
+    </div>
+
+    <div class="sp-af__grid">
+      <div class="sp-field">
+        <label for="email">Email <span class="req">*</span></label>
+        <input id="email" type="email" class="form-control" formControlName="email" autocomplete="email" [class.is-invalid]="error('email')" />
+        @if (error('email')) {
+          <span class="sp-field__error">{{ error('email') }}</span>
+        }
+      </div>
+      <div class="sp-field">
+        <label for="phone">Số điện thoại <span class="req">*</span></label>
+        <input id="phone" type="tel" inputmode="numeric" class="form-control" formControlName="phone" autocomplete="tel" [class.is-invalid]="error('phone')" />
+        @if (error('phone')) {
+          <span class="sp-field__error">{{ error('phone') }}</span>
+        }
+      </div>
+    </div>
+    @if (conflict()) {
+      <p class="sp-field__hint mt-n2 mb-3">Bạn đã có tài khoản? <a [routerLink]="['/dang-nhap']" [queryParams]="returnUrl ? { returnUrl } : {}">Đăng nhập ngay</a></p>
+    }
+
+    <div class="sp-field">
+      <label for="password">Mật khẩu <span class="req">*</span></label>
+      <app-password-field inputId="password" formControlName="password" autocomplete="new-password" [showRules]="true" [invalid]="!!error('password')" />
+      @if (error('password')) {
+        <span class="sp-field__error">{{ error('password') }}</span>
+      }
+    </div>
+
+    <div class="sp-field">
+      <label for="confirmPassword">Xác nhận mật khẩu <span class="req">*</span></label>
+      <app-password-field inputId="confirmPassword" formControlName="confirmPassword" autocomplete="new-password" [invalid]="!!error('confirmPassword')" />
+      @if (error('confirmPassword')) {
+        <span class="sp-field__error">{{ error('confirmPassword') }}</span>
+      }
+    </div>
+
+    <label class="form-check sp-af__terms">
+      <input class="form-check-input" type="checkbox" formControlName="acceptTerms" />
+      <span class="form-check-label">
+        Tôi đồng ý với <a routerLink="/chinh-sach/dieu-khoan" target="_blank">Điều khoản sử dụng</a> và
+        <a routerLink="/chinh-sach/bao-mat" target="_blank">Chính sách bảo mật</a>
+      </span>
+    </label>
+    @if (error('acceptTerms')) {
+      <p class="sp-field__error mt-n2 mb-3">{{ error('acceptTerms') }}</p>
+    }
+
+    <button class="btn btn-primary btn-lg w-100" type="submit" [disabled]="form.invalid || submitting()">
+      @if (submitting()) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Đang tạo tài khoản...
+      } @else {
+        Tạo tài khoản
+      }
+    </button>
+  </form>
+  <div class="sp-af__or"><span>hoặc</span></div>
+  <app-google-button [returnUrl]="returnUrl" />
+  <p class="sp-af__switch">Đã có tài khoản? <a [routerLink]="['/dang-nhap']" [queryParams]="returnUrl ? { returnUrl } : {}">Đăng nhập</a></p>
+</app-auth-shell>
+
+<!-- SCR-12 thành công: tặng mã SOULPRINT10 (UC-ACC-01 bước 6) -->
+@if (welcome(); as w) {
+  <app-dialog title="Đăng ký tài khoản thành công" size="sm" (closed)="continueShopping()">
+    <div class="sp-done">
+      <span class="sp-done__ic"><app-icon name="gift" [size]="36" /></span>
+      <h2 class="h4">Chào mừng {{ w.name }} đến với Soulprint!</h2>
+      @if (w.code) {
+        <p>Quà cảm ơn dành riêng cho bạn: nhập mã <strong>{{ w.code }}</strong> - ưu đãi 10% cho đơn hàng đầu tiên.</p>
+      }
+    </div>
+    <div dialog-footer>
+      <button class="btn btn-primary" type="button" (click)="continueShopping()">Tiếp tục mua sắm</button>
+    </div>
+  </app-dialog>
+}

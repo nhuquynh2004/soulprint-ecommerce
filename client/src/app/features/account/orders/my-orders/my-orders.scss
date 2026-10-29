@@ -1,0 +1,140 @@
+// SCR-18 Đơn hàng của tôi
+// 7 tab: cuộn ngang khi không đủ chỗ, không tràn trang
+.sp-otabs {
+  overflow-x: auto;
+
+  button {
+    flex: none;
+    white-space: nowrap;
+  }
+}
+
+.sp-otools {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--sp-space-4);
+
+  select {
+    width: 220px;
+    max-width: 100%;
+  }
+}
+
+.sp-olist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-3);
+}
+
+.sp-order {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-4);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-surface);
+}
+
+.sp-order__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+  font-size: 14px;
+}
+
+.sp-order__code {
+  font-weight: 700;
+  color: var(--sp-color-text);
+  text-decoration: none;
+}
+
+.sp-order__date {
+  display: block;
+  font-size: 13px;
+  color: var(--sp-color-text-muted);
+}
+
+// Yêu cầu đặt gấp chưa thành đơn
+.sp-order--urgent {
+  border-left: 3px solid var(--sp-color-danger);
+}
+
+.sp-order__mid {
+  display: flex;
+  gap: var(--sp-space-3);
+}
+
+.sp-order__thumb {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface-alt);
+  color: var(--sp-color-text-subtle);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.sp-order__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 14px;
+
+  span {
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-order__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-space-3);
+  padding-top: var(--sp-space-3);
+  border-top: 1px solid var(--sp-color-border);
+}
+
+.sp-order__total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  font-size: 14px;
+
+  strong {
+    font-size: 18px;
+    color: var(--sp-color-primary);
+  }
+
+  small {
+    flex-basis: 100%;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-order__acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+
+  @media (max-width: 575.98px) {
+    width: 100%;
+
+    .btn {
+      flex: 1 1 auto;
+    }
+  }
+}

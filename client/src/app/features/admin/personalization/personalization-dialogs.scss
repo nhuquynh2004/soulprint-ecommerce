@@ -1,0 +1,174 @@
+// Hộp thoại của SCR-56: bộ sticker, mẫu gói quà, vật liệu, lịch, phiếu nhập
+.sp-pdlg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-4);
+}
+
+.sp-pdlg__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-space-3);
+
+  @media (max-width: 575.98px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sp-pdlg__full {
+  grid-column: 1 / -1;
+}
+
+.sp-pdlg__dates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-space-3);
+
+  @media (max-width: 575.98px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sp-pdlg__stickers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+  padding: var(--sp-space-3);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+}
+
+.sp-pdlg__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+}
+
+.sp-pdlg__row {
+  display: grid;
+  grid-template-columns: 24px 72px minmax(0, 2fr) minmax(0, 1fr) auto auto;
+  gap: var(--sp-space-2);
+  align-items: center;
+  padding: 6px;
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface-alt);
+
+  @media (max-width: 575.98px) {
+    grid-template-columns: 24px 64px minmax(0, 1fr) auto;
+
+    .sp-mono {
+      grid-column: 3 / -1;
+    }
+  }
+}
+
+.sp-pdlg__rowerr {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: var(--sp-color-danger);
+}
+
+.sp-grip {
+  display: inline-flex;
+  color: var(--sp-color-text-subtle);
+  cursor: grab;
+}
+
+.sp-mono {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.sp-pdlg__preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+  padding: var(--sp-space-3);
+  border: 1px dashed var(--sp-color-border-strong);
+  border-radius: var(--sp-radius-lg);
+}
+
+.sp-pdlg__phead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+
+  .k {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sp-color-text-subtle);
+  }
+}
+
+.sp-pdlg__pgrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 76px;
+    padding: 6px;
+    border: 1px solid var(--sp-color-border);
+    border-radius: var(--sp-radius-md);
+    font-size: 11px;
+    text-align: center;
+  }
+
+  img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+}
+
+// Bảng dòng phiếu nhập / điều chỉnh
+.sp-rtable {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sp-rtable__head,
+.sp-rtable__row {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1fr) 32px;
+  gap: var(--sp-space-2);
+  align-items: center;
+}
+
+.sp-rtable__head {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sp-color-text-muted);
+}
+
+@media (max-width: 575.98px) {
+  .sp-rtable__head {
+    display: none;
+  }
+
+  .sp-rtable__row {
+    grid-template-columns: 1fr 1fr 32px;
+    padding: 8px;
+    border: 1px solid var(--sp-color-border);
+    border-radius: var(--sp-radius-md);
+
+    select {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.sp-pdlg__total {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--sp-space-3);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface-alt);
+  font-weight: 600;
+}

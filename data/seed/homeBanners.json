@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Tìm món quà hoàn hảo dành tặng chàng",
+    "subtitle": "Chọn quà thông minh cùng Sâu Béo hoặc tự tay thiết kế món quà độc bản",
+    "imageDesktop": "/images/banners/hero-dai-duong.svg",
+    "imageMobile": "/images/banners/hero-dai-duong-mobile.svg",
+    "ctaLabel": "Tìm quà cùng AI",
+    "ctaLink": "/tu-van-qua",
+    "startAt": null,
+    "endAt": null,
+    "sortOrder": 1,
+    "isActive": true
+  },
+  {
+    "title": "In dấu ấn riêng lên từng món quà",
+    "subtitle": "Khắc tên, thêm sticker - mỗi món quà là một Soulprint duy nhất",
+    "imageDesktop": "/images/banners/ca-nhan-hoa.svg",
+    "imageMobile": "/images/banners/ca-nhan-hoa-mobile.svg",
+    "ctaLabel": "Khám phá ngay",
+    "ctaLink": "/bo-suu-tap/qua-sinh-nhat-me-bong-da",
+    "startAt": null,
+    "endAt": null,
+    "sortOrder": 2,
+    "isActive": true
+  }
+]

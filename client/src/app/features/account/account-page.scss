@@ -1,0 +1,148 @@
+// Kiểu chung của các trang trong khu Tài khoản và Hồ sơ quản trị
+.sp-ph {
+  margin-bottom: var(--sp-space-5);
+
+  h1 {
+    margin: 0;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-ph--row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--sp-space-3);
+}
+
+.sp-grid2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--sp-space-4);
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sp-segs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+}
+
+input[readonly] {
+  background: var(--sp-color-surface-alt);
+}
+
+// Thẻ địa chỉ (SCR-17)
+.sp-addrs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-space-3);
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sp-addr {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--sp-space-4);
+  border: 1.5px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface);
+
+  &.is-default {
+    border-color: var(--sp-color-primary);
+  }
+
+  .sp-addr__head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--sp-space-2);
+  }
+
+  p {
+    margin: 0;
+    color: var(--sp-color-text-muted);
+  }
+
+  .sp-addr__acts {
+    display: flex;
+    gap: var(--sp-space-2);
+    margin-top: var(--sp-space-2);
+  }
+}
+
+// Danh sách phiên đăng nhập (SCR-53)
+.sp-sessions {
+  display: flex;
+  flex-direction: column;
+}
+
+.sp-session {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-3) 0;
+  border-top: 1px solid var(--sp-color-border);
+
+  &:first-child {
+    border-top: 0;
+  }
+
+  .sp-session__ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-color-surface-alt);
+    flex: none;
+  }
+
+  .sp-session__info {
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      display: block;
+    }
+
+    span {
+      font-size: 13px;
+      color: var(--sp-color-text-muted);
+    }
+  }
+}
+
+// Tài khoản nhận tiền hoàn đã lưu (SCR-15) - cùng kiểu thẻ tài khoản đã lưu ở SCR-25, SCR-28
+.sp-bankcard {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2) var(--sp-space-3);
+  padding: var(--sp-space-3);
+  border: 1.5px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+
+  > app-icon {
+    flex: none;
+    color: var(--sp-color-primary);
+  }
+
+  small {
+    display: block;
+    color: var(--sp-color-text-muted);
+  }
+}

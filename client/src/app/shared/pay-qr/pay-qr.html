@@ -1,0 +1,23 @@
+<div class="sp-payqr">
+  <div class="sp-payqr__box" role="img" [attr.aria-label]="'Mã QR thanh toán ' + code + ' (minh họa, cổng thử nghiệm)'">
+    <svg viewBox="0 0 25 25" shape-rendering="crispEdges" aria-hidden="true">
+      @for (c of cells(); track $index) {
+        <rect [attr.x]="c.x" [attr.y]="c.y" width="1" height="1" />
+      }
+    </svg>
+  </div>
+  <div class="sp-payqr__info">
+    <span class="sp-payqr__amount">{{ amount | vnd }}</span>
+    <small class="text-body-secondary">Mã giao dịch {{ code }}{{ expiresAt ? ' | hạn ' + (expiresAt | date: 'HH:mm dd/MM') : '' }}</small>
+    @if (expiresAt) {
+      <small class="sp-payqr__left" [class.is-over]="!left()"><app-icon name="clock" [size]="14" /> {{ left() ? 'Còn ' + left() : 'Liên kết đã hết hạn' }}</small>
+    }
+    <a class="sp-payqr__link" [href]="fullUrl()" target="_blank" rel="noopener">{{ fullUrl() }}</a>
+    <div class="d-flex flex-wrap gap-2 mt-1">
+      <button type="button" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" (click)="copy(fullUrl(), 'liên kết')"><app-icon name="copy" [size]="16" /> Sao chép liên kết</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" (click)="copy(message(), 'tin nhắn')"><app-icon name="chat" [size]="16" /> Sao chép tin nhắn</button>
+    </div>
+    <div class="sp-payqr__acts"><ng-content select="[payqr-actions]" /></div>
+    <small class="text-body-secondary">Cổng thử nghiệm: mã QR minh họa, khách mở liên kết để thanh toán; khách báo đã chuyển khoản thì bấm Xác nhận đã thanh toán.</small>
+  </div>
+</div>

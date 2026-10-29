@@ -1,0 +1,637 @@
+@if (loading()) {
+  <span class="sp-skel" style="height: 600px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <a class="btn btn-primary" routerLink="/quan-tri/san-pham">Về danh sách sản phẩm</a>
+  </div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="save(stockOnly || isPublished() ? 'save' : 'publish')" novalidate>
+    <!-- Header dính đầu trang -->
+    <header class="sp-pf-head">
+      <a class="btn sp-pf-back" routerLink="/quan-tri/san-pham" aria-label="Về danh sách sản phẩm"><app-icon name="arrow-left" [size]="20" /></a>
+      <div class="sp-pf-title">
+        <h1>{{ form.controls.name.value || 'Sản phẩm mới' }}</h1>
+        @if (product(); as p) {
+          <span class="sp-status" [class]="'sp-status sp-status--' + p.status">{{ statusLabel[p.status] }}</span>
+        }
+        @if (hasUnsavedChanges()) {
+          <small class="text-body-secondary">Có thay đổi chưa lưu</small>
+        }
+      </div>
+      <div class="sp-pf-actions">
+        @if (stockOnly) {
+          <button class="btn btn-primary" type="submit" [disabled]="saving()">Lưu tồn kho</button>
+        } @else {
+          @if (!isPublished()) {
+            <button class="btn btn-outline-secondary" type="button" [disabled]="saving()" (click)="save('draft')">Lưu bản nháp</button>
+          }
+          <button class="btn btn-primary" type="submit" [disabled]="saving()">{{ isPublished() ? 'Lưu thay đổi' : 'Xuất bản' }}</button>
+          @if (product()) {
+            <app-row-menu [items]="menuItems()" label="Thao tác khác" (picked)="onMenu($event)" />
+          }
+        }
+      </div>
+    </header>
+
+    @if (stockOnly) {
+      <div class="sp-alert sp-alert--info" role="note">
+        <app-icon name="info" [size]="20" />
+        <p>Vai trò Kho: chỉ sửa được tồn kho và ngưỡng sắp hết. Các vùng khác chỉ đọc.</p>
+      </div>
+    }
+
+    @if (issues().length) {
+      <div class="sp-alert sp-alert--danger" role="alert">
+        <app-icon name="alert-circle" [size]="20" />
+        <div>
+          <strong>Chưa {{ form.getRawValue().status === 'DANG_HIEN_THI' || !isPublished() ? 'xuất bản' : 'lưu' }} được: còn {{ issues().length }} trường cần sửa</strong>
+          <ul class="sp-pf-issues">
+            @for (i of issues(); track i.field) {
+              <li><a href="#" (click)="$event.preventDefault(); goArea(i.area)">{{ i.area ? i.area + ': ' : '' }}{{ areaLabel(i.area) }} - {{ i.message }}</a></li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+
+    @if (warnings().length) {
+      <div class="sp-alert sp-alert--warning" role="status">
+        <app-icon name="alert" [size]="20" />
+        <div>
+          @for (w of warnings(); track w) {
+            <p>{{ w }}</p>
+          }
+        </div>
+        <button class="btn btn-sm ms-auto" type="button" aria-label="Đóng" (click)="warnings.set([])"><app-icon name="close" [size]="18" /></button>
+      </div>
+    }
+
+    <div class="sp-pf-grid">
+      <div class="sp-pf-main">
+        <!-- 1. Thông tin cơ bản -->
+        <section class="sp-acard" id="area-1">
+          <h2><span class="sp-pf-no">1</span> Thông tin cơ bản</h2>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="pf-name">Tên sản phẩm <span class="text-danger">*</span></label>
+              <input id="pf-name" class="form-control" formControlName="name" maxlength="120" [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid" />
+              <small class="text-body-secondary">{{ form.controls.name.value.length }}/120 ký tự</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="pf-sku">SKU <span class="text-danger">*</span></label>
+              <input id="pf-sku" class="form-control text-uppercase" formControlName="sku" maxlength="40" placeholder="VD TT-MMN-001" [class.is-invalid]="form.controls.sku.invalid || !!skuTaken()" (input)="skuTaken.set('')" (blur)="checkSku()" />
+              @if (skuTaken()) {
+                <div class="invalid-feedback">{{ skuTaken() }}</div>
+              } @else if (form.controls.sku.invalid) {
+                <div class="invalid-feedback">SKU chỉ gồm chữ, số và dấu gạch (2-40 ký tự)</div>
+              }
+              <!-- Gợi ý SKU <Trục>-<Mã danh mục>[-<Mã BST>]-<STT> (BR-46) -->
+              @if (skuSuggest() && form.controls.sku.value.trim().toUpperCase() !== skuSuggest()) {
+                <small class="d-block text-body-secondary mt-1">
+                  Gợi ý theo quy tắc: <strong>{{ skuSuggest() }}</strong>
+                  <button type="button" class="btn btn-link btn-sm p-0 ms-1 align-baseline" (click)="useSuggestedSku()">Dùng mã này</button>
+                </small>
+              } @else if (!form.controls.axis.value || !form.controls.categoryId.value) {
+                <small class="d-block text-body-secondary mt-1">Chọn trục đam mê và danh mục ở thẻ Phân loại để hệ thống gợi ý SKU</small>
+              }
+            </div>
+            @if (skuCollections().length && (!productId() || !form.controls.sku.value || skuSuggest())) {
+              <div class="col-md-6">
+                <label class="form-label" for="pf-skucol">BST cho mã SKU</label>
+                <select id="pf-skucol" class="form-select" [value]="skuCollectionId()" (change)="skuCollectionId.set($any($event.target).value); refreshSkuSuggest()">
+                  <option value="">Không gắn BST</option>
+                  @for (c of skuCollections(); track c._id) {
+                    <option [value]="c._id">{{ c.name }} ({{ c.code }})</option>
+                  }
+                </select>
+                <small class="text-body-secondary">Chỉ để tạo mã SKU, không thêm sản phẩm vào BST</small>
+              </div>
+            }
+            <div class="col-md-6">
+              <label class="form-label" for="pf-brand">Thương hiệu</label>
+              <input id="pf-brand" class="form-control" formControlName="brand" maxlength="60" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="pf-slug">Đường dẫn</label>
+              <input id="pf-slug" class="form-control" formControlName="slug" maxlength="120" placeholder="tu-sinh-tu-ten" [class.is-invalid]="form.controls.slug.invalid" />
+              @if (form.controls.slug.invalid) {
+                <div class="invalid-feedback">Chỉ gồm chữ thường không dấu, số và dấu gạch</div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Giá và tồn kho -->
+        <section class="sp-acard" id="area-2" formGroupName="pricing">
+          <h2><span class="sp-pf-no">2</span> Giá và tồn kho</h2>
+          @if (!canPrice) {
+            <p class="text-body-secondary small">Bạn không có quyền Sửa giá nên vùng giá chỉ đọc.</p>
+          }
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label" for="pf-price">Giá bán <span class="text-danger">*</span></label>
+              <div class="sp-unit"><input id="pf-price" class="form-control" type="number" min="1" step="1000" formControlName="price" /><span>đ</span></div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="pf-sale">Giá sale</label>
+              <div class="sp-unit">
+                <input id="pf-sale" class="form-control" type="number" min="1" step="1000" formControlName="salePrice" [class.is-invalid]="form.controls.pricing.controls.salePrice.errors?.['saleGtePrice']" /><span>đ</span>
+              </div>
+              @if (form.controls.pricing.controls.salePrice.errors?.['saleGtePrice']; as e) {
+                <div class="invalid-feedback d-block">{{ e }}</div>
+              }
+            </div>
+            @if (canPrice) {
+              <div class="col-md-4">
+                <label class="form-label" for="pf-cost">Giá vốn</label>
+                <div class="sp-unit"><input id="pf-cost" class="form-control" type="number" min="0" step="1000" formControlName="costPrice" /><span>đ</span></div>
+              </div>
+            }
+            <div class="col-md-6">
+              <label class="form-label" for="pf-ss">Bắt đầu sale</label>
+              <input id="pf-ss" class="form-control" type="datetime-local" formControlName="saleStartAt" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="pf-se">Kết thúc sale</label>
+              <input id="pf-se" class="form-control" type="datetime-local" formControlName="saleEndAt" [class.is-invalid]="form.controls.pricing.controls.saleEndAt.errors?.['endBeforeStart']" />
+              @if (form.controls.pricing.controls.saleEndAt.errors?.['endBeforeStart']; as e) {
+                <div class="invalid-feedback d-block">{{ e }}</div>
+              }
+            </div>
+          </div>
+          <div class="row g-3 mt-0" [formGroup]="form">
+            <div class="col-md-4">
+              <label class="form-label" for="pf-stock">Tồn kho</label>
+              <div class="sp-unit"><input id="pf-stock" class="form-control" [value]="totalStock()" readonly /><span>sản phẩm</span></div>
+              <small class="text-body-secondary">Tổng của {{ variants.length }} biến thể</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="pf-low">Ngưỡng sắp hết</label>
+              <div class="sp-unit"><input id="pf-low" class="form-control" type="number" min="0" formControlName="lowStockThreshold" /><span>sản phẩm</span></div>
+              <small class="text-body-secondary">Áp dụng cho mọi biến thể</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="pf-oos">Khi hết hàng</label>
+              <select id="pf-oos" class="form-select" formControlName="outOfStockBehavior">
+                <option value="HIEN_TAM_HET">Vẫn hiện, báo tạm hết hàng</option>
+                <option value="AN_KHI_HET">Tự ẩn khi hết hàng</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Biến thể -->
+        <section class="sp-acard" id="area-3">
+          <h2><span class="sp-pf-no">3</span> Biến thể</h2>
+          <p class="fw-semibold mb-2">Nhóm biến thể <span class="text-body-secondary fw-normal">(tối đa 3 nhóm)</span></p>
+          @for (g of groups(); track $index; let gi = $index) {
+            <div class="sp-og">
+              <div class="sp-og__head">
+                @if (editingGroup() === gi) {
+                  <input #gn class="form-control form-control-sm sp-og__name" [value]="g.name" maxlength="30" aria-label="Tên nhóm biến thể" (keydown.enter)="$event.preventDefault(); renameGroup(gi, gn.value)" (blur)="renameGroup(gi, gn.value)" />
+                } @else {
+                  <strong>{{ g.name }}</strong>
+                }
+                <small class="text-body-secondary">{{ g.values.length }} giá trị</small>
+                @if (canContent && !stockOnly) {
+                  <div class="form-check form-switch ms-auto mb-0">
+                    <input class="form-check-input" type="checkbox" role="switch" [id]="'og-img-' + gi" [checked]="g.hasImages" (change)="toggleImages(gi)" />
+                    <label class="form-check-label small" [for]="'og-img-' + gi">Gắn ảnh theo giá trị</label>
+                  </div>
+                  <button type="button" class="btn btn-sm" aria-label="Đổi tên nhóm" (click)="editingGroup.set(gi)"><app-icon name="edit" [size]="16" /></button>
+                  <button type="button" class="btn btn-sm" aria-label="Xóa nhóm" (click)="removeGroup(gi)"><app-icon name="trash" [size]="16" /></button>
+                }
+              </div>
+              @if (confirmImgGroup() === gi) {
+                <div class="sp-alert sp-alert--warning py-2 mb-2">
+                  <p class="flex-grow-1">Chỉ 1 nhóm được gắn ảnh. Bật ở nhóm này sẽ tắt ở nhóm khác.</p>
+                  <button type="button" class="btn btn-sm btn-primary" (click)="toggleImages(gi)">Đồng ý</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="confirmImgGroup.set(null)">Hủy</button>
+                </div>
+              }
+              <div class="sp-og__values">
+                @for (v of g.values; track v.value) {
+                  <span class="sp-og__chip" [class.is-hidden]="v.isHidden" [class.is-noimg]="g.hasImages && !v.isHidden && !v.images?.length" [title]="v.isHidden ? 'Đã có đơn hàng nên được ẩn, biến thể ngừng bán' : 'Mã ' + v.code">
+                    @if (g.hasImages) {
+                      @if (v.images?.length) {
+                        <img [src]="v.images![0]" alt="" />
+                      } @else {
+                        <app-icon name="image" [size]="16" />
+                      }
+                    }
+                    @if (editingValue()?.g === gi && editingValue()?.value === v.value) {
+                      <input #vn class="form-control form-control-sm sp-og__vname" [value]="v.value" maxlength="30" [attr.aria-label]="'Sửa giá trị ' + v.value" (keydown.enter)="$event.preventDefault(); renameValue(gi, v.value, vn.value)" (keydown.escape)="editingValue.set(null)" (blur)="renameValue(gi, v.value, vn.value)" />
+                    } @else if (canContent && !stockOnly && !v.isHidden) {
+                      <span class="sp-og__vtext" title="Nhấp đúp để sửa" (dblclick)="editingValue.set({ g: gi, value: v.value })">{{ v.value }}</span>
+                    } @else {
+                      {{ v.value }}
+                    }
+                    @if (v.isHidden) {
+                      <small>(đã ẩn)</small>
+                    } @else if (canContent && !stockOnly) {
+                      <button type="button" [attr.aria-label]="'Bỏ giá trị ' + v.value" (click)="removeValue(gi, v.value)"><app-icon name="close" [size]="14" /></button>
+                    }
+                  </span>
+                }
+                @if (canContent && !stockOnly && g.values.length < 20) {
+                  <span class="sp-og__add">
+                    <input class="form-control form-control-sm" placeholder="Thêm giá trị" maxlength="30" [attr.aria-label]="'Thêm giá trị cho ' + g.name" [value]="newValue()[gi] || ''" (input)="setNewValue(gi, $any($event.target).value)" (keydown.enter)="$event.preventDefault(); addValue(gi)" />
+                    <button type="button" class="btn btn-sm btn-link" (click)="addValue(gi)"><app-icon name="plus" [size]="16" /> Thêm</button>
+                  </span>
+                }
+                @if (canContent && !stockOnly && g.values.length) {
+                  <small class="text-body-secondary w-100">Nhấp đúp vào giá trị để sửa trực tiếp.</small>
+                }
+              </div>
+              @if (g.hasImages) {
+                <div class="sp-og__imgs">
+                  @for (v of g.values; track v.value) {
+                    @if (!v.isHidden) {
+                      <div class="sp-og__imgrow">
+                        <span class="sp-og__imglabel">{{ v.value }}@if (!v.images?.length) { <span class="sp-badge sp-badge--warning ms-1">Chưa có ảnh</span> }</span>
+                        <app-image-picker [images]="v.images || []" [compact]="true" label="Ảnh" (imagesChange)="setValueImages(gi, v.value, $event)" />
+                      </div>
+                    }
+                  }
+                </div>
+                <small class="text-body-secondary">Khách chọn {{ g.name.toLowerCase() }} nào thì ảnh sản phẩm chuyển sang ảnh của giá trị đó. Giá trị chưa có ảnh dùng ảnh chính.</small>
+              } @else if (g.values.length) {
+                <small class="text-body-secondary">Không gắn ảnh: đổi {{ g.name.toLowerCase() }} không đổi ảnh sản phẩm.</small>
+              }
+            </div>
+          }
+          @if (canContent && !stockOnly && groups().length < 3) {
+            <button type="button" class="btn btn-link px-0" (click)="addGroup()"><app-icon name="plus" [size]="18" /> Thêm nhóm biến thể</button>
+          }
+
+          <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
+            <strong>Danh sách biến thể</strong>
+            <small class="text-body-secondary">{{ variantSummary() }}</small>
+          </div>
+          <div class="sp-table-wrap">
+            <table class="table sp-atable sp-vtable align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Biến thể</th>
+                  <th scope="col">SKU</th>
+                  <th scope="col" style="width: 130px">Chênh giá</th>
+                  <th scope="col" style="width: 110px">Tồn</th>
+                  <th scope="col" style="width: 90px">Đang bán</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (s of variantSections(); track s.value) {
+                  @if (s.value !== null) {
+                    <tr class="sp-vsec">
+                      <td colspan="5">
+                        <button type="button" class="btn btn-sm sp-vsec__btn" [attr.aria-expanded]="!collapsed()[s.value]" (click)="toggleSection(s.value)">
+                          <app-icon [name]="collapsed()[s.value] ? 'chevron-right' : 'chevron-down'" [size]="16" />
+                          <strong>{{ s.value }}</strong>
+                          <small class="text-body-secondary">{{ s.rows.length }} biến thể | tồn {{ s.total }}</small>
+                          @if (!s.hasImage) {
+                            <span class="sp-badge sp-badge--warning">Chưa có ảnh</span>
+                          }
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                  @if (s.value === null || !collapsed()[s.value]) {
+                    @for (v of s.rows; track v.controls.key.value + $index) {
+                      <tr [formGroup]="v" [class.is-locked]="v.controls.locked.value">
+                        <td><strong>{{ v.controls.name.value }}</strong></td>
+                        <td><input class="form-control form-control-sm text-uppercase" formControlName="sku" [placeholder]="autoSku(v.controls.attributes.value)" [attr.aria-label]="'SKU ' + v.controls.name.value" /></td>
+                        <td><input class="form-control form-control-sm" type="number" min="0" step="1000" formControlName="priceDelta" [attr.aria-label]="'Chênh giá ' + v.controls.name.value" /></td>
+                        <td><input class="form-control form-control-sm" type="number" min="0" step="1" formControlName="stock" [attr.aria-label]="'Tồn ' + v.controls.name.value" [class.is-invalid]="v.controls.stock.invalid" /></td>
+                        <td>
+                          <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" role="switch" formControlName="isActive" [attr.aria-label]="'Đang bán ' + v.controls.name.value" />
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 4. Hình ảnh -->
+        <section class="sp-acard" id="area-4">
+          <h2><span class="sp-pf-no">4</span> Hình ảnh <span class="text-danger">*</span></h2>
+          @if (form.controls.images.disabled) {
+            <div class="sp-imgs-ro">
+              @for (src of form.controls.images.value; track src) {
+                <img [src]="src" alt="" />
+              }
+            </div>
+          } @else {
+            <app-image-picker [images]="form.controls.images.value" (imagesChange)="form.controls.images.setValue($event); form.controls.images.markAsDirty()" />
+          }
+          <small class="text-body-secondary d-block mt-2">Tối đa 10 ảnh JPG, PNG, WebP; ảnh lớn được nén dưới 2MB. Ảnh đầu tiên là ảnh đại diện, kéo thả để đổi thứ tự.</small>
+        </section>
+
+        <!-- 5. Mô tả -->
+        <section class="sp-acard" id="area-5">
+          <h2><span class="sp-pf-no">5</span> Mô tả</h2>
+          <label class="form-label" for="pf-short">Mô tả ngắn</label>
+          <input id="pf-short" class="form-control" formControlName="shortDescription" maxlength="300" />
+          <small class="text-body-secondary">{{ form.controls.shortDescription.value.length }}/300 ký tự</small>
+          <label class="form-label d-block mt-3">Mô tả chi tiết</label>
+          <app-rich-editor label="Mô tả chi tiết" [value]="form.controls.description.value" [disabled]="form.controls.description.disabled" (valueChange)="form.controls.description.setValue($event); form.controls.description.markAsDirty()" />
+        </section>
+
+        <!-- 6. Thông số -->
+        <section class="sp-acard" id="area-6">
+          <h2><span class="sp-pf-no">6</span> Thông số</h2>
+          <div class="row g-3" formGroupName="specs">
+            <div class="col-md-6"><label class="form-label" for="pf-mat">Chất liệu</label><input id="pf-mat" class="form-control" formControlName="material" maxlength="120" /></div>
+            <div class="col-md-6"><label class="form-label" for="pf-size">Kích thước</label><input id="pf-size" class="form-control" formControlName="size" maxlength="120" /></div>
+            <div class="col-md-6"><label class="form-label" for="pf-weight">Trọng lượng</label><input id="pf-weight" class="form-control" formControlName="weight" maxlength="60" /></div>
+            <div class="col-md-6"><label class="form-label" for="pf-origin">Xuất xứ</label><input id="pf-origin" class="form-control" formControlName="origin" maxlength="60" /></div>
+            <div class="col-md-8"><label class="form-label" for="pf-care">Bảo quản</label><input id="pf-care" class="form-control" formControlName="care" maxlength="300" /></div>
+            <div class="col-md-4" [formGroup]="form">
+              <label class="form-label" for="pf-war">Bảo hành</label>
+              <select id="pf-war" class="form-select" formControlName="warrantyMonths">
+                <option [ngValue]="0">Không bảo hành</option>
+                <option [ngValue]="6">6 tháng</option>
+                <option [ngValue]="12">12 tháng</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-check form-switch mt-3">
+            <input id="pf-hsc" class="form-check-input" type="checkbox" role="switch" formControlName="hasSizeChart" />
+            <label class="form-check-label fw-semibold" for="pf-hsc">Bảng size</label>
+          </div>
+          @if (form.controls.hasSizeChart.value) {
+            <div class="sp-table-wrap mt-2" formGroupName="sizeChart">
+              <table class="table sp-atable sp-sctable mb-0">
+                <thead>
+                  <tr formArrayName="columns">
+                    @for (c of columns.controls; track $index; let ci = $index) {
+                      <th scope="col">
+                        <div class="d-flex gap-1">
+                          <input class="form-control form-control-sm" [formControlName]="ci" placeholder="Tên cột" [attr.aria-label]="'Tên cột ' + (ci + 1)" />
+                          <button type="button" class="btn btn-sm" aria-label="Xóa cột" (click)="removeColumn(ci)"><app-icon name="close" [size]="14" /></button>
+                        </div>
+                      </th>
+                    }
+                    <th scope="col" style="width: 44px"></th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="rows">
+                  @for (r of rows.controls; track $index; let ri = $index) {
+                    <tr [formArrayName]="ri">
+                      @for (cell of r.controls; track $index; let ci = $index) {
+                        <td><input class="form-control form-control-sm" [formControlName]="ci" [attr.aria-label]="'Dòng ' + (ri + 1) + ' cột ' + (ci + 1)" /></td>
+                      }
+                      <td><button type="button" class="btn btn-sm" aria-label="Xóa dòng" (click)="removeRow(ri)"><app-icon name="trash" [size]="16" /></button></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex gap-3 mt-2">
+              <button type="button" class="btn btn-link px-0" (click)="addColumn()"><app-icon name="plus" [size]="16" /> Thêm cột</button>
+              <button type="button" class="btn btn-link px-0" (click)="addRow()"><app-icon name="plus" [size]="16" /> Thêm dòng</button>
+            </div>
+            <div formGroupName="sizeChart">
+              <label class="form-label mt-2" for="pf-scn">Ghi chú bảng size</label>
+              <input id="pf-scn" class="form-control" formControlName="note" maxlength="300" />
+            </div>
+          }
+        </section>
+
+        <!-- 7. Cá nhân hóa -->
+        <section class="sp-acard" id="area-7" formGroupName="personalization">
+          <h2><span class="sp-pf-no">7</span> Cá nhân hóa</h2>
+          <div class="d-flex justify-content-between align-items-start gap-3">
+            <div>
+              <label class="fw-semibold d-block" for="pf-pa">Cho phép cá nhân hóa</label>
+              <small class="text-body-secondary">Tắt thì trang sản phẩm ẩn mục Cá nhân hóa</small>
+            </div>
+            <div class="form-check form-switch"><input id="pf-pa" class="form-check-input" type="checkbox" role="switch" formControlName="allowed" /></div>
+          </div>
+          @if (form.controls.personalization.controls.allowed.value) {
+            <div class="d-flex gap-4 mt-3">
+              <div class="form-check"><input id="pf-ik" class="form-check-input" type="checkbox" formControlName="inKhac" /><label class="form-check-label" for="pf-ik">In/Khắc</label></div>
+              <div class="form-check"><input id="pf-tk" class="form-check-input" type="checkbox" formControlName="thietKe" /><label class="form-check-label" for="pf-tk">Thiết kế (sticker, lời nhắn)</label></div>
+            </div>
+            @if (!form.controls.personalization.controls.inKhac.value && !form.controls.personalization.controls.thietKe.value) {
+              <div class="invalid-feedback d-block">Chọn ít nhất 1 hình thức cá nhân hóa</div>
+            }
+            @if (form.controls.personalization.controls.inKhac.value) {
+              <p class="fw-semibold mt-3 mb-2">Kiểu In/Khắc</p>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="sp-modecard" [class.is-on]="form.controls.personalization.controls.mode.value === 'THUONG'">
+                    <input class="form-check-input" type="radio" value="THUONG" formControlName="mode" />
+                    <span><strong>In/Khắc Thường</strong><small>1 dòng, tối đa {{ form.controls.personalization.controls.maxChars.value }} ký tự</small></span>
+                  </label>
+                </div>
+                <div class="col-md-6">
+                  <label class="sp-modecard" [class.is-on]="form.controls.personalization.controls.mode.value === 'AO_DAU'">
+                    <input class="form-check-input" type="radio" value="AO_DAU" formControlName="mode" />
+                    <span>
+                      <strong>Áo đấu</strong>
+                      <small>Dòng trên {{ form.controls.personalization.controls.topMaxChars.value }}, Số áo {{ form.controls.personalization.controls.numberMaxDigits.value }}, Dòng dưới {{ form.controls.personalization.controls.bottomMaxChars.value }}</small>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div class="row g-3 mt-0">
+                @if (form.controls.personalization.controls.mode.value === 'THUONG') {
+                  <div class="col-md-4">
+                    <label class="form-label" for="pf-mc">Giới hạn ký tự</label>
+                    <div class="sp-unit"><input id="pf-mc" class="form-control" type="number" min="1" max="30" formControlName="maxChars" /><span>ký tự</span></div>
+                  </div>
+                } @else {
+                  <div class="col-md-4">
+                    <label class="form-label" for="pf-top">Dòng trên tối đa</label>
+                    <div class="sp-unit"><input id="pf-top" class="form-control" type="number" min="1" max="30" formControlName="topMaxChars" /><span>ký tự</span></div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="pf-num">Số áo tối đa</label>
+                    <div class="sp-unit"><input id="pf-num" class="form-control" type="number" min="1" max="3" formControlName="numberMaxDigits" /><span>chữ số</span></div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="pf-bot">Dòng dưới tối đa</label>
+                    <div class="sp-unit"><input id="pf-bot" class="form-control" type="number" min="1" max="30" formControlName="bottomMaxChars" /><span>ký tự</span></div>
+                  </div>
+                }
+              </div>
+            }
+            @if (form.controls.personalization.controls.thietKe.value) {
+              <p class="text-body-secondary small mt-3 mb-0">
+                Bộ sticker áp dụng theo danh mục và trục đam mê, quản lý ở <a routerLink="/quan-tri/ca-nhan-hoa">Cá nhân hóa và gói quà</a>. Phí mỗi sticker {{ stickerFee() | vnd }}.
+              </p>
+            }
+          }
+        </section>
+
+        <!-- 8. Gợi ý và tags -->
+        <section class="sp-acard" id="area-8">
+          <h2><span class="sp-pf-no">8</span> Gợi ý và tags</h2>
+          @if (form.controls.tagIds.value.length && tags().length) {
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              @for (id of form.controls.tagIds.value; track id) {
+                <span class="sp-tagchip">{{ tagName(id) }}
+                  @if (!form.controls.tagIds.disabled) {
+                    <button type="button" [attr.aria-label]="'Bỏ tag ' + tagName(id)" (click)="toggleTag(id)"><app-icon name="close" [size]="14" /></button>
+                  }
+                </span>
+              }
+            </div>
+          }
+          @for (g of listGroups(); track g.code) {
+            <div class="mb-3">
+              <p class="fw-semibold mb-2">{{ g.name }}</p>
+              <div class="d-flex flex-wrap gap-2">
+                @for (t of tagsOf(g.code); track t._id) {
+                  <button type="button" class="sp-chip sp-chip--sm" [class.is-on]="hasTag(t._id)" [attr.aria-pressed]="hasTag(t._id)" [disabled]="form.controls.tagIds.disabled" (click)="toggleTag(t._id)">{{ t.name }}</button>
+                }
+              </div>
+            </div>
+          }
+          <div class="row g-3">
+            <div class="col-6 col-md-3">
+              <label class="form-label" for="pf-amin">Tuổi từ</label>
+              <input id="pf-amin" class="form-control" type="number" min="0" max="99" formControlName="ageMin" />
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label" for="pf-amax">Đến</label>
+              <input id="pf-amax" class="form-control" type="number" min="0" max="99" formControlName="ageMax" />
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <small class="text-body-secondary">Độ tuổi và giá tự khớp với nhóm Độ tuổi, Ngân sách trên bộ lọc khách.</small>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between align-items-start gap-3 mt-3">
+            <div>
+              <label class="fw-semibold d-block" for="pf-ai">Gợi ý trong Tư vấn AI</label>
+              <small class="text-body-secondary">Sâu Béo có thể đề xuất sản phẩm này</small>
+            </div>
+            <div class="form-check form-switch"><input id="pf-ai" class="form-check-input" type="checkbox" role="switch" formControlName="aiEligible" /></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Cột phải -->
+      <aside class="sp-pf-side">
+        <nav class="sp-acard sp-toc" aria-label="Mục lục form">
+          <h2>Mục lục</h2>
+          @for (a of areas; track a.no) {
+            <a href="#" [class.has-error]="issueAreas().has(a.no)" (click)="$event.preventDefault(); goArea(a.no)">
+              <span class="sp-pf-no">{{ a.no }}</span> {{ a.label }}
+              @if (issueAreas().has(a.no)) {
+                <span class="sp-toc__dot" aria-label="Có lỗi"></span>
+              }
+            </a>
+          }
+        </nav>
+
+        <section class="sp-acard" id="area-0">
+          <h2>Trạng thái</h2>
+          @for (s of statusChoices; track s) {
+            <label class="sp-modecard mb-2" [class.is-on]="form.controls.status.value === s">
+              <input class="form-check-input" type="radio" [value]="s" formControlName="status" />
+              <span>
+                <strong>{{ statusLabel[s] }}</strong>
+                <small>{{ s === 'DANG_HIEN_THI' ? 'Hiện trên cửa hàng' : s === 'BAN_NHAP' ? 'Chỉ nhân viên thấy' : 'Giữ đường dẫn, không hiện ở danh sách' }}</small>
+              </span>
+            </label>
+          }
+          @if (product()?.status === 'NGUNG_BAN') {
+            <p class="small text-body-secondary mb-0">Sản phẩm đang lưu trữ. Chọn trạng thái rồi lưu để bán lại.</p>
+          }
+        </section>
+
+        <section class="sp-acard">
+          <h2>Phân loại</h2>
+          <label class="form-label" for="pf-cat">Danh mục <span class="text-danger">*</span></label>
+          <select id="pf-cat" class="form-select mb-3" formControlName="categoryId" [class.is-invalid]="issues().some(i => i.field === 'categoryId')">
+            <option value="">Chọn danh mục</option>
+            @for (c of flatCategories(); track c._id) {
+              <option [value]="c._id">{{ c.name }}</option>
+            }
+          </select>
+          <label class="form-label" for="pf-axis">Trục đam mê <span class="text-danger">*</span></label>
+          <select id="pf-axis" class="form-select mb-3" formControlName="axis" [class.is-invalid]="issues().some(i => i.field === 'axis')">
+            <option value="">Chọn trục đam mê</option>
+            <option value="THE_THAO">Thể thao</option>
+            <option value="ANIME">Anime</option>
+            <option value="GAME">Game</option>
+          </select>
+          <div class="d-flex justify-content-between align-items-start gap-3">
+            <div>
+              <label class="fw-semibold d-block" for="pf-feat">Sản phẩm nổi bật</label>
+              <small class="text-body-secondary">Ưu tiên ở khối Sản phẩm nổi bật</small>
+            </div>
+            <div class="form-check form-switch"><input id="pf-feat" class="form-check-input" type="checkbox" role="switch" formControlName="isFeatured" /></div>
+          </div>
+        </section>
+
+        @if (canPrice) {
+          <section class="sp-acard">
+            <h2>Bảng tính giá</h2>
+            <dl class="sp-calc">
+              <dt>Giá bán</dt>
+              <dd>{{ effectivePrice() !== null ? (effectivePrice()! | vnd) : '-' }}</dd>
+              <dt>Giá vốn</dt>
+              <dd>{{ form.controls.pricing.controls.costPrice.value !== null ? (form.controls.pricing.controls.costPrice.value! | vnd) : '-' }}</dd>
+              <dt>Phí cá nhân hóa</dt>
+              <dd>{{ form.controls.personalization.controls.thietKe.value && form.controls.personalization.controls.allowed.value ? (stickerFee() | vnd) + '/sticker' : 'Miễn phí' }}</dd>
+            </dl>
+            @if (margin(); as m) {
+              <div class="sp-calc__total">
+                <span>Lãi gộp</span>
+                <strong>{{ m.profit | vnd }}</strong>
+              </div>
+              <div class="d-flex justify-content-between small"><span class="text-body-secondary">Biên lợi nhuận</span><strong>{{ m.rate }}%</strong></div>
+            }
+            @if (form.controls.personalization.controls.allowed.value && effectivePrice()) {
+              <p class="small text-body-secondary mt-2 mb-0">Cọc {{ depositRate() * 100 }}% khi khách cá nhân hóa: {{ effectivePrice()! * depositRate() | vnd }}</p>
+            }
+          </section>
+        }
+
+        <section class="sp-acard">
+          <h2>Khách sẽ thấy</h2>
+          <div class="sp-preview">
+            @if (form.controls.images.value[0]) {
+              <img [src]="form.controls.images.value[0]" alt="" />
+            } @else {
+              <span class="sp-preview__ph"><app-icon name="image" [size]="22" /></span>
+            }
+            <div>
+              <strong class="d-block">{{ form.controls.name.value || 'Tên sản phẩm' }}</strong>
+              @if (effectivePrice() !== null) {
+                <span class="fw-bold">{{ effectivePrice()! | vnd }}</span>
+                @if (discountPercent()) {
+                  <small class="text-decoration-line-through text-body-secondary ms-1">{{ form.controls.pricing.controls.price.value! | vnd }}</small>
+                }
+              }
+              <div class="d-flex gap-1 mt-1">
+                @if (form.controls.personalization.controls.allowed.value) {
+                  <span class="sp-badge sp-badge--perso">Cá nhân hóa</span>
+                }
+                @if (discountPercent()) {
+                  <span class="sp-badge sp-badge--hot">-{{ discountPercent() }}%</span>
+                }
+              </div>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </form>
+}
+
+@if (leaveDialog()) {
+  <app-confirm-dialog title="Rời trang khi chưa lưu?" message="Bạn có thay đổi chưa lưu. Rời trang thì các thay đổi này sẽ mất." confirmLabel="Rời trang" cancelLabel="Ở lại" [danger]="true" (confirm)="answerLeave(true)" (cancel)="answerLeave(false)" />
+}
+
+@if (confirmDelete()) {
+  <app-confirm-dialog title="Xóa sản phẩm?" [message]="'Xóa vĩnh viễn “' + form.controls.name.value + '”. Không hoàn tác được.'" confirmLabel="Xóa" [danger]="true" (confirm)="doDelete()" (cancel)="confirmDelete.set(false)" />
+}

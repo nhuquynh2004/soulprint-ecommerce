@@ -1,0 +1,38 @@
+.sp-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sp-rating__stars {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--sp-color-rating);
+
+  .off {
+    color: var(--sp-color-border-strong);
+  }
+}
+
+.sp-rating__score {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.sp-rating__count {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--sp-color-text-muted);
+}
+
+// Thẻ sản phẩm hẹp (điện thoại 2 cột): chỉ giữ 1 sao + điểm để tên danh mục không bị rớt dòng
+@container pcard (max-width: 230px) {
+  .sp-rating {
+    gap: 4px;
+  }
+
+  .sp-rating__stars app-icon:not(:first-child) {
+    display: none;
+  }
+}

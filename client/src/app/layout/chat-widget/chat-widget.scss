@@ -1,0 +1,487 @@
+// SCR-29 theo bộ thiết kế (ds bundle.css .sp-chat, .sp-msg, .sp-fab; soulprint-v2.css .sp-msgrow, .sp-fabtip, .sp-leave),
+// viết lại bằng token. Desktop/Tablet: cửa sổ 380 x 560 ở góc dưới phải; Mobile: phủ toàn màn hình.
+
+.sp-fabwrap {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1045;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.sp-fabtip {
+  position: relative;
+  max-width: 240px;
+  margin-bottom: 40px;
+  padding: 12px 32px 12px 14px;
+  border-radius: 16px 16px 4px 16px;
+  background: var(--sp-color-surface);
+  border: 1px solid var(--sp-color-border);
+  box-shadow: var(--sp-shadow-lg);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--sp-color-text-muted);
+
+  strong {
+    display: block;
+    font-size: 14px;
+    color: var(--sp-color-text);
+  }
+
+  button {
+    all: unset;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--sp-color-text-subtle);
+
+    &:focus-visible {
+      box-shadow: var(--sp-focus-ring);
+    }
+  }
+}
+
+.sp-fab {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border-radius: 50%;
+  border: 3px solid var(--sp-color-surface);
+  background: var(--sp-color-accent);
+  box-shadow: var(--sp-shadow-hover);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--sp-dur-fast);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--sp-color-bg), 0 0 0 5px var(--sp-color-primary);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: contain;
+  }
+}
+
+.sp-fab__dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-danger);
+  color: var(--sp-color-on-danger);
+  border: 2px solid var(--sp-color-surface);
+  font: 700 11px/18px var(--sp-font-body);
+}
+
+.sp-chat {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1045;
+  width: 380px;
+  height: min(560px, calc(100dvh - 48px));
+  display: flex;
+  flex-direction: column;
+  background: var(--sp-color-surface);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-xl);
+  box-shadow: var(--sp-shadow-lg);
+  overflow: hidden;
+}
+
+.sp-chat__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 8px 12px 16px;
+  background: var(--sp-color-primary);
+  color: var(--sp-color-on-primary);
+
+  img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    object-fit: contain;
+  }
+
+  .who {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+
+    strong {
+      font: 700 16px/24px var(--sp-font-body);
+    }
+
+    span {
+      font: 500 12px/16px var(--sp-font-body);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.sp-chat__hbtn {
+  all: unset;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+
+  &:hover {
+    background: rgb(255 255 255 / 0.15);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--sp-color-on-primary);
+  }
+}
+
+.sp-chat__log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--sp-color-surface-alt);
+}
+
+.sp-chatsys {
+  align-self: center;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  max-width: 100%;
+  padding: 2px 10px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-surface);
+  font: 500 12px/16px var(--sp-font-body);
+  color: var(--sp-color-text-subtle);
+  text-align: center;
+}
+
+.sp-msg {
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+
+  small {
+    display: block;
+    margin-bottom: 2px;
+    font: 500 12px/16px var(--sp-font-body);
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-msg--bot {
+  background: var(--sp-color-surface);
+  border: 1px solid var(--sp-color-border);
+  border-top-left-radius: 4px;
+}
+
+.sp-msg--staff {
+  background: var(--sp-color-success-subtle);
+  border-top-left-radius: 4px;
+  color: var(--sp-color-text);
+
+  small {
+    color: var(--sp-color-success);
+  }
+}
+
+.sp-msg--me {
+  background: var(--sp-color-primary);
+  color: var(--sp-color-on-primary);
+  border-top-right-radius: 4px;
+}
+
+.sp-msgrow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  max-width: 90%;
+}
+
+.sp-msgav {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--sp-color-primary-subtle);
+  object-fit: contain;
+}
+
+.sp-msgav--staff {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sp-color-success);
+  color: var(--sp-color-bg);
+  font: 700 12px/1 var(--sp-font-body);
+}
+
+.sp-msgme {
+  align-self: flex-end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  max-width: 82%;
+}
+
+.sp-msgmeta {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  font: 500 11px/14px var(--sp-font-body);
+  color: var(--sp-color-text-subtle);
+
+  &.is-fail {
+    color: var(--sp-color-danger);
+  }
+}
+
+.sp-linkbtn {
+  all: unset;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--sp-color-primary);
+  text-decoration: underline;
+
+  &:focus-visible {
+    box-shadow: var(--sp-focus-ring);
+  }
+}
+
+.sp-queuebox {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.sp-queue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-primary-subtle);
+  color: var(--sp-color-primary);
+  font: 600 12px/16px var(--sp-font-body);
+}
+
+.sp-chat__muted {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-leave {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-left: 36px;
+  padding: 12px;
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface);
+  border: 1px solid var(--sp-color-border);
+
+  > strong {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 14px;
+  }
+}
+
+.sp-rephrase {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-warning-subtle);
+  border: 1px solid var(--sp-color-warning);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.sp-rephrase__title {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-weight: 700;
+  color: var(--sp-color-warning);
+}
+
+.sp-chat__x {
+  all: unset;
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-rephrase__q {
+  display: block;
+  padding: 8px 10px;
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface);
+  color: var(--sp-color-text);
+  font-style: normal;
+}
+
+.sp-chat__quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 12px 4px;
+  background: var(--sp-color-surface);
+  border-top: 1px solid var(--sp-color-border);
+}
+
+.sp-chat__input {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px 12px;
+  background: var(--sp-color-surface);
+}
+
+.sp-chat__row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+
+  // Tự giãn đến 3 dòng rồi cuộn; chiều cao do AutosizeTextarea đặt
+  .form-control {
+    min-height: 40px;
+    max-height: calc(3 * 1.5em + 16px);
+    padding: 7px 14px;
+    border-radius: 20px;
+    line-height: 1.5;
+  }
+}
+
+.sp-chat__alert {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--sp-color-danger);
+}
+
+.sp-chat__send {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sp-color-primary);
+  color: var(--sp-color-on-primary);
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--sp-focus-ring);
+  }
+}
+
+// Mobile: cửa sổ phủ toàn màn hình, nằm trên header
+@media (max-width: 575.98px) {
+  .sp-chat {
+    inset: 0;
+    width: auto;
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    z-index: 1055;
+  }
+
+  .sp-fabwrap {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .sp-fab {
+    width: 56px;
+    height: 56px;
+  }
+
+  .sp-leave {
+    margin-left: 0;
+  }
+}
+
+// Thẻ yêu cầu đặt gấp trong chat
+.sp-ucard {
+  align-self: stretch;
+  padding: 10px 12px;
+  border: 1px solid var(--sp-color-warning);
+  border-left-width: 4px;
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-warning-subtle);
+  font-size: 13px;
+
+  p {
+    margin: 4px 0 8px;
+    color: var(--sp-color-text);
+  }
+}
+
+.sp-ucard__h {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--sp-color-warning);
+}

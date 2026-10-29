@@ -1,0 +1,66 @@
+@if (mode === 'redelivery') {
+  <app-dialog title="Nhận lại hàng" [subtitle]="'Còn ' + daysLeft + ' ngày, sau ' + (order.storageDeadline | date: 'dd/MM/yyyy') + ' hàng cá nhân hóa sẽ được xử lý'" (closed)="closed.emit()">
+    <div class="sp-ac__sum">
+      @if (order.items[0].image) {
+        <img [src]="order.items[0].image" [alt]="order.items[0].name" width="48" height="48" />
+      }
+      <span>
+        <strong>{{ order.items[0].name }}{{ order.items[0].personalizationText ? ', ' + order.items[0].personalizationText : '' }}</strong>
+        <small>Đơn {{ order.code }} | Soulprint giữ hàng đến {{ order.storageDeadline | date: 'dd/MM/yyyy' }}</small>
+      </span>
+    </div>
+
+    <div class="sp-seg mb-3" role="tablist" aria-label="Người nhận">
+      <button type="button" role="tab" [class.is-on]="recipientType() === 'SELF'" [attr.aria-selected]="recipientType() === 'SELF'" (click)="recipientType.set('SELF')">Giao cho tôi</button>
+      <button type="button" role="tab" [class.is-on]="recipientType() === 'OTHER'" [attr.aria-selected]="recipientType() === 'OTHER'" (click)="recipientType.set('OTHER')">Người nhận khác</button>
+    </div>
+    <p class="sp-field__label mb-2">Địa chỉ nhận hàng</p>
+    <app-address-select prefix="shippingAddress" [fieldErrors]="fieldErrors()" (changed)="address.set($event)" />
+
+    <p class="sp-field__label mt-3 mb-2">Khung giờ nhận</p>
+    <div class="sp-chips flex-wrap" role="radiogroup" aria-label="Khung giờ nhận">
+      @for (s of slots; track s.value) {
+        <button class="sp-chip sp-chip--sm" type="button" role="radio" [attr.aria-checked]="slot() === s.value" [class.is-on]="slot() === s.value" (click)="slot.set(slot() === s.value ? '' : s.value)">{{ s.label }} {{ s.value }}</button>
+      }
+    </div>
+
+    @if (order.redelivery; as c) {
+      <dl class="sp-ac__cost">
+        <dt>Phần còn lại của đơn</dt><dd>{{ c.remaining | vnd }}</dd>
+        <dt>Phí giao lại</dt><dd>{{ c.shippingFee | vnd }}</dd>
+        <dt class="sp-ac__total" [title]="'Phí vận chuyển mới ' + (c.shippingFee | vnd) + ' + Giá trị còn lại ' + (c.remaining | vnd) + ' = ' + (c.total | vnd)">
+          Thanh toán online ngay <app-icon name="info" [size]="16" />
+        </dt>
+        <dd class="sp-ac__total">{{ c.total | vnd }}</dd>
+      </dl>
+      <p class="sp-ac__hint">Phí vận chuyển mới {{ c.shippingFee | vnd }} + Giá trị còn lại {{ c.remaining | vnd }} = {{ c.total | vnd }}. Lần giao lại cần thanh toán trước để tránh từ chối nhận lần hai.</p>
+    }
+    @if (error()) {
+      <p class="text-danger mb-0" role="alert">{{ error() }}</p>
+    }
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-primary" type="button" (click)="closed.emit()">Để sau</button>
+      <button class="btn btn-primary" type="button" [disabled]="!canSubmit" (click)="submit()">{{ sending() ? 'Đang chuyển...' : 'Thanh toán' }}</button>
+    </div>
+  </app-dialog>
+} @else {
+  <app-dialog [title]="failedBefore ? 'Nhập lại tài khoản nhận tiền' : reenter ? 'Nhập tài khoản nhận tiền hoàn' : 'Nhận tiền hoàn'" [subtitle]="failedBefore ? 'Lần chuyển khoản trước chưa thành công' : changeRefund ? 'Phần chênh khi đơn ' + order.code + ' thay đổi' : reenter ? 'Soulprint đã hủy đơn ' + order.code + ', bạn nhập tài khoản để nhận lại tiền' : 'Đơn ' + order.code + ' đã hủy'" (closed)="closed.emit()">
+    <div class="sp-ac__amount">
+      <span>Số tiền hoàn</span>
+      <strong>{{ refundAmount | vnd }}</strong>
+      <small>{{ order.cancelBy === 'REFUSED' && order.paidAmount > refundAmount && !reenter ? 'Đã trừ phí vận chuyển phát sinh khi từ chối nhận' : changeRefund ? 'Phần đã trả dư sau khi đơn ' + order.code + ' thay đổi' : 'Tiền đã thanh toán đơn ' + order.code }}</small>
+    </div>
+    @if (reenter && order.refund?.failReason) {
+      <div class="sp-alert sp-alert--warning mb-3"><app-icon name="alert" [size]="20" /><div><strong>Lý do: {{ order.refund?.failReason }}</strong><p>Vui lòng kiểm tra và nhập lại tài khoản ngân hàng.</p></div></div>
+    }
+    <p class="sp-field__label mb-2">Tài khoản nhận tiền hoàn</p>
+    <app-refund-account [saved]="order.refundAccount" [forceNew]="failedBefore" [fieldErrors]="fieldErrors()" (changed)="account.set($event)" />
+    @if (error()) {
+      <p class="text-danger mt-2 mb-0" role="alert">{{ error() }}</p>
+    }
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-primary" type="button" (click)="closed.emit()">Quay lại</button>
+      <button class="btn btn-primary" type="button" [disabled]="!canSubmit" (click)="submit()">{{ sending() ? 'Đang gửi...' : failedBefore ? 'Gửi lại tài khoản' : reenter ? 'Gửi tài khoản' : 'Xác nhận nhận tiền hoàn' }}</button>
+    </div>
+  </app-dialog>
+}

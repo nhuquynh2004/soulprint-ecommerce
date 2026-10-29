@@ -1,0 +1,122 @@
+[
+  {
+    "fullName": "Nguyễn Thu Trang",
+    "email": "admin@soulprint.vn",
+    "phone": "0900000001",
+    "password": "Admin@123",
+    "role": "admin",
+    "staffRoles": [
+      "QUAN_TRI"
+    ],
+    "status": "HOAT_DONG",
+    "addresses": []
+  },
+  {
+    "fullName": "Phan Ngọc Lan",
+    "email": "ngoclan@soulprint.vn",
+    "phone": "0905334128",
+    "password": "Staff@123",
+    "role": "admin",
+    "staffRoles": [
+      "BAN_HANG"
+    ],
+    "status": "HOAT_DONG",
+    "onDuty": true,
+    "addresses": []
+  },
+  {
+    "fullName": "Lê Quốc Huy",
+    "email": "quochuy@soulprint.vn",
+    "phone": "0937210456",
+    "password": "Staff@123",
+    "role": "admin",
+    "staffRoles": [
+      "BAN_HANG",
+      "KHO"
+    ],
+    "status": "HOAT_DONG",
+    "addresses": []
+  },
+  {
+    "fullName": "Đỗ Minh Khoa",
+    "email": "minhkhoa@soulprint.vn",
+    "phone": "0912778301",
+    "password": "Staff@123",
+    "role": "admin",
+    "staffRoles": [
+      "KHO"
+    ],
+    "permissionOverrides": [
+      {
+        "permission": "KHACH_HANG.XEM",
+        "type": "CAP_THEM",
+        "expiresAt": null,
+        "grantedByEmail": "admin@soulprint.vn"
+      }
+    ],
+    "status": "HOAT_DONG",
+    "addresses": []
+  },
+  {
+    "fullName": "Vũ Thảo Vy",
+    "email": "thaovy@soulprint.vn",
+    "phone": "0976445902",
+    "role": "admin",
+    "staffRoles": [
+      "VT_CHAM_SOC_KHACH_HANG"
+    ],
+    "status": "CHO_KICH_HOAT",
+    "addresses": []
+  },
+  {
+    "fullName": "Ngô Gia Hưng",
+    "email": "giahung@soulprint.vn",
+    "phone": "0868123777",
+    "password": "Staff@123",
+    "role": "admin",
+    "staffRoles": [
+      "KHO"
+    ],
+    "status": "BI_KHOA",
+    "lockReason": "Nghỉ việc từ 02/09/2026",
+    "addresses": []
+  },
+  {
+    "fullName": "Nguyễn Minh Anh",
+    "email": "minhanh@example.com",
+    "phone": "0901234567",
+    "password": "Member@123",
+    "role": "member",
+    "status": "HOAT_DONG",
+    "gender": "NU",
+    "addresses": [
+      {
+        "recipientName": "Nguyễn Minh Anh",
+        "phone": "0901234567",
+        "province": "Thành phố Hồ Chí Minh",
+        "ward": "Phường Linh Xuân",
+        "street": "669 Đỗ Mười, Khu phố 3",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "fullName": "Trần Quốc Bảo",
+    "email": "quocbao@example.com",
+    "phone": "0912345678",
+    "password": "Member@123",
+    "role": "member",
+    "status": "HOAT_DONG",
+    "gender": "NAM",
+    "addresses": [
+      {
+        "recipientName": "Trần Quốc Bảo",
+        "phone": "0912345678",
+        "province": "Thành phố Hà Nội",
+        "ward": "Phường Cầu Giấy",
+        "street": "144 Xuân Thủy",
+        "isDefault": true
+      }
+    ]
+  }
+]

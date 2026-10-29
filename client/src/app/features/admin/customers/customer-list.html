@@ -1,0 +1,199 @@
+<header class="sp-aph">
+  <div>
+    <h1>Khách hàng</h1>
+    @if (tab() === 'customers') {
+      <p>{{ allCount().toLocaleString('vi-VN') }} khách | {{ newThisMonth() }} khách mới trong tháng</p>
+    } @else {
+      <p>Đánh giá sản phẩm | {{ reviewCounts().hidden }} đánh giá đang ẩn</p>
+    }
+  </div>
+</header>
+
+<nav class="sp-tabs2" aria-label="Khách hàng">
+  <a routerLink="/quan-tri/khach-hang" [class.is-on]="tab() === 'customers'">Danh sách khách</a>
+  <a routerLink="/quan-tri/khach-hang/danh-gia" [class.is-on]="tab() === 'reviews'">Đánh giá</a>
+</nav>
+
+@if (tab() === 'customers') {
+  <div class="sp-atools">
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm tên, số điện thoại, email" aria-label="Tìm khách hàng" [value]="q()" (input)="onSearch($any($event.target).value)" />
+    </div>
+    <select class="form-select sp-atools__sel" aria-label="Trạng thái" [value]="status()" (change)="setFilter(status, $any($event.target).value)">
+      <option value="">Mọi trạng thái</option>
+      <option value="HOAT_DONG">Đang hoạt động</option>
+      <option value="CHO_KICH_HOAT">Chưa kích hoạt</option>
+      <option value="BI_KHOA">Đã khóa</option>
+    </select>
+    <select class="form-select sp-atools__sel" aria-label="Đã mua" [value]="hasOrders()" (change)="setFilter(hasOrders, $any($event.target).value)">
+      <option value="">Đã mua và chưa mua</option>
+      <option value="true">Đã mua</option>
+      <option value="false">Chưa mua</option>
+    </select>
+    <select class="form-select sp-atools__sel" aria-label="Sắp xếp" [value]="sort()" (change)="setFilter(sort, $any($event.target).value)">
+      <option value="moi-nhat">Mới đăng ký</option>
+      <option value="chi-tieu">Chi tiêu nhiều nhất</option>
+      <option value="so-don">Nhiều đơn nhất</option>
+      <option value="don-gan-nhat">Đơn gần nhất</option>
+      <option value="ten">Tên A-Z</option>
+    </select>
+  </div>
+} @else {
+  @if (sel.count()) {
+    <app-bulk-bar class="d-block mb-3" [count]="sel.count()" unit="đánh giá" [actions]="reviewActions()" [busy]="busy()" (action)="onBulk($event)" (cleared)="sel.clear()" />
+  } @else {
+    <div class="sp-atools">
+      <div class="sp-field__icon flex-grow-1">
+        <app-icon name="search" [size]="18" />
+        <input class="form-control" type="search" placeholder="Tìm sản phẩm, khách hàng, nội dung" aria-label="Tìm đánh giá" [value]="q()" (input)="onSearch($any($event.target).value)" />
+      </div>
+      <select class="form-select sp-atools__sel" aria-label="Số sao" [value]="rating()" (change)="setFilter(rating, $any($event.target).value)">
+        <option value="">Mọi số sao</option>
+        @for (n of [5, 4, 3, 2, 1]; track n) { <option [value]="n">{{ n }} sao</option> }
+      </select>
+      <select class="form-select sp-atools__sel" aria-label="Trạng thái" [value]="hidden()" (change)="setFilter(hidden, $any($event.target).value)">
+        <option value="">Tất cả ({{ reviewCounts().all }})</option>
+        <option value="false">Đang hiện ({{ reviewCounts().shown }})</option>
+        <option value="true">Đã ẩn ({{ reviewCounts().hidden }})</option>
+      </select>
+      <select class="form-select sp-atools__sel" aria-label="Trả lời" [value]="replied()" (change)="setFilter(replied, $any($event.target).value)">
+        <option value="">Mọi trả lời</option>
+        <option value="false">Chưa trả lời</option>
+        <option value="true">Đã trả lời</option>
+      </select>
+    </div>
+  }
+}
+
+@if (loading()) {
+  <span class="sp-skel d-block" style="height: 360px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (tab() === 'customers') {
+  @if (!customers().length) {
+    <div class="sp-state"><app-icon name="users" [size]="40" /><p>Không có khách khớp bộ lọc.</p></div>
+  } @else {
+    <div class="sp-table-wrap">
+      <table class="table sp-atable align-middle sp-ctable">
+        <thead>
+          <tr><th scope="col">Khách hàng</th><th scope="col">Số điện thoại và email</th><th scope="col">Trạng thái</th><th scope="col" class="text-center">Số đơn</th><th scope="col" class="text-end">Tổng chi tiêu</th><th scope="col">Đơn gần nhất</th></tr>
+        </thead>
+        <tbody>
+          @for (c of customers(); track c._id) {
+            <tr class="sp-crow" tabindex="0" (click)="open(c)" (keydown.enter)="open(c)">
+              <td><span class="d-inline-flex align-items-center gap-2"><span class="sp-avatar" aria-hidden="true">{{ initials(c.fullName) }}</span><strong>{{ c.fullName }}</strong></span></td>
+              <td>{{ c.phone || '-' }}<small class="d-block text-body-secondary">{{ c.email || '' }}</small></td>
+              <td><span [class]="'sp-status sp-status--' + statusClass(c)">{{ statusText(c) }}</span></td>
+              <td class="text-center">{{ c.orderCount }}</td>
+              <td class="text-end">{{ c.totalSpent | vnd }}</td>
+              <td>
+                @if (c.lastOrderCode) {
+                  {{ c.lastOrderCode }}<small class="d-block text-body-secondary">{{ c.lastOrderAt | date: 'dd/MM/yyyy' }}</small>
+                } @else {
+                  <span class="text-body-secondary">Chưa mua</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+} @else {
+  @if (!reviews().length) {
+    <div class="sp-state"><app-icon name="star-line" [size]="40" /><p>Chưa có đánh giá nào khớp bộ lọc.</p></div>
+  } @else {
+    <div class="sp-table-wrap">
+      <table class="table sp-atable align-middle sp-rtable">
+        <thead>
+          <tr>
+            <th scope="col" class="sp-cb"><input class="form-check-input" type="checkbox" aria-label="Chọn tất cả" [checked]="sel.allOf(reviewIds())" [indeterminate]="sel.someOf(reviewIds())" (change)="sel.togglePage(reviewIds())" /></th>
+            <th scope="col">Số sao</th><th scope="col">Sản phẩm</th><th scope="col">Khách | mã đơn</th><th scope="col">Nội dung</th><th scope="col">Ảnh</th><th scope="col">Trạng thái</th><th scope="col">Trả lời</th><th scope="col"><span class="visually-hidden">Thao tác</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of reviews(); track r._id) {
+            <tr [class.is-selected]="sel.has(r._id)">
+              <td class="sp-cb"><input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn đánh giá của ' + r.userName" [checked]="sel.has(r._id)" (change)="sel.toggle(r._id)" /></td>
+              <td><span class="sp-stars" [attr.aria-label]="r.rating + ' sao'">@for (s of stars(r.rating); track $index) { <app-icon [name]="s ? 'star' : 'star-line'" [size]="14" /> }</span></td>
+              <td>{{ r.productName }}</td>
+              <td>{{ r.userName }}<small class="d-block text-body-secondary">{{ r.orderCode || '' }}</small></td>
+              <td class="sp-rtext">{{ r.comment }}@if (r.hiddenReason) { <small class="d-block text-danger">Lý do ẩn: {{ r.hiddenReason }}</small> }</td>
+              <td>{{ r.images.length ? '+' + r.images.length : '-' }}</td>
+              <td><span [class]="'sp-status sp-status--' + (r.isHidden ? 'TAM_NGUNG' : 'DANG_HIEN')">{{ r.isHidden ? 'Đã ẩn' : 'Đang hiện' }}</span></td>
+              <td class="text-nowrap">{{ r.reply ? 'Đã trả lời' : 'Chưa trả lời' }}</td>
+              <td class="text-end">
+                @if (auth.can('KHACH_HANG.AN_DANH_GIA')) {
+                  <button class="btn btn-sm btn-link" type="button" (click)="openReply(r)">{{ r.reply ? 'Sửa trả lời' : 'Trả lời' }}</button>
+                  @if (r.isHidden) {
+                    <button class="btn btn-sm btn-link" type="button" (click)="setVisibility([r._id], false)">Hiện lại</button>
+                  } @else {
+                    <button class="btn btn-sm btn-link text-danger" type="button" (click)="openHide([r])">Ẩn</button>
+                  }
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+}
+
+@if (!loading() && total() > pageSize()) {
+  <app-pagination class="d-block mt-3" [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="goPage($event)" />
+}
+
+@if (hideDialog(); as list) {
+  <app-confirm-dialog [title]="'Ẩn ' + list.length + ' đánh giá?'" [confirmLabel]="'Ẩn ' + list.length + ' đánh giá'" [danger]="true" [busy]="busy() || hideReason().trim().length < 3" (confirm)="doHide()" (cancel)="hideDialog.set(null)">
+    <p class="small">Đánh giá đã ẩn không hiện trên trang sản phẩm và không tính vào điểm trung bình. Có thể hiện lại bất cứ lúc nào.</p>
+    <ul class="small mb-2">
+      @for (r of list.slice(0, 5); track r._id) { <li>{{ r.userName }} | {{ r.productName }}</li> }
+    </ul>
+    <div class="d-flex flex-wrap gap-1 mb-2">
+      @for (m of hideReasons; track m) {
+        <button type="button" class="sp-chip sp-chip--sm" [class.is-on]="hideReason() === m" (click)="hideReason.set(m)">{{ m }}</button>
+      }
+    </div>
+    <label class="sp-field w-100"><span>Lý do ẩn *</span><input class="form-control" maxlength="200" [value]="hideReason()" (input)="hideReason.set($any($event.target).value)" /></label>
+    <small class="text-body-secondary">{{ hideReason().length }}/200</small>
+  </app-confirm-dialog>
+}
+
+<!-- UC-OPS-08 1b: trả lời đánh giá, mỗi đánh giá 1 câu, sửa thì ghi đè -->
+@if (replyDialog(); as r) {
+  <app-dialog [title]="r.reply ? 'Sửa trả lời đánh giá' : 'Trả lời đánh giá'" [subtitle]="r.productName" size="sm" (closed)="replyDialog.set(null)">
+    <div class="sp-reply-src mb-3">
+      <span class="sp-stars" [attr.aria-label]="r.rating + ' sao'">@for (st of stars(r.rating); track $index) { <app-icon [name]="st ? 'star' : 'star-line'" [size]="14" /> }</span>
+      <strong class="ms-1">{{ r.userName }}</strong>
+      <p class="mb-0 mt-1">{{ r.comment || '(Không có nội dung)' }}</p>
+      @if (r.isHidden) { <small class="text-body-secondary">Đánh giá đang ẩn: trả lời được nhưng không hiện ra ngoài.</small> }
+    </div>
+    <label class="sp-field w-100"><span>Phản hồi từ Soulprint *</span>
+      <textarea class="form-control" rows="4" maxlength="500" [value]="replyText()" (input)="replyText.set($any($event.target).value)"></textarea>
+    </label>
+    <small class="text-body-secondary">{{ replyText().length }}/500</small>
+    @if (replyDeleteAsk()) {
+      <p class="sp-alert sp-alert--warning small mt-2 mb-0">Xóa trả lời này? Khách sẽ không còn thấy phản hồi trên trang sản phẩm.</p>
+    }
+    <div dialog-footer class="d-flex justify-content-between gap-2 w-100">
+      <div>
+        @if (r.reply) {
+          @if (replyDeleteAsk()) {
+            <button class="btn btn-danger" type="button" [disabled]="busy()" (click)="sendReply('')">Xác nhận xóa</button>
+          } @else {
+            <button class="btn btn-outline-danger" type="button" (click)="replyDeleteAsk.set(true)">Xóa trả lời</button>
+          }
+        }
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary" type="button" (click)="replyDialog.set(null)">Hủy</button>
+        <button class="btn btn-primary" type="button" [disabled]="busy() || !replyText().trim() || replyText().length > 500" (click)="sendReply(replyText().trim())">Gửi trả lời</button>
+      </div>
+    </div>
+  </app-dialog>
+}

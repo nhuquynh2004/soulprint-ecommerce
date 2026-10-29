@@ -1,0 +1,180 @@
+// SCR-25 Yêu cầu đổi/trả, SCR-26 Yêu cầu bảo hành (dùng chung các lớp sp-rr-*)
+:host {
+  display: block;
+}
+
+.sp-rr-head {
+  margin: var(--sp-space-3) 0 var(--sp-space-4);
+
+  h1 {
+    margin: 0 0 4px;
+    font-size: clamp(22px, 3vw, 28px);
+  }
+
+  p {
+    margin: 0;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-rr-h {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+}
+
+.sp-rr-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-3);
+  border: 1.5px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+
+  & + & {
+    margin-top: var(--sp-space-2);
+  }
+
+  &.is-on {
+    border-color: var(--sp-color-primary);
+    background: var(--sp-color-primary-subtle);
+  }
+
+  > .form-check-input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+  }
+
+  img {
+    flex: none;
+    border-radius: var(--sp-radius-md);
+    object-fit: cover;
+  }
+
+  small {
+    display: block;
+    color: var(--sp-color-text-muted);
+  }
+
+  @media (max-width: 575.98px) {
+    flex-wrap: wrap;
+
+    img {
+      width: 48px;
+      height: 48px;
+    }
+  }
+}
+
+.sp-rr-item__warn {
+  color: var(--sp-color-warning) !important;
+}
+
+.sp-rr-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  font-weight: 600;
+}
+
+.sp-rr-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-space-2);
+
+  .is-off {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 575.98px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sp-rr-sum {
+  h2 {
+    font-size: 18px;
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px var(--sp-space-3);
+    margin: 0 0 var(--sp-space-3);
+    font-size: 14px;
+  }
+
+  dt {
+    color: var(--sp-color-text-muted);
+    font-weight: 400;
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+  }
+}
+
+.sp-rr-sum__left {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 var(--sp-space-3);
+  padding: var(--sp-space-2) var(--sp-space-3);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-warning-subtle);
+  font-size: 13px;
+}
+
+.sp-rr-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-space-4);
+  max-width: 720px;
+  margin: var(--sp-space-6) auto;
+  text-align: center;
+
+  h1 {
+    margin: 0;
+    font-size: clamp(22px, 3vw, 28px);
+  }
+
+  p {
+    margin: 0;
+    color: var(--sp-color-text-muted);
+  }
+
+  .sp-steps {
+    width: 100%;
+    text-align: left;
+  }
+}
+
+.sp-rr-done__ic {
+  display: inline-flex;
+  padding: var(--sp-space-3);
+  border-radius: 50%;
+  background: var(--sp-color-success-subtle);
+  color: var(--sp-color-success);
+}
+
+// SCR-26: sản phẩm cần bảo hành
+.sp-wr-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+
+  img {
+    flex: none;
+    border-radius: var(--sp-radius-md);
+    object-fit: cover;
+  }
+
+  small {
+    display: block;
+    color: var(--sp-color-text-muted);
+  }
+}

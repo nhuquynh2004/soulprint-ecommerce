@@ -1,0 +1,161 @@
+@let d = detail;
+<app-dialog [title]="title" [subtitle]="action === 'reject' ? 'Khách nhận thông báo kèm lý do và ảnh bằng chứng' : ''" (closed)="closed.emit()">
+  <p class="sp-rq__sum">{{ summary }} | đơn {{ d.orderCode }}</p>
+
+  @switch (action) {
+    @case ('approve') {
+      @if (d.kind === 'WARRANTY') {
+        <p class="sp-field__label mb-2">Cách xử lý <span class="text-danger">*</span></p>
+        <div class="d-flex flex-column gap-2 mb-3">
+          @for (r of d.resolutions || []; track r.value) {
+            <label class="sp-modecard" [class.is-on]="resolution === r.value">
+              <input class="form-check-input" type="radio" name="rq-res" [value]="r.value" [(ngModel)]="resolution" />
+              <span><strong>{{ r.label }}</strong><small>{{ r.value === 'DOI_MOI' ? 'Hoàn tất sẽ tạo đơn sản phẩm mới 0đ' : 'Sửa xong giao trả khách' }}</small></span>
+            </label>
+          }
+        </div>
+      }
+      <label class="sp-field">
+        <span class="sp-field__label">Hướng dẫn gửi hàng cho khách{{ d.kind === 'RETURN' ? ' *' : '' }}</span>
+        <textarea class="form-control" rows="4" maxlength="1000" [(ngModel)]="instruction"></textarea>
+      </label>
+      @if (d.returnAddress) {
+        <div class="sp-rq__addr">
+          <span><strong>Địa chỉ kho nhận hàng</strong>{{ d.returnAddress }}</span>
+          <button class="btn btn-sm btn-outline-secondary" type="button" (click)="copy(d.returnAddress)"><app-icon name="copy" [size]="16" /> Sao chép</button>
+        </div>
+      } @else {
+        <p class="small text-warning-emphasis">Chưa có địa chỉ kho nhận hàng trả về trong Cài đặt cửa hàng.</p>
+      }
+      <p class="sp-field__label mt-3 mb-1">Thông tin vận chuyển</p>
+      <p class="small text-body-secondary mb-2">Không bắt buộc, nhập khi cửa hàng tự gọi shipper tới địa chỉ lấy hàng của khách.</p>
+      <div class="sp-chips flex-wrap mb-2">
+        @for (c of d.carriers; track c.value) {
+          <button class="sp-chip sp-chip--sm" type="button" [class.is-on]="carrier === c.value" (click)="carrier = carrier === c.value ? '' : c.value">{{ c.label }}</button>
+        }
+      </div>
+      <label class="sp-field m-0">
+        <span class="sp-field__label">Mã vận đơn</span>
+        <input class="form-control text-uppercase" maxlength="40" [(ngModel)]="tracking" />
+      </label>
+    }
+
+    @case ('reject') {
+      <p class="sp-field__label mb-2">Lý do mẫu <span class="text-danger">*</span></p>
+      <div class="sp-chips flex-wrap mb-3">
+        @for (r of d.rejectReasons; track r.value) {
+          <button class="sp-chip sp-chip--sm" type="button" [class.is-on]="reasonCode() === r.value" (click)="pickReason(r.value)">{{ r.label }}</button>
+        }
+      </div>
+      <label class="sp-field">
+        <span class="sp-field__label">Lý do từ chối gửi cho khách <span class="req">*</span></span>
+        <textarea class="form-control" rows="4" [maxlength]="textMax" [ngModel]="detailText()" (ngModelChange)="detailText.set($event)"
+          [class.is-invalid]="detailText().length > 0 && detailText().trim().length < reasonMin"></textarea>
+        <span class="sp-field__hint d-flex justify-content-between">
+          <span [class.text-danger]="detailText().length > 0 && detailText().trim().length < reasonMin">{{ detailText().length > 0 && detailText().trim().length < reasonMin ? 'Vui lòng nhập tối thiểu 10 ký tự' : 'Tối thiểu 10 ký tự' }}</span>
+          <span>{{ detailText().length }}/{{ textMax }}</span>
+        </span>
+      </label>
+      <p class="sp-field__label mb-2">Ảnh hoặc video bằng chứng của cửa hàng</p>
+      <app-photo-input [(ngModel)]="evidence" [allowVideo]="true" [maxMB]="10" [videoMaxMB]="8" hint="Ảnh JPG, PNG tối đa 10MB | video MP4 tối đa 8MB (VD video đóng gói lúc gửi đơn)." />
+      @if (isReturn()) {
+        <label class="form-check mt-3 mb-0">
+          <input class="form-check-input" type="checkbox" [(ngModel)]="allowResubmit" />
+          <span class="form-check-label">Cho phép khách gửi lại yêu cầu với ảnh mới</span>
+        </label>
+      }
+    }
+
+    @case ('refundNow') {
+      <p class="sp-field__label mb-2">Phương thức hoàn tiền</p>
+      <div class="sp-modecard is-on mb-3">
+        <app-icon name="briefcase" [size]="20" />
+        <span>
+          <strong>Chuyển khoản ngân hàng</strong>
+          <small>{{ d.bankInfo ? d.bankInfo.bankName + ' | ' + (d.bankInfo.accountNumber || d.bankInfo.account) + ' | ' + d.bankInfo.accountName : 'Tài khoản khách đã lưu; chưa có thì chờ khách nhập ở đơn hàng' }}</small>
+        </span>
+      </div>
+      <label class="sp-field">
+        <span class="sp-field__label">Số tiền hoàn <span class="req">*</span></span>
+        <input class="form-control" type="number" min="1" [max]="maxRefund()" [ngModel]="amount()" (ngModelChange)="amount.set(+$event)" [class.is-invalid]="amount() > maxRefund()" />
+        <span class="sp-field__hint">Tối đa {{ maxRefund() | vnd }} (đã thanh toán chưa hoàn)</span>
+      </label>
+      <label class="sp-field">
+        <span class="sp-field__label">Lý do hoàn tiền <span class="req">*</span></span>
+        <textarea class="form-control" rows="3" [maxlength]="textMax" [ngModel]="reason()" (ngModelChange)="reason.set($event)"></textarea>
+        <span class="sp-field__hint d-flex justify-content-between"><span>Tối thiểu 10 ký tự</span><span>{{ reason().length }}/{{ textMax }}</span></span>
+      </label>
+      <div class="sp-alert sp-alert--warning mb-0"><app-icon name="alert" [size]="20" /><div><strong>Hoàn tiền ngay không cần thu hồi hàng.</strong><p>Thao tác này không thể hoàn tác.</p></div></div>
+    }
+
+    @case ('received') {
+      <p class="mb-0">Xác nhận kho đã nhận {{ d.kind === 'WARRANTY' ? 'sản phẩm bảo hành' : 'hàng trả về' }} của yêu cầu {{ d.code }}. Yêu cầu chuyển sang "Đã nhận và kiểm tra".</p>
+    }
+
+    @case ('complete') {
+      @if (d.kind === 'WARRANTY') {
+        <p class="mb-0">{{ d.resolution === 'DOI_MOI' ? 'Hệ thống tạo đơn sản phẩm mới tổng 0đ đi theo luồng xử lý đơn. Yêu cầu hoàn tất khi đơn đó được giao.' : 'Xác nhận đã sửa xong và giao trả sản phẩm cho khách.' }}</p>
+      } @else if (d.resolution === 'GIAO_LAI') {
+        <p class="mb-0">Kiểm tra đạt. Hệ thống tạo đơn thay thế tổng 0đ với các sản phẩm trả, đi theo luồng xử lý đơn. Yêu cầu hoàn tất khi đơn thay thế được giao.</p>
+      } @else if (maxRefund() > 0) {
+        <p>Kiểm tra đạt. Hệ thống tạo yêu cầu hoàn tiền chuyển khoản tới tài khoản khách đã nhập.</p>
+        <label class="sp-field m-0">
+          <span class="sp-field__label">Số tiền hoàn <span class="req">*</span></span>
+          <input class="form-control" type="number" min="1" [max]="maxRefund()" [ngModel]="amount()" (ngModelChange)="amount.set(+$event)" [class.is-invalid]="amount() > maxRefund()" />
+          <span class="sp-field__hint">Mặc định giá trị các dòng trả | tối đa {{ maxRefund() | vnd }}</span>
+        </label>
+      } @else {
+        <p class="mb-0">Đơn không còn số tiền nào để hoàn. Xác nhận hoàn tất yêu cầu.</p>
+      }
+    }
+
+    @case ('progressNote') {
+      <label class="sp-field m-0">
+        <span class="sp-field__label">Tiến độ gửi khách <span class="req">*</span></span>
+        <textarea class="form-control" rows="3" [maxlength]="textMax" [(ngModel)]="note" placeholder="VD đang khắc lại phần chữ bị mờ"></textarea>
+      </label>
+    }
+
+    @case ('markPaid') {
+      @if (d.bankInfo; as b) {
+        <div class="sp-rq__addr">
+          <span><strong>{{ b.bankName }}</strong>{{ b.accountNumber }} | {{ b.accountName }}</span>
+          <button class="btn btn-sm btn-outline-secondary" type="button" (click)="copy(b.accountNumber || '')"><app-icon name="copy" [size]="16" /> Sao chép</button>
+        </div>
+      }
+      <p>Chuyển khoản <strong>{{ d.amount | vnd }}</strong> tới tài khoản trên rồi bấm xác nhận. Hệ thống cập nhật số đã hoàn và báo khách.</p>
+      <label class="sp-field m-0"><span class="sp-field__label">Ghi chú (không bắt buộc)</span><input class="form-control" maxlength="200" placeholder="VD mã giao dịch ngân hàng" [(ngModel)]="note" /></label>
+    }
+
+    @case ('gatewayRefund') {
+      <p>Hoàn <strong>{{ d.amount | vnd }}</strong> qua cổng thanh toán về phương thức khách đã trả.</p>
+      <label class="sp-field m-0"><span class="sp-field__label">Ghi chú (không bắt buộc)</span><input class="form-control" maxlength="200" [(ngModel)]="note" /></label>
+    }
+
+    @case ('markFailed') {
+      <label class="sp-field m-0">
+        <span class="sp-field__label">Lý do thất bại <span class="req">*</span></span>
+        <input class="form-control" maxlength="200" placeholder="VD sai số tài khoản" [(ngModel)]="note" />
+        <span class="sp-field__hint">Khách nhận thông báo nhập lại tài khoản ngân hàng.</span>
+      </label>
+    }
+  }
+
+  @if (error()) {
+    <p class="text-danger mt-3 mb-0" role="alert">{{ error() }}</p>
+  }
+
+  <div dialog-footer class="d-flex justify-content-end gap-2">
+    <button class="btn btn-outline-secondary" type="button" (click)="closed.emit()">Hủy</button>
+    <button class="btn" type="button" [class.btn-danger]="action === 'reject' || action === 'markFailed'" [class.btn-primary]="action !== 'reject' && action !== 'markFailed'" [disabled]="!canSubmit" (click)="submit()">
+      @switch (action) {
+        @case ('approve') { {{ d.kind === 'WARRANTY' ? 'Duyệt' : 'Duyệt và gửi hướng dẫn' }} }
+        @case ('reject') { Từ chối yêu cầu }
+        @case ('refundNow') { Hoàn {{ amount() | vnd }} }
+        @case ('markPaid') { Đã chuyển khoản }
+        @case ('markFailed') { Ghi nhận thất bại }
+        @default { Xác nhận }
+      }
+    </button>
+  </div>
+</app-dialog>

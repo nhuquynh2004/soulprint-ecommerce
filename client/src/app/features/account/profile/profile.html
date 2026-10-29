@@ -1,0 +1,110 @@
+<header class="sp-ph">
+  <h1>Thông tin cá nhân</h1>
+  <p>Quản lý thông tin để Soulprint phục vụ bạn tốt hơn</p>
+</header>
+
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <section class="sp-panel">
+    <h2><app-icon name="user" [size]="20" /> Thông tin cơ bản</h2>
+    <div class="sp-grid2">
+      <div class="sp-field">
+        <label for="fullName">Họ và tên <span class="req">*</span></label>
+        <input id="fullName" class="form-control" formControlName="fullName" autocomplete="name" [class.is-invalid]="error('fullName')" />
+        @if (error('fullName')) {
+          <span class="sp-field__error">{{ error('fullName') }}</span>
+        }
+      </div>
+      <div class="sp-field">
+        <label for="birthday">Ngày sinh</label>
+        <input id="birthday" type="date" class="form-control" formControlName="birthday" [max]="today" />
+        <span class="sp-field__hint">Soulprint gửi quà nhỏ vào tháng sinh nhật của bạn</span>
+      </div>
+    </div>
+    <div class="sp-field mb-0">
+      <span class="sp-field__label" id="gender-label">Giới tính</span>
+      <div class="sp-segs" role="radiogroup" aria-labelledby="gender-label">
+        @for (g of genders; track g.label) {
+          <button
+            type="button"
+            class="sp-chip sp-chip--sm"
+            role="radio"
+            [class.is-on]="form.value.gender === g.value"
+            [attr.aria-checked]="form.value.gender === g.value"
+            (click)="form.controls.gender.setValue(g.value); form.markAsDirty()"
+          >
+            {{ g.label }}
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="sp-panel">
+    <h2><app-icon name="mail" [size]="20" /> Liên hệ và đăng nhập</h2>
+    <div class="sp-grid2">
+      <div class="sp-field">
+        <label for="email">Email</label>
+        <div class="sp-field__icon">
+          <app-icon name="mail" [size]="18" />
+          <input id="email" class="form-control" [value]="email()" readonly aria-readonly="true" />
+        </div>
+        <span class="sp-field__hint">Email dùng để đăng nhập, không đổi được</span>
+      </div>
+      <div class="sp-field">
+        <label for="phone">Số điện thoại <span class="req">*</span></label>
+        <div class="sp-field__icon">
+          <app-icon name="phone" [size]="18" />
+          <input id="phone" type="tel" inputmode="numeric" class="form-control" formControlName="phone" [class.is-invalid]="error('phone')" />
+        </div>
+        @if (error('phone')) {
+          <span class="sp-field__error">{{ error('phone') }}</span>
+        }
+      </div>
+    </div>
+  </section>
+
+  <div class="sp-btn-row">
+    <button class="btn btn-primary" type="submit" [disabled]="saving() || form.pristine">
+      @if (saving()) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+      }
+      Lưu thay đổi
+    </button>
+  </div>
+</form>
+
+<!-- Tài khoản nhận tiền hoàn (UC-ACC-03 nhánh 1e): ngoài form để Lưu thay đổi không gửi kèm -->
+<section class="sp-panel mt-4" aria-labelledby="ra-title">
+  <h2 id="ra-title"><app-icon name="briefcase" [size]="20" /> Tài khoản nhận tiền hoàn</h2>
+  @if (refundLoading()) {
+    <span class="sp-skel d-block" style="height: 64px" aria-hidden="true"></span>
+  } @else if (refundEditing()) {
+    <app-refund-account [saved]="refund()" [editOnly]="true" [fieldErrors]="refundErrors()" (changed)="refundValue.set($event)" />
+    <div class="sp-btn-row mt-3">
+      <button class="btn btn-primary" type="button" [disabled]="!refundValue() || refundSaving()" (click)="saveRefund()">
+        @if (refundSaving()) {
+          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        }
+        Lưu tài khoản
+      </button>
+      <button class="btn btn-outline-secondary" type="button" [disabled]="refundSaving()" (click)="refundEditing.set(false)">Hủy</button>
+    </div>
+    @if (!refundValue()) {
+      <p class="sp-field__hint mt-2 mb-0">Chọn ngân hàng, nhập số tài khoản (6 đến 20 chữ số) và tên chủ tài khoản để lưu</p>
+    }
+  } @else if (refund(); as a) {
+    <div class="sp-bankcard">
+      <app-icon name="briefcase" [size]="22" />
+      <span class="flex-grow-1">
+        <strong>{{ a.bankName }} | {{ a.account }}</strong>
+        <small>{{ a.accountName }}</small>
+      </span>
+      <button class="btn btn-link btn-sm" type="button" (click)="editRefund()">Sửa</button>
+      <button class="btn btn-link btn-sm text-danger" type="button" [disabled]="refundSaving()" (click)="deleteRefund()">Xóa</button>
+    </div>
+    <p class="sp-field__hint mt-2 mb-0">Soulprint chọn sẵn tài khoản này khi hoàn tiền cho bạn (đơn bị hủy, đơn thay đổi, trả hàng). Tiền về trong 1 - 3 ngày làm việc.</p>
+  } @else {
+    <p class="text-body-secondary">Lưu sẵn tài khoản để Soulprint hoàn tiền nhanh hơn khi đơn bị hủy hoặc thay đổi.</p>
+    <button class="btn btn-outline-primary" type="button" (click)="editRefund()"><app-icon name="plus" [size]="18" /> Thêm tài khoản</button>
+  }
+</section>

@@ -1,0 +1,346 @@
+<div class="container sp-advisor">
+  @if (view() === 'form') {
+    <nav class="sp-crumbs" aria-label="Đường dẫn">
+      <a routerLink="/">Trang chủ</a>
+      <app-icon name="chevron-right" [size]="16" />
+      <strong aria-current="page">Tìm quà cùng AI</strong>
+    </nav>
+  }
+
+  <div class="sp-aiwrap">
+    <!-- ===== Form khảo sát (bước 2, 3) ===== -->
+    @if (view() === 'form') {
+      <div class="sp-ai-hello">
+        <img src="/assets/brand/sau-beo.png" alt="Sâu Béo" width="64" height="64" />
+        <div>
+          <h1 class="sp-ai-hello__title">Kể Sâu nghe về người nhận nhé!</h1>
+          <span class="sp-muted">Chọn vài thông tin, Sâu sẽ gợi ý 3-5 món quà kèm lý do vì sao hợp với người nhận.</span>
+        </div>
+      </div>
+
+      <form class="sp-aicard sp-survey" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        @if (tagsError()) {
+          <div class="alert alert-warning mb-0" role="alert">Không tải được danh sách lựa chọn. Bạn vẫn có thể nhập Mô tả thêm hoặc tải lại trang.</div>
+        }
+
+        <fieldset class="sp-survey__group">
+          <legend class="sp-survey__title"><app-icon name="user" [size]="20" />Người nhận</legend>
+          <div class="sp-rcp-grid" role="radiogroup" aria-label="Người nhận">
+            @for (t of recipients(); track t.slug) {
+              <button
+                type="button"
+                class="sp-choice sp-choice--tile"
+                role="radio"
+                [class.is-checked]="form.controls.recipient.value === t.slug"
+                [attr.aria-checked]="form.controls.recipient.value === t.slug"
+                (click)="pickRecipient(t.slug)"
+              >
+                <app-icon [name]="t.icon" [size]="24" />
+                <span class="sp-choice__title">{{ t.name }}</span>
+              </button>
+            } @empty {
+              @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
+                <span class="sp-skel sp-rcp-skel"></span>
+              }
+            }
+          </div>
+        </fieldset>
+
+        <div class="sp-survey__cols">
+          <div class="sp-survey__group">
+            <span class="sp-survey__title"><app-icon name="gift" [size]="20" />Dịp tặng</span>
+            <div class="sp-survey__row">
+              @for (t of occasions(); track t._id) {
+                <button type="button" class="sp-chip" [class.is-on]="isOn('occasions', t.slug)" [attr.aria-pressed]="isOn('occasions', t.slug)" (click)="toggle('occasions', t.slug)">
+                  {{ t.name }}
+                </button>
+              }
+            </div>
+          </div>
+          <div class="sp-survey__group">
+            <span class="sp-survey__title"><app-icon name="heart" [size]="20" />Sở thích</span>
+            <div class="sp-survey__row">
+              @for (t of hobbies(); track t._id) {
+                <button type="button" class="sp-chip" [class.is-on]="isOn('hobbies', t.slug)" [attr.aria-pressed]="isOn('hobbies', t.slug)" (click)="toggle('hobbies', t.slug)">
+                  {{ t.name }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="sp-survey__group">
+          <span class="sp-survey__title"><app-icon name="sparkle" [size]="20" />Tính cách</span>
+          <div class="sp-survey__row">
+            @for (t of personalities(); track t._id) {
+              <button
+                type="button"
+                class="sp-chip"
+                [class.is-on]="isOn('personalities', t.slug)"
+                [attr.aria-pressed]="isOn('personalities', t.slug)"
+                (click)="toggle('personalities', t.slug)"
+              >
+                {{ t.name }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="sp-survey__cols">
+          <div>
+            <app-range-slider
+              label="Độ tuổi"
+              [min]="AGE_MIN"
+              [max]="AGE_MAX"
+              [value]="formValue().age"
+              [text]="ageLabel"
+              [ariaText]="ageAria"
+              minLabel="6 tuổi"
+              maxLabel="40+ tuổi"
+              (valueChange)="form.controls.age.setValue($event)"
+            />
+          </div>
+          <div>
+            <app-range-slider
+              label="Ngân sách"
+              [min]="0"
+              [max]="budgetTop()"
+              [step]="BUDGET_STEP"
+              [value]="formValue().budget"
+              [ready]="budgetReady()"
+              [text]="budgetLabel"
+              [ariaText]="budgetAria"
+              minLabel="0đ"
+              [maxLabel]="(budgetTop() | vnd) + '+'"
+              (valueChange)="form.controls.budget.setValue($event)"
+            />
+          </div>
+        </div>
+
+        <div class="sp-field">
+          <label class="form-label fw-semibold" for="ai-note">Mô tả thêm <span class="sp-muted fw-normal">(không bắt buộc)</span></label>
+          <textarea
+            id="ai-note"
+            class="form-control"
+            rows="3"
+            maxlength="500"
+            formControlName="note"
+            placeholder="VD: Anh ấy mê đá bóng cuối tuần, tối thích xem anime, hay ngồi máy tính"
+          ></textarea>
+        </div>
+
+        <div class="sp-ai-submit">
+          <div class="meta">
+            @if (form.errors?.['atLeastOne']) {
+              <span class="sp-ai-need" [class.is-error]="form.touched"><app-icon name="info" [size]="16" />Bạn cần nhập ít nhất một thông tin</span>
+            } @else {
+              <span><strong>{{ count() }} tiêu chí</strong> đã chọn</span>
+            }
+            @if (quota() && !quota()!.member) {
+              <span class="sp-trial"><app-icon name="sparkle" [size]="16" />Khách dùng thử: còn {{ quota()!.remaining }}/{{ quota()!.limit }} lượt</span>
+            }
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" [disabled]="form.invalid">
+            <app-icon name="sparkle" [size]="20" />{{ result() ? 'Cập nhật gợi ý' : 'Xem gợi ý ngay' }}
+          </button>
+        </div>
+      </form>
+    } @else {
+      <!-- ===== Kết quả và các trạng thái sau khi gửi ===== -->
+      <div class="sp-ai-top">
+        <h1>Gợi ý của Sâu Béo</h1>
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="restart()"><app-icon name="refresh" [size]="18" />Tư vấn lại từ đầu</button>
+      </div>
+
+      @if (view() === 'result' && result(); as r) {
+        <div class="sp-understood">
+          <span>Sâu đã hiểu:</span>
+          @for (c of r.criteria; track c.key) {
+            <span class="sp-tag">
+              {{ c.label }}
+              <button type="button" class="sp-tag__x" [attr.aria-label]="'Bỏ tiêu chí ' + c.label" [disabled]="busy()" (click)="removeChip(c)">
+                <app-icon name="close" [size]="14" />
+              </button>
+            </span>
+          }
+          <button type="button" class="sp-more ms-auto" (click)="editCriteria()"><app-icon name="edit" [size]="18" />Sửa tiêu chí</button>
+        </div>
+      } @else if (askedChips().length && view() === 'quota') {
+        <div class="sp-understood">
+          <span>Sâu đã hiểu:</span>
+          @for (c of askedChips(); track c) {
+            <span class="sp-tag">{{ c }}</span>
+          }
+        </div>
+      }
+
+      <div class="sp-chatlog" aria-live="polite">
+        @if (view() !== 'quota' || askedChips().length) {
+          <div class="sp-msg sp-msg--me">{{ asked() }}</div>
+        }
+        <div class="sp-botrow">
+          <img src="/assets/brand/sau-beo.png" alt="Sâu Béo" width="40" height="40" />
+          <div class="sp-botrow__body">
+            @switch (view()) {
+              @case ('loading') {
+                <div class="sp-ai-loading" role="status">
+                  <img src="/assets/brand/sau-beo.png" alt="" width="56" height="56" />
+                  <div>
+                    <strong>Sâu đang chọn quà cho bạn...</strong>
+                    <span>Thường chỉ mất vài giây.</span>
+                    <div class="sp-ai-steps">
+                      <div class="done"><app-icon name="check-circle" [size]="18" />Đã hiểu tiêu chí của bạn</div>
+                      <div class="done"><app-icon name="check-circle" [size]="18" />Đang so với các món quà trong cửa hàng</div>
+                      <div><app-icon name="clock" [size]="18" />Sắp xếp theo độ phù hợp</div>
+                    </div>
+                  </div>
+                </div>
+                @for (i of [1, 2]; track i) {
+                  <div class="sp-ai-result" aria-hidden="true">
+                    <span class="sp-skel sp-ai-skel-img"></span>
+                    <div class="d-flex flex-column gap-2">
+                      <span class="sp-skel" style="height: 20px; width: 40%"></span>
+                      <span class="sp-skel" style="height: 14px; width: 80%"></span>
+                      <span class="sp-skel" style="height: 14px; width: 65%"></span>
+                    </div>
+                  </div>
+                }
+              }
+
+              @case ('quota') {
+                <!-- 2Ea -->
+                <div class="sp-msg sp-msg--bot">Sâu đã sẵn sàng tìm quà rồi, nhưng lượt thử của bạn hết mất rồi.</div>
+                <div class="sp-gate">
+                  <span class="ic"><app-icon name="lock" [size]="28" /></span>
+                  <h2>Bạn đã dùng hết {{ quota()?.limit || 3 }} lượt thử</h2>
+                  <p>Đăng nhập để dùng Sâu Béo không giới hạn, hoàn toàn miễn phí. Sâu sẽ nhớ tiêu chí bạn vừa chọn nên không cần nhập lại.</p>
+                  <div class="acts">
+                    <a class="btn btn-primary" routerLink="/dang-nhap" [queryParams]="{ returnUrl: '/tu-van-qua' }" (click)="keepDraft()"><app-icon name="user" [size]="18" />Đăng nhập</a>
+                    <a class="btn btn-outline-primary" routerLink="/dang-ky" [queryParams]="{ returnUrl: '/tu-van-qua' }" (click)="keepDraft()">Đăng ký miễn phí</a>
+                  </div>
+                  <a class="link-primary small" routerLink="/san-pham" [queryParams]="filterParams()">Hoặc tự lọc sản phẩm theo tiêu chí</a>
+                </div>
+              }
+
+              @case ('error') {
+                <!-- 6Eb: lượt không bị trừ -->
+                <div class="sp-state sp-state--inline" role="alert">
+                  <span class="sp-state__ic sp-state__ic--err" aria-hidden="true"><app-icon name="alert-circle" [size]="28" /></span>
+                  <div class="d-flex flex-column gap-2 text-start">
+                    <h2 class="sp-state__title">Trợ lý AI đang bận</h2>
+                    <p>Sâu Béo đang phải trả lời nhiều bạn cùng lúc. Bạn thử lại sau ít giây, hoặc tự lọc sản phẩm theo tiêu chí vừa chọn nhé. Lượt này không bị trừ.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                      <button type="button" class="btn btn-primary btn-sm" (click)="retry()"><app-icon name="refresh" [size]="18" />Thử lại</button>
+                      <a class="btn btn-outline-primary btn-sm" routerLink="/san-pham" [queryParams]="filterParams()"><app-icon name="filter" [size]="18" />Dùng bộ lọc nâng cao</a>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              @case ('result') {
+                @if (result(); as r) {
+                  @if (r.matchedAll) {
+                    <div class="sp-msg sp-msg--bot">{{ intro() }}</div>
+                  } @else {
+                    <div class="sp-msg sp-msg--bot">
+                      Xin lỗi bạn nha, Sâu không tìm thấy sản phẩm phù hợp với tất cả tiêu chí. Đây là những món phù hợp nhất với nhiều tiêu chí của bạn:
+                    </div>
+                  }
+
+                  <div class="sp-ai-list" [class.is-busy]="busy()" [attr.aria-busy]="busy()">
+                    @for (item of r.results; track item.product._id; let i = $index) {
+                      <app-ai-result-card [item]="item" [index]="i" [top]="i === 0 && r.matchedAll" [sessionId]="r.sessionId" [adding]="adding() === item.product._id" (add)="addToCart($event)" />
+                    }
+
+                    @for (c of r.combos; track c.name + c.total) {
+                      <article class="sp-ai-result sp-ai-result--combo">
+                        <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                          <div>
+                            <span class="sp-badge sp-badge--primary">Combo quà tặng</span>
+                            <h3 class="sp-ai-combo__name">{{ c.name }}</h3>
+                          </div>
+                          <div class="sp-price"><span class="sp-price__now">{{ c.total | vnd }}</span></div>
+                        </div>
+                        <div class="sp-combo-items">
+                          @for (p of c.products; track p._id) {
+                            <a class="sp-combo-item" [routerLink]="['/san-pham', p.slug]" [queryParams]="{ ai: r.sessionId }">
+                              <img [src]="imageOf(p)" alt="" width="56" height="56" loading="lazy" />
+                              <span><strong>{{ p.name }}</strong><br />{{ p.finalPrice | vnd }}</span>
+                            </a>
+                          }
+                        </div>
+                        <div class="sp-combo-why">
+                          <span class="sp-label">Vì sao Sâu gợi ý combo này?</span>
+                          <ul class="sp-why">
+                            @for (why of c.reasons; track why) {
+                              <li [class.warn]="isWarn(why)"><app-icon [name]="isWarn(why) ? 'alert-circle' : 'check-circle'" [size]="20" />{{ why }}</li>
+                            }
+                          </ul>
+                        </div>
+                        @if (c.canAddAll) {
+                          <button type="button" class="btn btn-primary w-100" [disabled]="adding() === c.name" (click)="addCombo(c)">
+                            <app-icon name="cart" [size]="20" />Thêm cả combo vào giỏ
+                          </button>
+                        } @else {
+                          <p class="sp-muted small mb-0">Món trong combo cần chọn phân loại, bạn bấm từng món để thêm vào giỏ nhé.</p>
+                        }
+                      </article>
+                    }
+                  </div>
+
+                  @if (r.relaxSuggestions.length) {
+                    <div class="sp-msg sp-msg--bot">Bạn thử nới một chút để Sâu tìm được nhiều món hơn nhé:</div>
+                    <div class="sp-suggest">
+                      @for (s of r.relaxSuggestions; track s.label) {
+                        <button type="button" class="sp-chip sp-chip--sm" [disabled]="busy()" (click)="relax(s.input)">{{ s.label }}</button>
+                      }
+                    </div>
+                  }
+
+                  <a class="sp-more" routerLink="/san-pham" [queryParams]="filterParams()"><app-icon name="filter" [size]="18" />Xem thêm bằng bộ lọc</a>
+                }
+              }
+            }
+          </div>
+        </div>
+
+        @if (view() === 'result') {
+          <div class="sp-botrow">
+            <img src="/assets/brand/sau-beo.png" alt="" width="40" height="40" />
+            <div class="sp-botrow__body">
+              <div class="sp-msg sp-msg--bot">Muốn Sâu tinh chỉnh thêm thì cứ nhắn nha, ví dụ:</div>
+              <div class="sp-suggest">
+                @for (s of suggestions(); track s) {
+                  <button type="button" class="sp-chip sp-chip--sm" [disabled]="busy()" (click)="refine(s)">{{ s }}</button>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (view() === 'result') {
+        <form class="sp-refine" (ngSubmit)="refine()">
+          <div class="sp-refine__row">
+            <input
+              type="text"
+              class="form-control"
+              [formControl]="refineText"
+              maxlength="200"
+              aria-label="Tin nhắn cho Sâu Béo"
+              placeholder="Muốn tinh chỉnh? VD: có gì rẻ hơn không?"
+            />
+            <button type="submit" class="btn btn-primary sp-refine__send" aria-label="Gửi" [disabled]="busy() || !refineText.value.trim()">
+              @if (busy()) {
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+              } @else {
+                <app-icon name="send" [size]="20" />
+              }
+            </button>
+          </div>
+          <small>Sâu Béo có thể nhầm, bạn xem kỹ giá và mô tả trước khi đặt nhé.</small>
+        </form>
+      }
+    }
+  </div>
+</div>

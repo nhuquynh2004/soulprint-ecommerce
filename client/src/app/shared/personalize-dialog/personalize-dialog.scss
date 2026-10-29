@@ -1,0 +1,434 @@
+// SCR-04: cột xem trước bên trái (cố định 260px, dính khi cuộn), cột nhập bên phải; Mobile xếp dọc.
+// Mọi nhãn 14px đậm, chú thích 12-13px, ô nhập và nút cao 40px để không chỗ to chỗ nhỏ.
+.sp-pz {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: var(--sp-space-5);
+
+  @media (max-width: 767.98px) {
+    grid-template-columns: 1fr;
+    gap: var(--sp-space-4);
+  }
+
+  .form-label {
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+
+    small {
+      margin-left: 4px;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--sp-color-text-muted);
+    }
+  }
+
+  .form-control:not(textarea) {
+    height: 40px;
+  }
+}
+
+.sp-pz__preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+
+  @media (min-width: 768px) {
+    position: sticky;
+    top: 0;
+    align-self: start;
+  }
+}
+
+.sp-pz__stage {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface-alt);
+  overflow: hidden;
+
+  > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 767.98px) {
+    max-width: 200px;
+    width: 100%;
+    margin: 0 auto;
+  }
+}
+
+// Chữ in trên lưng áo đấu: dòng trên, số áo, dòng dưới
+.sp-pz__jersey {
+  position: absolute;
+  inset: 18% 20% auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border-radius: var(--sp-radius-md);
+  background: color-mix(in srgb, var(--sp-primary-900) 72%, transparent);
+  color: #fff;
+  text-transform: uppercase;
+  text-align: center;
+
+  .t,
+  .b {
+    font: 700 13px/18px var(--sp-font-body);
+    letter-spacing: 0.08em;
+    word-break: break-word;
+  }
+
+  .n {
+    font: 700 44px/48px var(--sp-font-display);
+  }
+}
+
+.sp-pz__engrave {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 14%;
+  padding: 8px 10px;
+  border-radius: var(--sp-radius-sm);
+  background: color-mix(in srgb, var(--sp-primary-900) 70%, transparent);
+  color: #fff;
+  font: 700 15px/20px var(--sp-font-body);
+  letter-spacing: 0.06em;
+  text-align: center;
+  word-break: break-word;
+}
+
+.sp-pz__stickers {
+  position: absolute;
+  top: 10%;
+  left: 8%;
+  right: 8%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+
+  img {
+    width: 26%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgb(0 0 0 / 30%));
+  }
+}
+
+.sp-pz__msg {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 8%;
+  padding: 6px 10px;
+  border-radius: var(--sp-radius-sm);
+  background: color-mix(in srgb, var(--sp-color-surface) 88%, transparent);
+  color: var(--sp-color-text);
+  font: italic 500 13px/18px var(--sp-font-body);
+  text-align: center;
+}
+
+.sp-pz__note {
+  font-size: 12px;
+  color: var(--sp-color-text-muted);
+  text-align: center;
+}
+
+.sp-pz__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-3);
+  min-width: 0;
+
+  // Tab chia đều cả hàng, chữ 14px không xuống dòng (Mobile rút gọn "Không cá nhân hóa" thành "Không")
+  .sp-pz__seg {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+
+    button {
+      justify-content: center;
+      min-height: 36px;
+      padding: 6px 8px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+  }
+}
+
+.sp-pz__mine {
+  display: flex;
+  flex-direction: column;
+}
+
+.sp-pz__minelist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  .sp-chip {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.sp-pz__labelrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-space-2);
+  margin-bottom: 6px;
+}
+
+.sp-pz__count {
+  flex: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sp-color-text-muted);
+
+  &.is-full {
+    color: var(--sp-color-primary);
+  }
+}
+
+.sp-pz__save {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--sp-space-3);
+  border: 1px dashed var(--sp-color-border-strong);
+  border-radius: var(--sp-radius-md);
+  font-size: 14px;
+
+  small {
+    font-size: 12px;
+  }
+}
+
+.sp-pz__none {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--sp-space-4);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface-alt);
+  font-size: 14px;
+  color: var(--sp-color-text-muted);
+
+  strong {
+    color: var(--sp-color-text);
+  }
+}
+
+.sp-pz__hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-pz__err {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sp-color-danger);
+}
+
+.sp-pz__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--sp-space-3);
+}
+
+.sp-pz__full {
+  grid-column: 1 / -1;
+}
+
+.sp-pz__help {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-space-2);
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-pz__calc {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-space-2);
+  padding: var(--sp-space-3);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface-alt);
+  font-size: 14px;
+}
+
+.sp-pz__break {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--sp-space-3);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+  font-size: 13px;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-space-2);
+  }
+
+  .is-good span:last-child {
+    color: var(--sp-color-success);
+    font-weight: 600;
+  }
+
+  .is-total {
+    padding-top: 6px;
+    border-top: 1px solid var(--sp-color-border);
+    font-weight: 700;
+  }
+}
+
+.sp-stkgroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: var(--sp-space-2);
+}
+
+.sp-stkgroup__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font: 600 13px/18px var(--sp-font-body);
+
+  .k {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sp-color-text-subtle);
+  }
+}
+
+.sp-stkgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 8px;
+}
+
+.sp-stk {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--sp-tap-min);
+  padding: 8px 6px;
+  border: 1.5px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface);
+  color: var(--sp-color-text);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  text-align: center;
+
+  img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+
+  // Tên sticker tối đa 2 dòng, các ô cao bằng nhau
+  span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 32px;
+  }
+
+  &:hover {
+    border-color: var(--sp-color-primary);
+  }
+
+  &.is-on {
+    border-color: var(--sp-color-primary);
+    background: var(--sp-color-primary-subtle);
+    box-shadow: inset 0 0 0 1px var(--sp-color-primary);
+  }
+}
+
+.sp-optbtn {
+  min-height: 40px;
+  padding: 4px 12px;
+  font-size: 14px;
+  border: 1.5px solid var(--sp-color-border-strong);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface);
+  color: var(--sp-color-text);
+  font-weight: 600;
+
+  &.is-on {
+    border-color: var(--sp-color-primary);
+    background: var(--sp-color-primary-subtle);
+    color: var(--sp-color-primary);
+  }
+
+  &.is-out {
+    color: var(--sp-color-text-subtle);
+    text-decoration: line-through;
+  }
+}
+
+.sp-pz__foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--sp-space-2);
+  width: 100%;
+}
+
+.sp-pz__btns {
+  display: flex;
+  gap: var(--sp-space-2);
+
+  .btn {
+    min-width: 96px;
+    height: 40px;
+    padding-block: 0;
+  }
+
+  // Mobile: 2 nút chia đôi hàng dưới tổng tiền
+  @media (max-width: 575.98px) {
+    flex-basis: 100%;
+
+    .btn {
+      flex: 1;
+    }
+  }
+}
+
+.sp-pz__total {
+  @media (max-width: 575.98px) {
+    flex-basis: 100%;
+  }
+
+  display: flex;
+  flex-direction: column;
+  margin-right: auto;
+  font-size: 12px;
+  color: var(--sp-color-text-muted);
+
+  strong {
+    font: 700 18px/24px var(--sp-font-display);
+    color: var(--sp-color-text);
+  }
+}

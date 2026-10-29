@@ -1,0 +1,18 @@
+<!-- Khu quản trị (SCR-60, 08 Mục 3) và cổng thanh toán giả lập (SCR-08) có khung riêng, không header/footer cửa hàng -->
+@if (!isAdmin() && !isGateway()) {
+  <app-header />
+}
+<main id="noi-dung">
+  <router-outlet />
+</main>
+@if (!isAdmin()) {
+  @if (!isGateway()) {
+    <app-footer />
+    <!-- SCR-29 chat "Sâu Béo" nổi trên mọi trang khách (S11) -->
+    <app-chat-widget />
+  }
+  <app-toasts [aboveChat]="true" />
+  <app-login-prompt />
+}
+<!-- Hộp xác nhận chung, dùng cho cả trang khách và khu quản trị -->
+<app-confirm-host />

@@ -1,0 +1,22 @@
+<div class="sp-bulk" role="region" [attr.aria-label]="'Thao tác với ' + count + ' ' + unit + ' đã chọn'">
+  <div class="sp-bulk__head">
+    <input class="form-check-input" type="checkbox" checked [indeterminate]="false" aria-label="Bỏ chọn tất cả" (change)="cleared.emit()" />
+    <strong>Đã chọn {{ count }} {{ unit }}</strong>
+    <button class="btn sp-bulk__x" type="button" aria-label="Bỏ chọn" (click)="cleared.emit()">
+      <app-icon name="close" [size]="20" />
+    </button>
+  </div>
+  <div class="sp-bulk__actions">
+    @for (a of actions; track a.key) {
+      <button type="button" class="btn btn-sm" [class.btn-outline-secondary]="!a.danger" [class.btn-danger]="a.danger" [disabled]="busy || !!a.disabledHint" [attr.title]="a.disabledHint || null" [attr.aria-describedby]="a.disabledHint ? 'bulk-hint-' + a.key : null" (click)="action.emit(a.key)">
+        <app-icon [name]="a.icon" [size]="18" /> {{ a.label }}
+      </button>
+    }
+  </div>
+  <!-- Lý do nút mờ hiện thành dòng chữ, màn cảm ứng không rê chuột để xem title được -->
+  @for (a of actions; track a.key) {
+    @if (a.disabledHint) {
+      <small class="sp-bulk__hint" [id]="'bulk-hint-' + a.key"><app-icon name="info" [size]="14" /> {{ a.label }}: {{ a.disabledHint }}</small>
+    }
+  }
+</div>

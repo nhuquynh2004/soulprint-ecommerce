@@ -1,0 +1,73 @@
+[
+  {
+    "code": "SOULPRINT10",
+    "name": "Chào mừng thành viên mới",
+    "description": "Giảm 10% cho đơn hàng đầu tiên, tối đa 50.000đ",
+    "type": "PERCENT",
+    "value": 10,
+    "maxDiscount": 50000,
+    "minOrderValue": 0,
+    "minItems": 1,
+    "scope": {
+      "kind": "ALL",
+      "ids": []
+    },
+    "audience": "NEW_MEMBERS",
+    "source": "WELCOME",
+    "totalQuantity": 10000,
+    "perUserLimit": 1,
+    "startAt": "2026-10-01T00:00:00+07:00",
+    "endAt": "2027-12-31T23:59:59+07:00",
+    "status": "HOAT_DONG",
+    "showInWallet": false,
+    "autoOnSignup": true,
+    "validDays": 30
+  },
+  {
+    "code": "FREESHIP30",
+    "name": "Miễn phí vận chuyển",
+    "description": "Miễn phí vận chuyển tối đa 30.000đ cho đơn từ 300.000đ",
+    "type": "FREESHIP",
+    "value": 30000,
+    "minOrderValue": 300000,
+    "minItems": 1,
+    "scope": {
+      "kind": "ALL",
+      "ids": []
+    },
+    "audience": "PUBLIC",
+    "source": "CAMPAIGN",
+    "totalQuantity": 500,
+    "perUserLimit": 2,
+    "startAt": "2026-10-01T00:00:00+07:00",
+    "endAt": "2026-12-31T23:59:59+07:00",
+    "status": "HOAT_DONG",
+    "showInWallet": true,
+    "autoOnSignup": false
+  },
+  {
+    "code": "GAMER50K",
+    "name": "Ưu đãi góc game thủ",
+    "description": "Giảm 50.000đ cho đơn gear và đồ sưu tầm từ 500.000đ",
+    "type": "FIXED",
+    "value": 50000,
+    "minOrderValue": 500000,
+    "minItems": 1,
+    "scope": {
+      "kind": "CATEGORY",
+      "slugs": [
+        "vat-bat-ly-than",
+        "me-man"
+      ]
+    },
+    "audience": "ALL_MEMBERS",
+    "source": "CAMPAIGN",
+    "totalQuantity": 200,
+    "perUserLimit": 1,
+    "startAt": "2026-10-01T00:00:00+07:00",
+    "endAt": "2026-11-30T23:59:59+07:00",
+    "status": "HOAT_DONG",
+    "showInWallet": false,
+    "autoOnSignup": false
+  }
+]

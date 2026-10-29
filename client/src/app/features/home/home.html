@@ -1,0 +1,242 @@
+<!-- Trang chủ SCR-01 (UC-DIS-01): khối dựng theo siteSettings.home.published, thứ tự do Admin sắp xếp -->
+@if (loading()) {
+  <div class="container" aria-busy="true" aria-label="Đang tải trang chủ">
+    <span class="sp-skel sp-hero-skel"></span>
+    @for (b of [1, 2]; track b) {
+      <div class="sp-sec">
+        <span class="sp-skel" style="height: 36px; width: 280px"></span>
+        <div class="sp-grid">
+          @for (c of [1, 2, 3, 4]; track c) {
+            <span class="sp-skel" style="aspect-ratio: 3 / 4"></span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+} @else if (errMessage()) {
+  <div class="container my-5">
+    <div class="sp-state" role="alert">
+      <span class="sp-state__ic"><app-icon name="alert-circle" [size]="32" /></span>
+      <h2 class="h4">{{ errMessage() }}</h2>
+      <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+    </div>
+  </div>
+} @else {
+  @for (section of sections(); track section.id) {
+    @switch (section.type) {
+      @case ('banners') {
+        <section class="sp-hero" aria-roledescription="carousel" aria-label="Banner">
+          @for (b of banners(); track b._id; let i = $index) {
+            <div class="sp-hero__slide" [class.is-on]="i === bannerIndex()" [attr.aria-hidden]="i !== bannerIndex()">
+              <div class="container sp-hero__inner">
+                <div class="sp-hero__copy">
+                  <h1 class="display-1">{{ b.title }}</h1>
+                  @if (b.subtitle) {
+                    <p>{{ b.subtitle }}</p>
+                  }
+                  @if (b.ctaLabel && b.ctaLink) {
+                    <a class="btn btn-accent btn-lg" [routerLink]="b.ctaLink" [tabindex]="i === bannerIndex() ? 0 : -1">
+                      <app-icon name="sparkle" [size]="20" /> {{ b.ctaLabel }}
+                    </a>
+                  }
+                </div>
+                <picture class="sp-hero__art">
+                  <source media="(max-width: 767.98px)" [srcset]="b.imageMobile || b.imageDesktop" />
+                  <img [src]="b.imageDesktop" alt="" [attr.fetchpriority]="i === 0 ? 'high' : null" />
+                </picture>
+              </div>
+            </div>
+          }
+          @if (banners().length > 1) {
+            <div class="sp-hero__nav container">
+              <button class="btn sp-hero__arrow" type="button" (click)="nextBanner(-1)" aria-label="Banner trước">
+                <app-icon name="chevron-left" />
+              </button>
+              @for (b of banners(); track b._id; let i = $index) {
+                <button
+                  class="sp-hero__dot"
+                  type="button"
+                  [class.is-on]="i === bannerIndex()"
+                  (click)="goBanner(i)"
+                  [attr.aria-label]="'Banner ' + (i + 1)"
+                  [attr.aria-current]="i === bannerIndex()"
+                ></button>
+              }
+              <button class="btn sp-hero__arrow" type="button" (click)="nextBanner(1)" aria-label="Banner sau">
+                <app-icon name="chevron-right" />
+              </button>
+            </div>
+          }
+        </section>
+      }
+
+      @case ('categories') {
+        <section class="container sp-sec">
+          <div class="sp-sec-head">
+            <div>
+              <h2>{{ section.settings.title || 'Danh mục' }}</h2>
+              <p>Chọn quà theo nhu cầu của chàng</p>
+            </div>
+          </div>
+          <div class="sp-ctiles">
+            @for (c of section.data.items; track c._id) {
+              <a class="sp-ctile" [routerLink]="['/danh-muc', c.slug]">
+                <span class="sp-ctile__ic"><app-icon [name]="categoryIcons[c.slug] || 'gift'" [size]="30" /></span>
+                <strong>{{ c.name }}</strong>
+                @if (c.description) {
+                  <span class="m">{{ c.description }}</span>
+                }
+                <app-icon class="go" name="arrow-right" [size]="20" />
+              </a>
+            }
+          </div>
+        </section>
+      }
+
+      @case ('axes') {
+        <section class="container sp-sec">
+          <div class="sp-sec-head">
+            <div>
+              <h2>{{ section.settings.title || 'Khám phá theo đam mê' }}</h2>
+              <p>Chàng mê gì, Soulprint có quà nấy</p>
+            </div>
+          </div>
+          <div class="sp-axes">
+            @for (a of section.data.items; track a.code) {
+              <a class="sp-axis" [class]="'sp-axis--' + axisCss(a.code)" [routerLink]="['/san-pham']" [queryParams]="{ axis: a.slug }">
+                <span class="sp-axis__glyph"><app-icon [name]="axisIcon(a.code)" [size]="120" /></span>
+                <span class="sp-axis__eyebrow">Trục đam mê</span>
+                <span class="sp-axis__name">{{ a.name }}</span>
+                <span class="sp-axis__meta">{{ a.productCount }} món quà <app-icon name="arrow-right" [size]="18" /></span>
+              </a>
+            }
+          </div>
+        </section>
+      }
+
+      @case ('recipientGroups') {
+        <section class="container sp-sec">
+          <div class="sp-sec-head">
+            <div>
+              <h2>{{ section.settings.title || 'Mua theo người nhận' }}</h2>
+              <p>Chọn nhanh theo người bạn muốn tặng</p>
+            </div>
+          </div>
+          <div class="sp-rcps">
+            @for (t of section.data.items; track t._id) {
+              <a class="sp-rcp" [routerLink]="['/san-pham']" [queryParams]="{ tags: t.slug }">
+                <span class="sp-rcp__av" aria-hidden="true">{{ initials(t.name) }}</span>
+                {{ t.name }}
+              </a>
+            }
+          </div>
+        </section>
+      }
+
+      @case ('collection') {
+        <section class="container sp-sec" [attr.id]="section.id === firstCollectionId() ? 'bo-suu-tap' : null">
+          <div class="sp-sec-head">
+            <div>
+              <h2>{{ section.settings.title || section.data.collection?.name }}</h2>
+              <p>Gợi ý tuyển chọn theo dịp và đam mê</p>
+            </div>
+            @if (section.settings.showViewAll !== false) {
+              <a class="sp-more" [routerLink]="['/bo-suu-tap', section.data.collection?.slug]">
+                Xem bộ sưu tập <app-icon name="arrow-right" [size]="18" />
+              </a>
+            }
+          </div>
+          <div class="sp-coll">
+            <a class="sp-coll__cover" [routerLink]="['/bo-suu-tap', section.data.collection?.slug]">
+              @if (section.data.collection?.coverImage) {
+                <img [src]="section.data.collection?.coverImage" alt="" loading="lazy" />
+              }
+              <span class="sp-coll__body">
+                <span class="sp-badge sp-badge--primary">Bộ sưu tập</span>
+                <strong>{{ section.data.collection?.name }}</strong>
+                <span>{{ section.data.collection?.description }}</span>
+                <span class="sp-coll__count">{{ section.data.collection?.total }} sản phẩm</span>
+              </span>
+            </a>
+            <div class="sp-hscroll sp-coll__items">
+              @for (p of products(section); track p._id) {
+                <app-product-card [product]="p" [compact]="true" />
+              }
+            </div>
+          </div>
+        </section>
+      }
+
+      @case ('featuredReviews') {
+        <section class="container sp-sec">
+          <div class="sp-sec-head">
+            <h2>{{ section.settings.title || 'Khách hàng của Soulprint nói gì' }}</h2>
+          </div>
+          <div class="sp-quotes">
+            @for (r of section.data.items; track r._id) {
+              <figure class="sp-quote">
+                <app-rating [value]="r.rating" />
+                <blockquote>“{{ r.comment }}”</blockquote>
+                <figcaption class="who">
+                  <span class="sp-rcp__av sp-quote__av" aria-hidden="true">{{ initials(r.userName) }}</span>
+                  <span class="t">
+                    <strong>{{ r.userName }}</strong>
+                    <a [routerLink]="['/san-pham', r.product.slug]">{{ r.product.name }}</a>
+                  </span>
+                </figcaption>
+              </figure>
+            }
+          </div>
+        </section>
+      }
+
+      @case ('richText') {
+        <section class="container sp-sec">
+          <div class="sp-richtext" [class.is-accent]="section.settings.tone === 'ACCENT'">
+            <h2>{{ section.settings.title }}</h2>
+            <p>{{ section.settings.body }}</p>
+            @if (section.settings.ctaLabel && section.settings.ctaLink) {
+              <a class="btn btn-primary" [routerLink]="section.settings.ctaLink">{{ section.settings.ctaLabel }}</a>
+            }
+          </div>
+        </section>
+      }
+
+      @case ('video') {
+        <!-- Khối Video: YouTube nhúng chế độ không cookie, chỉ tải khi cuộn tới -->
+        <section class="container sp-sec">
+          @if (section.settings.title) {
+            <div class="sp-sec-head"><h2>{{ section.settings.title }}</h2></div>
+          }
+          <div class="sp-video">
+            <iframe [src]="videoUrl(section.settings.youtubeId!)" [title]="section.settings.title || 'Video Soulprint'" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          @if (section.settings.caption) {
+            <p class="sp-video__cap">{{ section.settings.caption }}</p>
+          }
+        </section>
+      }
+
+      @default {
+        <!-- featured, productList: lưới thẻ sản phẩm -->
+        <section class="container sp-sec">
+          <div class="sp-sec-head">
+            <h2>{{ section.settings.title || 'Sản phẩm' }}</h2>
+            @if (section.settings.showViewAll !== false) {
+              <a class="sp-more" [routerLink]="listLink(section).path" [queryParams]="listLink(section).query">
+                Xem tất cả <app-icon name="arrow-right" [size]="18" />
+              </a>
+            }
+          </div>
+          <div class="sp-grid">
+            @for (p of products(section); track p._id) {
+              <app-product-card [product]="p" />
+            }
+          </div>
+        </section>
+      }
+    }
+  }
+  <!-- Mời đặt số lượng lớn, mở chat CSKH -->
+  <app-bulk-order-note variant="band" />
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 560" width="1440" height="560" role="img" aria-label="Tìm món quà hoàn hảo dành tặng chàng">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0F7D4"/><stop offset="1" stop-color="#D2E77E"/></linearGradient></defs>
+<rect width="1440" height="560" fill="url(#g)"/>
+<g transform="translate(650 169) scale(5.833333333333333)" fill="none" stroke="#485610" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="m19 15.5.7 1.8 1.8.7-1.8.7L19 20.5l-.7-1.8-1.8-.7 1.8-.7z"/></g>
+<g fill="#485610" text-anchor="middle" font-family="Montserrat, Arial, sans-serif"><text x="720" y="381" font-size="40" font-weight="700">Tìm món quà hoàn hảo dành tặng chàng</text></g>
+<text x="1424" y="544" text-anchor="end" font-family="Montserrat, Arial, sans-serif" font-size="14" fill="#485610" opacity=".7">Ảnh minh họa</text>
+</svg>

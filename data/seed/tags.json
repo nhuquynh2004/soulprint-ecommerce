@@ -1,0 +1,462 @@
+[
+  {
+    "name": "Sinh nhật",
+    "slug": "sinh-nhat",
+    "group": "DIP_TANG",
+    "synonyms": [
+      "birthday",
+      "thoi noi"
+    ],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Tốt nghiệp",
+    "slug": "tot-nghiep",
+    "group": "DIP_TANG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Valentine",
+    "slug": "valentine",
+    "group": "DIP_TANG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Kỷ niệm",
+    "slug": "ky-niem",
+    "group": "DIP_TANG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Giáng sinh",
+    "slug": "giang-sinh",
+    "group": "DIP_TANG",
+    "synonyms": [
+      "noel",
+      "christmas"
+    ],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Khai giảng",
+    "slug": "khai-giang",
+    "group": "DIP_TANG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Quốc tế thiếu nhi",
+    "slug": "quoc-te-thieu-nhi",
+    "group": "DIP_TANG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Ngày của Cha",
+    "slug": "ngay-cua-cha",
+    "group": "DIP_TANG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Tết",
+    "slug": "tet",
+    "group": "DIP_TANG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Bóng đá",
+    "slug": "bong-da",
+    "group": "SO_THICH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Bóng rổ",
+    "slug": "bong-ro",
+    "group": "SO_THICH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Gym",
+    "slug": "gym",
+    "group": "SO_THICH",
+    "synonyms": [
+      "the hinh",
+      "fitness"
+    ],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Chạy bộ",
+    "slug": "chay-bo",
+    "group": "SO_THICH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Anime manga",
+    "slug": "anime-manga",
+    "group": "SO_THICH",
+    "synonyms": [
+      "anime",
+      "manga",
+      "truyen tranh"
+    ],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Sưu tầm mô hình",
+    "slug": "suu-tam-mo-hinh",
+    "group": "SO_THICH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Game PC",
+    "slug": "game-pc",
+    "group": "SO_THICH",
+    "synonyms": [
+      "may tinh",
+      "pc gaming"
+    ],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Game mobile",
+    "slug": "game-mobile",
+    "group": "SO_THICH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Esports",
+    "slug": "esports",
+    "group": "SO_THICH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Board game",
+    "slug": "board-game",
+    "group": "SO_THICH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Năng động",
+    "slug": "nang-dong",
+    "group": "PHONG_CACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Tối giản",
+    "slug": "toi-gian",
+    "group": "PHONG_CACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Cá tính",
+    "slug": "ca-tinh",
+    "group": "PHONG_CACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Cổ điển",
+    "slug": "co-dien",
+    "group": "PHONG_CACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Công nghệ",
+    "slug": "cong-nghe",
+    "group": "PHONG_CACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Hướng ngoại",
+    "slug": "huong-ngoai",
+    "group": "TINH_CACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Hướng nội",
+    "slug": "huong-noi",
+    "group": "TINH_CACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Sáng tạo",
+    "slug": "sang-tao",
+    "group": "TINH_CACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Thực tế",
+    "slug": "thuc-te",
+    "group": "TINH_CACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Hài hước",
+    "slug": "hai-huoc",
+    "group": "TINH_CACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Ba",
+    "slug": "ba",
+    "group": "DOI_TUONG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Bạn trai",
+    "slug": "ban-trai",
+    "group": "DOI_TUONG",
+    "synonyms": [
+      "nguoi yeu",
+      "crush"
+    ],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Chồng",
+    "slug": "chong",
+    "group": "DOI_TUONG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Anh em trai",
+    "slug": "anh-em-trai",
+    "group": "DOI_TUONG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Sếp",
+    "slug": "sep",
+    "group": "DOI_TUONG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Bạn bè",
+    "slug": "ban-be",
+    "group": "DOI_TUONG",
+    "synonyms": [],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Giữ nhiệt",
+    "slug": "giu-nhiet",
+    "group": "CONG_DUNG",
+    "synonyms": [
+      "binh nuoc",
+      "ly"
+    ],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Trang trí",
+    "slug": "trang-tri",
+    "group": "CONG_DUNG",
+    "synonyms": [
+      "decor"
+    ],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Mang theo hằng ngày",
+    "slug": "mang-theo-hang-ngay",
+    "group": "CONG_DUNG",
+    "synonyms": [
+      "phu kien"
+    ],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Sưu tầm",
+    "slug": "suu-tam",
+    "group": "CONG_DUNG",
+    "synonyms": [
+      "mo hinh",
+      "figure"
+    ],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "Làm việc",
+    "slug": "lam-viec",
+    "group": "CONG_DUNG",
+    "synonyms": [
+      "van phong",
+      "ban lam viec"
+    ],
+    "isFilter": true,
+    "description": ""
+  },
+  {
+    "name": "6 - 12 tuổi",
+    "slug": "6-12",
+    "group": "DO_TUOI",
+    "synonyms": [],
+    "isFilter": true,
+    "description": "",
+    "range": {
+      "min": 6,
+      "max": 12
+    }
+  },
+  {
+    "name": "13 - 17 tuổi",
+    "slug": "13-17",
+    "group": "DO_TUOI",
+    "synonyms": [],
+    "isFilter": true,
+    "description": "",
+    "range": {
+      "min": 13,
+      "max": 17
+    }
+  },
+  {
+    "name": "18 - 25 tuổi",
+    "slug": "18-25",
+    "group": "DO_TUOI",
+    "synonyms": [],
+    "isFilter": true,
+    "description": "",
+    "range": {
+      "min": 18,
+      "max": 25
+    }
+  },
+  {
+    "name": "26 - 35 tuổi",
+    "slug": "26-35",
+    "group": "DO_TUOI",
+    "synonyms": [],
+    "isFilter": true,
+    "description": "",
+    "range": {
+      "min": 26,
+      "max": 35
+    }
+  },
+  {
+    "name": "Từ 36 tuổi",
+    "slug": "tu-36",
+    "group": "DO_TUOI",
+    "synonyms": [],
+    "isFilter": true,
+    "description": "",
+    "range": {
+      "min": 36,
+      "max": null
+    }
+  },
+  {
+    "name": "Dưới 300.000đ",
+    "slug": "duoi-300k",
+    "group": "NGAN_SACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": "",
+    "range": {
+      "min": 0,
+      "max": 300000
+    }
+  },
+  {
+    "name": "300.000đ - 500.000đ",
+    "slug": "300k-500k",
+    "group": "NGAN_SACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": "",
+    "range": {
+      "min": 300000,
+      "max": 500000
+    }
+  },
+  {
+    "name": "500.000đ - 1.000.000đ",
+    "slug": "500k-1tr",
+    "group": "NGAN_SACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": "",
+    "range": {
+      "min": 500000,
+      "max": 1000000
+    }
+  },
+  {
+    "name": "Trên 1.000.000đ",
+    "slug": "tren-1tr",
+    "group": "NGAN_SACH",
+    "synonyms": [],
+    "isFilter": true,
+    "description": "",
+    "range": {
+      "min": 1000000,
+      "max": null
+    }
+  }
+]

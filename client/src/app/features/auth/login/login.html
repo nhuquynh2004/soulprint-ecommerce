@@ -1,0 +1,88 @@
+<app-auth-shell tab="login" [returnUrl]="returnUrl">
+  <h2 class="sp-af__title">Đăng nhập</h2>
+  <p class="sp-af__lead">Dùng email hoặc số điện thoại đã đăng ký.</p>
+
+  @if (googleError && !errMessage()) {
+    <div class="sp-alert sp-alert--danger" role="alert">
+      <app-icon name="alert-circle" [size]="20" />
+      <div>
+        <p>{{ googleError }}</p>
+        @if (googleStaff) {
+          <a routerLink="/quan-tri/dang-nhap">Đến trang đăng nhập quản trị</a>
+        }
+      </div>
+    </div>
+  }
+
+  @if (errMessage()) {
+    <div class="sp-alert" [class]="errCode() === 'LOCKED' ? 'sp-alert--warning' : 'sp-alert--danger'" role="alert">
+      <app-icon name="alert-circle" [size]="20" />
+      <div>
+        <p>{{ errMessage() }}</p>
+        @if (errCode() === 'USE_ADMIN_LOGIN') {
+          <a routerLink="/quan-tri/dang-nhap">Đến trang đăng nhập quản trị</a>
+        }
+        @if (hint()) {
+          <p class="mt-1">{{ hint() }} <a routerLink="/tra-cuu-don">Tra cứu đơn hàng</a></p>
+        }
+        @if (errCode() === 'LOCKED') {
+          <a routerLink="/quen-mat-khau">Quên mật khẩu?</a>
+        }
+      </div>
+    </div>
+  }
+
+  <form #f="ngForm" (ngSubmit)="submit(f)" novalidate>
+    <div class="sp-field">
+      <label for="login">Email hoặc số điện thoại <span class="req">*</span></label>
+      <div class="sp-field__icon">
+        <app-icon name="user" [size]="18" />
+        <input
+          id="login"
+          name="login"
+          class="form-control"
+          autocomplete="username"
+          required
+          [(ngModel)]="model.login"
+          #login="ngModel"
+          [class.is-invalid]="login.invalid && login.touched"
+        />
+      </div>
+      @if (login.invalid && login.touched) {
+        <span class="sp-field__error">Vui lòng nhập email hoặc số điện thoại</span>
+      } @else {
+        <span class="sp-field__hint">Dùng email hoặc SĐT bạn đã đăng ký</span>
+      }
+    </div>
+
+    <div class="sp-field">
+      <label for="password">Mật khẩu <span class="req">*</span></label>
+      <app-password-field inputId="password" name="password" required [(ngModel)]="model.password" #pw="ngModel" [invalid]="!!(pw.invalid && pw.touched)" />
+      @if (pw.invalid && pw.touched) {
+        <span class="sp-field__error">Vui lòng nhập mật khẩu</span>
+      }
+    </div>
+
+    <div class="sp-af__row">
+      <label class="form-check m-0">
+        <input class="form-check-input" type="checkbox" name="rememberMe" [(ngModel)]="model.rememberMe" />
+        <span class="form-check-label">Ghi nhớ đăng nhập</span>
+      </label>
+      <a routerLink="/quen-mat-khau">Quên mật khẩu?</a>
+    </div>
+
+    <button class="btn btn-primary btn-lg w-100" type="submit" [disabled]="submitting()">
+      @if (submitting()) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Đang đăng nhập...
+      } @else {
+        Đăng nhập
+      }
+    </button>
+  </form>
+
+  <div class="sp-af__or"><span>hoặc</span></div>
+  <app-google-button [returnUrl]="returnUrl" />
+  <a class="btn btn-outline-primary w-100 sp-af__alt mt-2" routerLink="/tra-cuu-don"><app-icon name="search" [size]="18" /> Tra cứu đơn hàng</a>
+  <p class="sp-af__note">Không cần đăng nhập, chỉ cần mã đơn và SĐT đặt hàng</p>
+  <p class="sp-af__switch">Chưa có tài khoản? <a [routerLink]="['/dang-ky']" [queryParams]="returnUrl ? { returnUrl } : {}">Đăng ký ngay</a></p>
+</app-auth-shell>

@@ -1,0 +1,115 @@
+<app-dialog [title]="staff ? 'Sửa nhân viên' : 'Thêm nhân viên'" [subtitle]="staff ? '' : 'Nhân viên tự đặt mật khẩu khi kích hoạt'" (closed)="closed.emit()">
+  @if (errMessage()) {
+    <div class="sp-alert sp-alert--danger" role="alert"><app-icon name="alert-circle" [size]="20" /><p>{{ errMessage() }}</p></div>
+  }
+  <form id="staff-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="row g-3">
+      <div class="col-sm-6">
+        <div class="sp-field mb-0">
+          <label for="sfullName">Họ và tên <span class="req">*</span></label>
+          <input id="sfullName" class="form-control" formControlName="fullName" [class.is-invalid]="error('fullName')" />
+          @if (error('fullName')) {
+            <span class="sp-field__error">{{ error('fullName') }}</span>
+          }
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="sp-field mb-0">
+          <label for="sphone">Số điện thoại <span class="req">*</span></label>
+          <input id="sphone" type="tel" class="form-control" formControlName="phone" [class.is-invalid]="error('phone')" />
+          @if (error('phone')) {
+            <span class="sp-field__error">{{ error('phone') }}</span>
+          }
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="sp-field mb-0">
+          <label for="semail">Email <span class="req">*</span></label>
+          <input id="semail" type="email" class="form-control" formControlName="email" [class.is-invalid]="error('email')" />
+          @if (error('email')) {
+            <span class="sp-field__error">{{ error('email') }}</span>
+          } @else if (!staff) {
+            <span class="sp-field__hint">Lời mời và liên kết kích hoạt gửi tới email này, hết hạn sau 24 giờ</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <fieldset class="sp-field mt-3">
+      <legend class="sp-field__label">Vai trò <span class="req">*</span></legend>
+      <div class="sp-rolepick">
+        @for (r of roles; track r._id) {
+          <label class="sp-rolepick__item" [class.is-on]="selectedRoles().includes(r.code)">
+            <input class="form-check-input" type="checkbox" [checked]="selectedRoles().includes(r.code)" (change)="toggleRole(r.code)" [disabled]="isSelf && r.code === 'QUAN_TRI'" />
+            <span>
+              <strong>{{ r.name }}</strong>
+              <small>{{ r.description }}</small>
+            </span>
+          </label>
+        }
+      </div>
+      @if (error('staffRoles')) {
+        <span class="sp-field__error">{{ error('staffRoles') }}</span>
+      } @else {
+        <span class="sp-field__hint">Chọn 1 hoặc 2 vai trò</span>
+      }
+    </fieldset>
+
+    <!-- Nâng cao: Quyền riêng (nhánh 1d). Ẩn với vai trò Quản trị và khi tự sửa chính mình (BR-34) -->
+    @if (!hasAdminRole() && !isSelf) {
+      <div class="sp-adv">
+        <button class="sp-adv__head" type="button" (click)="advancedOpen.set(!advancedOpen())" [attr.aria-expanded]="advancedOpen()">
+          <app-icon [name]="advancedOpen() ? 'chevron-up' : 'chevron-down'" [size]="18" />
+          <span>Nâng cao: Quyền riêng</span>
+          <small>Quyền hiện có: quyền của vai trò + {{ overrides.length }} quyền riêng</small>
+        </button>
+        @if (advancedOpen()) {
+          <div class="sp-adv__body" formArrayName="overrides">
+            @for (o of overrides.controls; track o; let i = $index) {
+              <div class="sp-ovr" [formGroupName]="i">
+                <select class="form-select" formControlName="type" aria-label="Loại quyền riêng" (change)="o.controls.permission.setValue('')">
+                  <option value="CAP_THEM">Cấp thêm</option>
+                  <option value="THU_HOI">Thu hồi</option>
+                </select>
+                <select class="form-select" formControlName="permission" aria-label="Quyền" [class.is-invalid]="o.controls.permission.invalid && o.controls.permission.touched">
+                  <option value="">Chọn khu vực và hành động</option>
+                  @for (g of options(o.controls.type.value); track g.group) {
+                    <optgroup [label]="g.group">
+                      @for (x of g.items; track x.code) {
+                        <option [value]="x.code">{{ g.group }}: {{ x.label }}</option>
+                      }
+                    </optgroup>
+                  }
+                </select>
+                <select class="form-select" formControlName="expiry" aria-label="Hiệu lực">
+                  <option value="none">Không thời hạn</option>
+                  <option value="date">Đến ngày</option>
+                </select>
+                @if (o.controls.expiry.value === 'date') {
+                  <input type="date" class="form-control" formControlName="expiresAt" aria-label="Ngày hết hạn" [class.is-invalid]="o.controls.expiresAt.invalid || !o.controls.expiresAt.value" />
+                }
+                <button class="btn sp-ovr__x" type="button" (click)="removeOverride(i)" aria-label="Bỏ quyền riêng này"><app-icon name="trash" [size]="18" /></button>
+                @if (o.controls.expiresAt.errors?.['futureDate']) {
+                  <span class="sp-field__error sp-ovr__err">{{ o.controls.expiresAt.errors?.['futureDate'] }}</span>
+                }
+              </div>
+            }
+            <button class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" type="button" (click)="addOverride()">
+              <app-icon name="plus" [size]="16" /> Thêm quyền
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </form>
+  <div dialog-footer>
+    <button class="btn btn-link" type="button" (click)="closed.emit()">Hủy</button>
+    <button class="btn btn-primary d-inline-flex align-items-center gap-2" type="submit" form="staff-form" [disabled]="form.invalid || saving()">
+      @if (!staff) {
+        <app-icon name="send" [size]="18" /> Thêm và gửi lời mời
+      } @else {
+        Lưu thay đổi
+      }
+    </button>
+  </div>
+</app-dialog>

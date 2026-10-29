@@ -1,0 +1,169 @@
+<div class="container sp-lk">
+  <ol class="sp-lk__steps" aria-label="Các bước tra cứu">
+    @for (s of ['Thông tin đơn', 'Xác minh OTP', 'Kết quả']; track $index) {
+      <li [class.is-done]="step() > $index + 1" [class.is-on]="step() === $index + 1" [attr.aria-current]="step() === $index + 1 ? 'step' : null">
+        <span class="sp-lk__num">
+          @if (step() > $index + 1) {
+            <app-icon name="check" [size]="14" />
+          } @else {
+            {{ $index + 1 }}
+          }
+        </span>
+        {{ s }}
+      </li>
+    }
+  </ol>
+
+  @switch (step()) {
+    @case (1) {
+      <div class="sp-lk__grid">
+        <form class="sp-lk__card" (ngSubmit)="send()" novalidate>
+          <h1>Tra cứu đơn hàng</h1>
+          <p class="sp-lk__lead">Không cần đăng nhập. Nhập số điện thoại hoặc mã đơn đã dùng khi đặt hàng, Soulprint gửi mã xác minh tới số điện thoại đặt hàng.</p>
+          <label class="form-label" for="lk-target">Số điện thoại hoặc mã đơn hàng <span class="text-danger">*</span></label>
+          <input id="lk-target" name="target" class="form-control form-control-lg" [class.is-invalid]="!!targetError()" [(ngModel)]="target" placeholder="VD 0901234567 hoặc SP2610150001" autocomplete="tel" />
+          @if (targetError()) {
+            <div class="invalid-feedback d-block">{{ targetError() }}</div>
+          } @else {
+            <div class="form-text">Mã đơn có trong SMS/email xác nhận đặt hàng</div>
+          }
+          <button class="btn btn-primary btn-lg w-100 mt-3" type="submit" [disabled]="sending()">
+            @if (sending()) {
+              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            }
+            Gửi mã OTP
+          </button>
+          <p class="sp-lk__alt">Có tài khoản? <a routerLink="/dang-nhap" [queryParams]="{ returnUrl: '/tai-khoan/don-hang' }">Đăng nhập</a> để xem mọi đơn hàng.</p>
+        </form>
+        <aside class="sp-lk__tip">
+          <app-icon name="sparkle" [size]="22" />
+          <strong>Bạn có biết?</strong>
+          <p>Đơn có món In/Khắc thường mất thêm 1 - 2 ngày để xưởng cá nhân hóa trước khi giao.</p>
+        </aside>
+      </div>
+    }
+    @case (2) {
+      <div class="sp-lk__grid">
+        <form class="sp-lk__card" (ngSubmit)="verify()" novalidate>
+          <button class="sp-more px-0 border-0 bg-transparent" type="button" (click)="backToStep1()"><app-icon name="arrow-left" [size]="18" /> Sửa thông tin</button>
+          <h1>Xác minh để xem đơn</h1>
+          <p class="sp-lk__lead">Mã 6 số đã gửi tới <strong>{{ masked() }}</strong>. Bước này giúp bảo vệ địa chỉ và thông tin thanh toán của bạn.</p>
+          @if (devCode()) {
+            <p class="sp-lk__demo"><app-icon name="info" [size]="16" /> Chế độ demo: mã OTP là <strong>{{ devCode() }}</strong></p>
+          }
+          <label class="form-label" id="lk-otp-label">Mã xác minh</label>
+          <div class="sp-otp" role="group" aria-labelledby="lk-otp-label" [class.is-error]="!!otpError()">
+            @for (d of digits(); track $index) {
+              <input #otpBox class="form-control" inputmode="numeric" autocomplete="one-time-code" maxlength="6" [value]="d" [disabled]="locked()" [attr.aria-label]="'Số thứ ' + ($index + 1)" (input)="onDigit($index, $event)" (keydown)="onKey($index, $event)" />
+            }
+          </div>
+          @if (otpError()) {
+            <div class="invalid-feedback d-block" role="alert">{{ otpError() }}</div>
+          } @else {
+            <div class="form-text">Mã có hiệu lực trong 5 phút</div>
+          }
+          <div class="sp-lk__resend">
+            @if (resendIn() > 0) {
+              <span>Gửi lại mã sau <strong>{{ countdown(resendIn()) }}</strong></span>
+            } @else {
+              <span>{{ expired() ? 'Mã đã hết hạn.' : 'Chưa nhận được mã?' }}</span>
+            }
+            <button class="btn btn-link btn-sm" type="button" [disabled]="resendIn() > 0 || sending() || locked()" (click)="send()">Gửi lại</button>
+          </div>
+          <button class="btn btn-primary btn-lg w-100 mt-2" type="submit" [disabled]="verifying() || locked() || digits().join('').length !== 6">Xem đơn hàng</button>
+        </form>
+        <aside class="sp-lk__tip">
+          <app-icon name="sparkle" [size]="22" />
+          <strong>Bạn có biết?</strong>
+          <p>Đơn có món In/Khắc thường mất thêm 1 - 2 ngày để xưởng cá nhân hóa trước khi giao.</p>
+        </aside>
+      </div>
+    }
+    @case (3) {
+      @if (detail(); as o) {
+        <header class="sp-lk__head">
+          <div>
+            <h1>Đơn {{ o.code }} <span class="sp-status" [class]="'sp-status--' + o.orderStatus">{{ statusLabel[o.orderStatus] }}</span></h1>
+            <p>Đặt lúc {{ o.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-outline-primary btn-sm" type="button" (click)="detail.set(null)"><app-icon name="arrow-left" [size]="16" /> Đơn khác của số này</button>
+            <button class="btn btn-outline-primary btn-sm" type="button" (click)="restart()">Tra đơn khác</button>
+          </div>
+        </header>
+        <p class="sp-lk__masked"><app-icon name="lock" [size]="16" /> Thông tin cá nhân được che một phần để bảo mật. Kích hoạt hoặc đăng nhập tài khoản để hủy, đặt lại hay đổi trả đơn.</p>
+        <app-order-view [order]="o" />
+      } @else if (list(); as l) {
+        <header class="sp-lk__head">
+          <div>
+            <h1>Đơn hàng của {{ l.maskedPhone }}</h1>
+            <p>{{ l.items.length }} đơn | phiên tra cứu có hiệu lực 30 phút</p>
+          </div>
+          <button class="btn btn-outline-primary btn-sm" type="button" (click)="restart()">Tra đơn khác</button>
+        </header>
+
+        @if (l.accountStatus === 'CHO_KICH_HOAT') {
+          <!-- 7a: tài khoản chờ kích hoạt -->
+          <section class="sp-lk__invite">
+            <app-icon name="user" [size]="24" />
+            <div class="flex-grow-1">
+              <strong>Kích hoạt tài khoản bằng số này để theo dõi mọi đơn và nhận mã SOULPRINT10</strong>
+              @if (activationSent(); as a) {
+                <p class="m-0">Liên kết kích hoạt mới đã gửi tới {{ a.maskedPhone }}, có hiệu lực 24 giờ.</p>
+                @if (a.devLink) {
+                  <a class="btn btn-primary btn-sm mt-2" [routerLink]="a.devLink">Mở liên kết kích hoạt (demo)</a>
+                }
+              } @else {
+                <p class="m-0">Chỉ cần đặt mật khẩu, bạn sẽ hủy đơn, đặt lại, đổi trả ngay trên web.</p>
+              }
+            </div>
+            @if (!activationSent()) {
+              <button class="btn btn-primary" type="button" (click)="resendActivation()">Gửi lại liên kết kích hoạt</button>
+            }
+          </section>
+        } @else if (l.accountStatus === 'HOAT_DONG') {
+          <section class="sp-lk__invite">
+            <app-icon name="user" [size]="24" />
+            <div class="flex-grow-1">
+              <strong>Số này đã có tài khoản Soulprint</strong>
+              <p class="m-0">Đăng nhập để hủy đơn, đặt lại hay đổi trả.</p>
+            </div>
+            <a class="btn btn-primary" routerLink="/dang-nhap" [queryParams]="{ returnUrl: '/tai-khoan/don-hang' }">Đăng nhập</a>
+          </section>
+        }
+
+        @if (!l.items.length) {
+          <div class="sp-state">
+            <span class="sp-state__ic"><app-icon name="package" [size]="32" /></span>
+            <h2 class="h4">Không tìm thấy đơn hàng nào với thông tin này</h2>
+          </div>
+        } @else {
+          <ul class="sp-lk__list">
+            @for (it of l.items; track it.code) {
+              <li>
+                <button type="button" (click)="openOrder(it.code)">
+                  <span class="sp-lk__thumb">
+                    @if (it.firstItem.image) {
+                      <img [src]="it.firstItem.image" alt="" loading="lazy" />
+                    } @else {
+                      <app-icon name="gift" [size]="22" />
+                    }
+                  </span>
+                  <span class="sp-lk__info">
+                    <strong>{{ it.code }}</strong>
+                    <span>{{ it.firstItem.name }}{{ it.itemCount > 1 ? ' và ' + (it.itemCount - 1) + ' sản phẩm khác' : '' }}</span>
+                    <small>Đặt {{ it.createdAt | date: 'dd/MM/yyyy HH:mm' }}</small>
+                  </span>
+                  <span class="sp-lk__side">
+                    <span class="sp-status" [class]="'sp-status--' + it.orderStatus">{{ statusLabel[it.orderStatus] }}</span>
+                    <strong>{{ it.total | vnd }}</strong>
+                  </span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      }
+    }
+  }
+</div>

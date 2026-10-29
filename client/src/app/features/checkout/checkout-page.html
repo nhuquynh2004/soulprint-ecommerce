@@ -1,0 +1,549 @@
+<div class="container sp-co">
+  <!-- Thanh 3 bước: Giỏ hàng - Thông tin và thanh toán - Hoàn tất -->
+  <ol class="sp-co-steps" aria-label="Các bước đặt hàng">
+    <li class="is-done"><span class="sp-co-steps__dot"><app-icon name="check" [size]="16" /></span> Giỏ hàng</li>
+    <li class="is-on" aria-current="step"><span class="sp-co-steps__dot">2</span> Thông tin và thanh toán</li>
+    <li><span class="sp-co-steps__dot">3</span> Hoàn tất</li>
+  </ol>
+
+  <a class="sp-more sp-co__back" routerLink="/gio-hang"><app-icon name="arrow-left" [size]="18" /> Quay lại giỏ hàng</a>
+  <header class="sp-co__head">
+    <h1 class="m-0">Thanh toán</h1>
+    <p class="m-0 text-body-secondary">Bước 2/3 | Kiểm tra thông tin trước khi đặt hàng</p>
+  </header>
+
+  @if (loading()) {
+    <div class="sp-co__layout">
+      <div class="d-flex flex-column gap-3">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="sp-skel sp-co__skel"></div>
+        }
+      </div>
+      <div class="sp-skel sp-co__skel sp-co__skel--sum"></div>
+    </div>
+  } @else if (loadError()) {
+    <div class="sp-state" role="alert">
+      <p>{{ loadError() }}</p>
+      <button class="btn btn-primary" type="button" (click)="loadError.set(''); refresh(true)">Thử lại</button>
+    </div>
+  } @else if (quote(); as q) {
+    <div class="sp-co__layout">
+      <div class="sp-co__main">
+        @if (isMember()) {
+          @if (auth.currentUser(); as u) {
+            <section class="sp-panel sp-co__me">
+              <span class="sp-avatar">{{ u.initials }}</span>
+              <div class="flex-grow-1 min-w-0">
+                <strong>Xin chào, {{ u.fullName }}</strong>
+                <span class="d-block text-body-secondary small">{{ u.phone }}{{ u.email ? ' | ' + u.email : '' }}</span>
+              </div>
+              <button class="btn btn-link btn-sm" type="button" (click)="switchAccount()">Đổi tài khoản</button>
+            </section>
+            @if (needsPhone()) {
+              <section class="sp-panel">
+                <form #buyerForm="ngForm" id="buyer-form" novalidate>
+                  <div class="sp-field mb-0">
+                    <label for="b-phone">Số điện thoại liên hệ <span class="req">*</span></label>
+                    <input id="b-phone" class="form-control" type="tel" inputmode="numeric" name="phone" [(ngModel)]="buyer.phone" #bPhone="ngModel" required pattern="^0[0-9 .]{9,12}$" autocomplete="tel" [class.is-invalid]="bPhone.invalid && bPhone.touched" />
+                    @if (bPhone.invalid && bPhone.touched) {
+                      <span class="sp-field__error">Số điện thoại cần 10 số, bắt đầu bằng 0</span>
+                    } @else {
+                      <span class="sp-field__hint">Tài khoản đăng nhập bằng Google chưa có số điện thoại. Số này được lưu vào tài khoản sau đơn đầu tiên.</span>
+                    }
+                  </div>
+                </form>
+              </section>
+            }
+          }
+        } @else {
+          <!-- 1. Cách đặt hàng (UC-PAY-01 bước 2) -->
+          <section class="sp-panel">
+            <h2><span class="sp-co__num">1</span> Bạn muốn đặt hàng thế nào?</h2>
+            <div class="d-flex flex-column gap-2">
+              <a class="sp-modecard" routerLink="/dang-nhap" [queryParams]="{ returnUrl: '/thanh-toan' }">
+                <input class="form-check-input" type="radio" name="how" tabindex="-1" aria-hidden="true" />
+                <span class="flex-grow-1"><strong>Đăng nhập / Đăng ký</strong><small>Dùng kho địa chỉ, ưu đãi thành viên và theo dõi đơn dễ hơn</small></span>
+                <app-icon name="user" [size]="20" />
+              </a>
+              <label class="sp-modecard is-on">
+                <input class="form-check-input" type="radio" name="how" checked (change)="guestMode.set(true)" />
+                <span class="flex-grow-1"><strong>Mua không cần tài khoản</strong><small>Soulprint gửi thông tin đơn qua SĐT (và email nếu có) của bạn</small></span>
+                <app-icon name="arrow-right" [size]="20" />
+              </label>
+            </div>
+          </section>
+
+          <!-- 2. Thông tin người mua: Template-driven Form (Chương V) -->
+          <section class="sp-panel">
+            <h2><span class="sp-co__num">2</span> Thông tin người mua</h2>
+            <form #buyerForm="ngForm" id="buyer-form" novalidate>
+              <div class="sp-grid2">
+                <div class="sp-field">
+                  <label for="b-name">Họ và tên <span class="req">*</span></label>
+                  <input id="b-name" class="form-control" name="fullName" [(ngModel)]="buyer.fullName" #bName="ngModel" required minlength="2" maxlength="60" autocomplete="name" [class.is-invalid]="bName.invalid && bName.touched" />
+                  @if (bName.invalid && bName.touched) {
+                    <span class="sp-field__error">Vui lòng nhập họ và tên</span>
+                  }
+                </div>
+                <div class="sp-field">
+                  <label for="b-phone">Số điện thoại <span class="req">*</span></label>
+                  <input id="b-phone" class="form-control" type="tel" inputmode="numeric" name="phone" [(ngModel)]="buyer.phone" #bPhone="ngModel" required pattern="^0[0-9 .]{9,12}$" autocomplete="tel" [class.is-invalid]="bPhone.invalid && bPhone.touched" />
+                  @if (bPhone.invalid && bPhone.touched) {
+                    <span class="sp-field__error">Số điện thoại cần 10 số, bắt đầu bằng 0</span>
+                  }
+                </div>
+              </div>
+              <div class="sp-field mb-0">
+                <label for="b-email">Email <span class="text-body-secondary fw-normal">(không bắt buộc)</span></label>
+                <input id="b-email" class="form-control" type="email" name="email" [(ngModel)]="buyer.email" #bEmail="ngModel" email autocomplete="email" [class.is-invalid]="bEmail.invalid && bEmail.touched" />
+                @if (bEmail.invalid && bEmail.touched) {
+                  <span class="sp-field__error">Email không hợp lệ</span>
+                }
+              </div>
+            </form>
+          </section>
+        }
+
+        <!-- Giao hàng (UC-PAY-02) -->
+        <section class="sp-panel">
+          <h2><span class="sp-co__num">{{ isMember() ? 1 : 3 }}</span> Giao hàng</h2>
+          <div class="sp-grid2 mb-3">
+            <label class="sp-modecard" [class.is-on]="recipientType() === 'SELF'">
+              <input class="form-check-input" type="radio" name="rt" [checked]="recipientType() === 'SELF'" (change)="setRecipient('SELF')" />
+              <span class="flex-grow-1"><strong>Giao cho tôi</strong><small>Nhận tại địa chỉ của bạn, dự kiến {{ dayLabel(q.delivery.min) }}</small></span>
+              <app-icon name="home" [size]="20" />
+            </label>
+            <label class="sp-modecard" [class.is-on]="recipientType() === 'OTHER'" [class.is-disabled]="!q.canSendToOther">
+              <input class="form-check-input" type="radio" name="rt" [checked]="recipientType() === 'OTHER'" [disabled]="!q.canSendToOther" (change)="setRecipient('OTHER')" />
+              <span class="flex-grow-1">
+                <strong>Giao người nhận</strong>
+                <small>{{ q.canSendToOther ? 'Gửi tặng trực tiếp, chọn ngày và khung giờ giao' : 'Tạm ngừng vì cửa hàng đang tắt thanh toán online' }}</small>
+              </span>
+              <app-icon name="gift" [size]="20" />
+            </label>
+          </div>
+
+          <form [formGroup]="ship" novalidate>
+            @if (recipientType() === 'SELF' && isMember() && !showAddressForm()) {
+              <!-- Thẻ "Địa chỉ nhận hàng" (bước 3), chỉ 1 địa chỉ, không liệt kê các địa chỉ khác (AC1) -->
+              <div class="sp-co__sub">
+                <span class="sp-field__label fw-semibold">Địa chỉ nhận hàng</span>
+                <button class="btn btn-link btn-sm p-0" type="button" (click)="picker.set(true)"><app-icon name="map-pin" [size]="16" /> Chọn từ kho địa chỉ</button>
+              </div>
+              @if (chosenAddress(); as a) {
+                <div class="sp-co__addr">
+                  <div class="flex-grow-1 min-w-0">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                      <strong>{{ a.recipientName }}</strong>
+                      <span class="sp-badge" [class.sp-badge--primary]="a.isDefault" [class.sp-badge--neutral]="!a.isDefault">{{ a.isDefault ? 'Địa chỉ của tôi' : 'Từ kho địa chỉ' }}</span>
+                    </div>
+                    <span class="d-block">{{ a.phone }}</span>
+                    <span class="d-block text-body-secondary">{{ a.street }}, {{ a.ward }}, {{ a.province }}</span>
+                    @if (!a.isDefault) {
+                      <label class="form-check d-flex align-items-center gap-2 p-0 mt-2">
+                        <input class="form-check-input m-0" type="checkbox" [checked]="setAsDefault()" (change)="setAsDefault.set($any($event.target).checked)" />
+                        <span class="form-check-label">Đặt làm địa chỉ của tôi</span>
+                      </label>
+                    }
+                  </div>
+                  <button class="btn btn-outline-primary btn-sm" type="button" (click)="editAddress()">Sửa</button>
+                </div>
+              }
+            } @else {
+              @if (recipientType() === 'OTHER') {
+                <div class="sp-co__sub">
+                  <span class="sp-field__label fw-semibold">Thông tin người nhận</span>
+                  @if (isMember() && addresses().length) {
+                    <button class="btn btn-link btn-sm p-0" type="button" (click)="picker.set(true)"><app-icon name="map-pin" [size]="16" /> Chọn từ kho địa chỉ</button>
+                  }
+                </div>
+                @if (filledFrom()) {
+                  <p class="sp-alert sp-alert--success py-2"><app-icon name="check-circle" [size]="20" /> Đã điền từ kho địa chỉ: {{ filledFrom() }}</p>
+                }
+              } @else if (isMember() && addresses().length) {
+                <div class="sp-co__sub">
+                  <span class="sp-field__label fw-semibold">Địa chỉ nhận hàng</span>
+                  <button class="btn btn-link btn-sm p-0" type="button" (click)="picker.set(true)"><app-icon name="map-pin" [size]="16" /> Chọn từ kho địa chỉ</button>
+                </div>
+              }
+              @if (dvhc.usingFallback()) {
+                <p class="sp-field__hint">Đang dùng danh sách địa chỉ dự phòng</p>
+              }
+              @if (showNameFields()) {
+                <div class="sp-grid2">
+                  <div class="sp-field">
+                    <label for="s-name">{{ recipientType() === 'OTHER' ? 'Tên người nhận' : 'Họ tên người nhận' }} <span class="req">*</span></label>
+                    <input id="s-name" class="form-control" formControlName="recipientName" [class.is-invalid]="shipError('recipientName')" />
+                    @if (shipError('recipientName')) {
+                      <span class="sp-field__error">{{ shipError('recipientName') }}</span>
+                    }
+                  </div>
+                  @if (showShipPhone()) {
+                    <div class="sp-field">
+                      <label for="s-phone">{{ recipientType() === 'OTHER' ? 'SĐT người nhận' : 'Số điện thoại' }} <span class="req">*</span></label>
+                      <input id="s-phone" class="form-control" type="tel" inputmode="numeric" formControlName="phone" [class.is-invalid]="shipError('phone')" />
+                      @if (shipError('phone')) {
+                        <span class="sp-field__error">{{ shipError('phone') }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+              <div class="sp-grid2">
+                <div class="sp-field">
+                  <label for="s-prov">Tỉnh/Thành phố <span class="req">*</span></label>
+                  <app-search-select inputId="s-prov" formControlName="provinceCode" placeholder="Chọn hoặc gõ Tỉnh/Thành phố" [emptyValue]="0" [options]="provinces() | searchOptions: 'code' : 'name'" [invalid]="!!shipError('provinceCode')" />
+                  @if (shipError('provinceCode')) {
+                    <span class="sp-field__error">{{ shipError('provinceCode') }}</span>
+                  }
+                </div>
+                <div class="sp-field">
+                  <label for="s-ward">Phường/Xã <span class="req">*</span></label>
+                  <app-search-select inputId="s-ward" formControlName="ward" placeholder="Chọn hoặc gõ Phường/Xã" [loading]="loadingWards()" [options]="wards() | searchOptions: 'name' : 'name'" [invalid]="!!shipError('ward')" />
+                  @if (shipError('ward')) {
+                    <span class="sp-field__error">{{ shipError('ward') }}</span>
+                  }
+                </div>
+              </div>
+              <div class="sp-field">
+                <label for="s-street">Địa chỉ chi tiết <span class="req">*</span></label>
+                <input id="s-street" class="form-control" formControlName="street" placeholder="Số nhà, tên đường" [class.is-invalid]="shipError('street')" />
+                @if (shipError('street')) {
+                  <span class="sp-field__error">{{ shipError('street') }}</span>
+                }
+              </div>
+            }
+
+            <!-- Ngày giao: Giao cho tôi hiện ngày dự kiến; Giao người nhận chọn trên lịch; Đặt gấp khi cần sớm hơn -->
+            <div class="sp-co__when">
+              @if (!urgent()) {
+                @if (recipientType() === 'SELF') {
+                  <div class="sp-co__eta">
+                    <app-icon name="truck" [size]="20" />
+                    <span><strong>Dự kiến nhận hàng: {{ dayLabel(q.delivery.min) }}</strong><small>{{ earliestReason() }}</small></span>
+                  </div>
+                } @else {
+                  <span class="sp-field__label fw-semibold">Ngày giao <span class="req">*</span></span>
+                  <div class="sp-co__datepick">
+                    <app-date-calendar label="Chọn ngày giao" [min]="q.delivery.min" [max]="q.delivery.max" [value]="deliveryDateValue()" [today]="today" [marked]="q.delivery.min" (picked)="pickDate($event)" />
+                    <p class="sp-field__hint mb-0">Sớm nhất {{ dayLabel(q.delivery.min) }} | {{ earliestReason() }}</p>
+                  </div>
+                }
+              }
+
+              @if (canUrgent() || urgent()) {
+                <label class="sp-co__urgent" [class.is-on]="urgent()">
+                  <input class="form-check-input" type="checkbox" [checked]="urgent()" (change)="toggleUrgent($any($event.target).checked)" />
+                  <span>
+                    <strong>Cần nhận trước {{ dayLabel(q.delivery.min) }}? Đặt gấp</strong>
+                    <small>Bạn chọn ngày mong muốn và gửi yêu cầu, Soulprint kiểm tra xem có làm kịp không rồi nhắn bạn ngay trong khung chat. Giao gấp thường có thêm phụ phí, bạn chỉ thanh toán sau khi đã đồng ý với shop.</small>
+                  </span>
+                  <app-icon name="clock" [size]="20" />
+                </label>
+              }
+
+              @if (urgent()) {
+                <span class="sp-field__label fw-semibold">Ngày bạn muốn nhận <span class="req">*</span></span>
+                <div class="sp-co__datepick">
+                  <app-date-calendar label="Chọn ngày muốn nhận" [min]="q.delivery.urgentMin" [max]="urgentMax()" [value]="deliveryDateValue()" [today]="today" (picked)="pickDate($event)" />
+                  <ol class="sp-co__usteps">
+                    <li>Gửi yêu cầu, chưa cần thanh toán</li>
+                    <li>Shop nhắn bạn trong khung chat, báo phụ phí (nếu có)</li>
+                    <li>Shop chốt đơn, bạn chọn cách thanh toán và đặt hàng</li>
+                  </ol>
+                </div>
+              }
+              @if (shipError('deliveryDate')) {
+                <span class="sp-field__error">{{ urgent() ? 'Vui lòng chọn ngày bạn muốn nhận' : shipError('deliveryDate') }}</span>
+              }
+
+              @if (recipientType() === 'OTHER') {
+                <div class="sp-field mt-3 mb-0 sp-co__slot">
+                  <label for="s-slot">Khung giờ <span class="req">*</span></label>
+                  <select id="s-slot" class="form-select" formControlName="deliveryWindow" [class.is-invalid]="shipError('deliveryWindow')">
+                    <option value="">Chọn khung giờ</option>
+                    @for (s of q.delivery.slots; track s) {
+                      <option [value]="s">{{ s }}</option>
+                    }
+                  </select>
+                  @if (shipError('deliveryWindow')) {
+                    <span class="sp-field__error">{{ shipError('deliveryWindow') }}</span>
+                  }
+                </div>
+              }
+            </div>
+            @if (isMember()) {
+              <p class="sp-co__info"><app-icon name="info" [size]="16" /> Địa chỉ mới hoặc đã sửa sẽ tự động lưu vào kho địa chỉ</p>
+            } @else {
+              <p class="sp-co__info"><app-icon name="info" [size]="16" /> <span><a routerLink="/dang-nhap" [queryParams]="{ returnUrl: '/thanh-toan' }">Đăng nhập</a> để chọn nhanh từ kho địa chỉ và lưu địa chỉ này cho lần sau.</span></p>
+            }
+            <!-- Đơn gấp chưa thanh toán: câu về thanh toán gộp ở khối Phương thức thanh toán, không hiện 2 câu trái nhau -->
+            @if (recipientType() === 'OTHER' && !urgent()) {
+              <p class="sp-alert sp-alert--warning"><app-icon name="alert" [size]="20" /> Đơn giao người nhận cần thanh toán online 100% để shipper không thu tiền của người được tặng.</p>
+            }
+            <div class="sp-grid2">
+              <div class="sp-field mb-0">
+                <label for="s-nshop">Ghi chú cho cửa hàng</label>
+                <textarea id="s-nshop" class="form-control" rows="2" maxlength="200" formControlName="noteForShop" placeholder="VD: In chữ màu trắng, gói kín không để giá"></textarea>
+                <span class="sp-field__hint text-end">{{ ship.controls.noteForShop.value.length }}/200</span>
+              </div>
+              <div class="sp-field mb-0">
+                <label for="s-nship">Ghi chú cho shipper</label>
+                <textarea id="s-nship" class="form-control" rows="2" maxlength="200" formControlName="noteForShipper" placeholder="VD: Gọi trước 15 phút, giao giờ hành chính"></textarea>
+                <span class="sp-field__hint text-end">{{ ship.controls.noteForShipper.value.length }}/200</span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <!-- Ưu đãi (UC-PAY-03) -->
+        <section class="sp-panel">
+          <div class="sp-co__sub mb-3">
+            <h2 class="m-0"><span class="sp-co__num">{{ isMember() ? 2 : 4 }}</span> Ưu đãi</h2>
+            <button class="btn btn-link btn-sm p-0" type="button" (click)="openWallet()"><app-icon name="ticket" [size]="16" /> Chọn từ kho ưu đãi</button>
+          </div>
+          <form class="sp-co__vform" (ngSubmit)="applyVoucher()">
+            <input class="form-control text-uppercase" name="voucher" [(ngModel)]="voucherInput" placeholder="Nhập mã giảm giá" aria-label="Mã giảm giá" [class.is-invalid]="voucherError()" />
+            <button class="btn btn-outline-primary" type="submit" [disabled]="applying() || !voucherInput.trim()">Áp dụng</button>
+          </form>
+          @if (voucherError(); as e) {
+            <div class="sp-co__verr" role="alert">
+              <p class="m-0 fw-semibold">{{ e.message }}</p>
+              @if (e.hint) {
+                <p class="m-0">{{ e.hint }}</p>
+              }
+              @if (e.loginHint && !isMember()) {
+                <button class="btn btn-link btn-sm p-0" type="button" (click)="loginForVoucher()">Đăng nhập để dùng mã thành viên</button>
+              }
+            </div>
+          }
+          @if (q.vouchers.length) {
+            <div class="sp-co__vchips">
+              @for (v of q.vouchers; track v.code) {
+                <span class="sp-co__vchip">
+                  <app-icon [name]="v.kind === 'FREESHIP' ? 'truck' : 'ticket'" [size]="16" />
+                  {{ v.code }} | -{{ v.discount | vnd }}
+                  <button type="button" [attr.aria-label]="'Gỡ mã ' + v.code" (click)="removeVoucher(v.code)"><app-icon name="close" [size]="14" /></button>
+                </span>
+              }
+            </div>
+          }
+          <p class="sp-field__hint mt-2 mb-0">Mỗi đơn dùng tối đa 1 mã giảm giá và 1 mã miễn phí vận chuyển.</p>
+        </section>
+
+        <!-- Phương thức thanh toán (UC-PAY-04 bước 4, BR-01 đến BR-05, BR-40) -->
+        <section class="sp-panel">
+          <h2><span class="sp-co__num">{{ isMember() ? 3 : 5 }}</span> Phương thức thanh toán</h2>
+          @if (urgent()) {
+            <p class="sp-alert sp-alert--info m-0"><app-icon name="info" [size]="20" /> <span>Đơn đặt gấp chưa cần thanh toán. {{ recipientType() === 'OTHER' ? 'Sau khi shop chốt đơn và phụ phí, đơn giao người nhận sẽ thanh toán online 100% để shipper không thu tiền của người được tặng.' : 'Bạn chọn cách thanh toán sau khi shop chốt đơn và phụ phí.' }}</span></p>
+          } @else {
+          <div class="d-flex flex-column gap-2">
+            @if (recipientType() === 'OTHER') {
+              <label class="sp-modecard is-disabled">
+                <input class="form-check-input" type="radio" disabled />
+                <span class="flex-grow-1"><strong>Thanh toán khi nhận (COD)</strong><small>Không áp dụng cho đơn giao người nhận</small></span>
+                <app-icon name="truck" [size]="20" />
+              </label>
+            }
+            @for (o of q.paymentOptions; track o.key) {
+              <label class="sp-modecard" [class.is-on]="option()?.key === o.key">
+                <input class="form-check-input" type="radio" name="pay" [checked]="option()?.key === o.key" (change)="optionKey.set(o.key)" />
+                <span class="flex-grow-1">
+                  @switch (o.key) {
+                    @case ('COD') {
+                      <strong>Thanh toán khi nhận (COD)</strong><small>Trả tiền mặt {{ q.total | vnd }} khi nhận hàng</small>
+                    }
+                    @case ('DEPOSIT_COD') {
+                      <strong>Thanh toán khi nhận (COD)</strong>
+                      <small>Cọc trước <b>{{ q.depositAmount | vnd }}</b> cho {{ personalizedLabel() }}, còn lại <b>{{ q.remainingAmount | vnd }}</b> trả khi nhận</small>
+                    }
+                    @case ('ONLINE') {
+                      <strong>Thanh toán online</strong>
+                      <small>{{ q.hasPersonalized && recipientType() === 'SELF' ? 'Trả đủ ' + (q.total | vnd) + ' qua cổng Soulprint, không cần cọc' : 'Thẻ ATM, Visa/Master, ví điện tử qua cổng Soulprint | ' + (q.total | vnd) }}</small>
+                    }
+                  }
+                </span>
+                <app-icon [name]="o.key === 'ONLINE' ? 'shield' : 'truck'" [size]="20" />
+              </label>
+            }
+          </div>
+
+          @if (option()?.key === 'DEPOSIT_COD') {
+            <!-- Bảng "Đặt cọc" từng món cá nhân hóa (nhánh 4b) -->
+            <div class="sp-co__dep">
+              <div class="sp-co__dep-head">
+                <app-icon name="wand" [size]="18" /> <strong>Đặt cọc sản phẩm cá nhân hóa</strong>
+                <button class="btn btn-link btn-sm p-0" type="button" aria-label="Cách tính tiền cọc" (click)="depositInfo.set(!depositInfo())"><app-icon name="info" [size]="16" /></button>
+              </div>
+              @if (depositInfo()) {
+                <p class="sp-co__dep-info">Tiền cọc = 50% giá trị từng món cá nhân hóa (giá + phí cá nhân hóa) × số lượng, làm tròn lên. Phần còn lại gồm 50% còn lại, món thường, phí vận chuyển và trừ ưu đãi.</p>
+              }
+              <div class="sp-table-wrap">
+                <table class="table m-0">
+                  <thead>
+                    <tr><th>Sản phẩm</th><th class="text-end">Giá</th><th class="text-end">Cọc 50%</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (it of q.items; track it._id) {
+                      @if (it.isPersonalized) {
+                        <tr>
+                          <td>{{ it.name }}<small class="d-block text-body-secondary">{{ it.quantity }} × {{ it.unitPrice | vnd }}</small></td>
+                          <td class="text-end">{{ it.lineValue | vnd }}</td>
+                          <td class="text-end">{{ it.lineValue / 2 | vnd }}</td>
+                        </tr>
+                      }
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <div class="sp-co__dep-row"><span>Tổng đơn</span><strong>{{ q.total | vnd }}</strong></div>
+              <div class="sp-co__dep-row is-due"><span>Cần thanh toán trước (cọc)</span><strong>{{ q.depositAmount | vnd }}</strong></div>
+              <div class="sp-co__dep-row"><span>Còn lại trả khi nhận hàng</span><strong>{{ q.remainingAmount | vnd }}</strong></div>
+            </div>
+          }
+          }
+        </section>
+      </div>
+
+      <!-- Tóm tắt đơn hàng -->
+      <aside class="sp-co__sum" aria-label="Tóm tắt đơn hàng">
+        <h2 class="h5">Tóm tắt đơn hàng</h2>
+        <ul class="sp-co__items">
+          @for (it of q.items; track it._id) {
+            <li>
+              <span class="sp-co__thumb">
+                @if (it.image) {
+                  <img [src]="it.image" alt="" />
+                }
+                <span class="sp-co__qty">{{ it.quantity }}</span>
+              </span>
+              <span class="flex-grow-1 min-w-0">
+                <span class="sp-co__iname">{{ it.name }}</span>
+                <small class="d-block text-body-secondary">
+                  {{ it.variantName && it.variantName !== 'Mặc định' ? it.variantName + ', ' : '' }}
+                  @switch (it.personalization?.type) {
+                    @case ('IN_KHAC') {
+                      In/Khắc "{{ $any(it.personalization).text || [$any(it.personalization).top, $any(it.personalization).number, $any(it.personalization).bottom].join(' ').trim() }}"
+                    }
+                    @case ('THIET_KE') {
+                      Thiết kế {{ $any(it.personalization).stickers?.length || 0 }} sticker
+                    }
+                    @default {
+                      Không cá nhân hóa
+                    }
+                  }
+                </small>
+              </span>
+              <span class="text-nowrap">{{ it.lineValue | vnd }}</span>
+            </li>
+          }
+        </ul>
+        <div class="sp-co__rows">
+          <div class="sp-summary__row"><span>Tạm tính ({{ q.items.length }} sản phẩm)</span><span>{{ q.subtotal | vnd }}</span></div>
+          @if (q.hasPersonalized) {
+            <div class="sp-summary__row" [class.is-good]="!q.personalizationFee"><span>Phí cá nhân hóa</span><span>{{ q.personalizationFee ? (q.personalizationFee | vnd) : 'Miễn phí' }}</span></div>
+          }
+          @if (q.giftWrap) {
+            <div class="sp-summary__row is-good"><span>Gói quà: {{ q.giftWrap.name }}</span><span>Miễn phí</span></div>
+          }
+          <div class="sp-summary__row"><span>Phí vận chuyển</span><span>{{ q.shippingFee | vnd }}</span></div>
+          @for (v of q.vouchers; track v.code) {
+            <div class="sp-summary__row is-minus">
+              <span>{{ v.kind === 'FREESHIP' ? 'Miễn phí vận chuyển' : 'Giảm giá' }} {{ v.code }}{{ v.type === 'PERCENT' ? ' (-' + v.value + '%)' : '' }}</span>
+              <span>-{{ v.discount | vnd }}</span>
+            </div>
+          }
+        </div>
+        <div class="sp-co__total">
+          <span>Tổng cộng</span>
+          <span><strong>{{ q.total | vnd }}</strong><small>Đã bao gồm VAT</small></span>
+        </div>
+        @if (urgent()) {
+          <p class="sp-co__unote"><app-icon name="clock" [size]="16" /> Phụ phí giao gấp (nếu có) shop sẽ báo trong khung chat trước khi bạn thanh toán.</p>
+        } @else {
+          @switch (option()?.key) {
+            @case ('DEPOSIT_COD') {
+              <div class="sp-summary__row is-due"><span>Cọc trước (online)</span><span>{{ q.depositAmount | vnd }}</span></div>
+              <div class="sp-summary__row"><span>Còn lại trả khi nhận hàng</span><span>{{ q.remainingAmount | vnd }}</span></div>
+            }
+            @case ('ONLINE') {
+              <div class="sp-summary__row is-due"><span>Thanh toán online 100%</span><span>{{ q.total | vnd }}</span></div>
+            }
+          }
+          <label class="sp-co__policy" [class.is-error]="policyError()">
+            <input class="form-check-input" type="checkbox" [(ngModel)]="acceptPolicy" (change)="policyError.set(false)" />
+            <span>Tôi đã đọc và đồng ý <a routerLink="/chinh-sach/thanh-toan" target="_blank">Chính sách thanh toán và đặt cọc</a> của Soulprint.</span>
+          </label>
+          @if (policyError()) {
+            <span class="sp-field__error">Vui lòng đồng ý Chính sách thanh toán và đặt cọc</span>
+          }
+        }
+        @if (formError()) {
+          <p class="sp-alert sp-alert--danger m-0" role="alert"><app-icon name="alert-circle" [size]="20" /> {{ formError() }}</p>
+        }
+        <button class="btn btn-primary btn-lg w-100" type="button" [disabled]="placing()" (click)="place()">
+          @if (placing()) {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ submitLabel() }}{{ urgent() ? '' : ' ' + (option()?.key === 'DEPOSIT_COD' ? (q.depositAmount | vnd) : option()?.key === 'ONLINE' ? (q.total | vnd) : '- ' + (q.total | vnd)) }}
+        </button>
+        <span class="sp-summary__secure"><app-icon name="lock" [size]="16" /> Kết nối bảo mật | Soulprint không lưu thông tin thẻ</span>
+      </aside>
+    </div>
+  }
+</div>
+
+
+@if (picker()) {
+  <app-address-picker
+    [addresses]="addresses()"
+    [currentId]="recipientType() === 'SELF' ? chosenAddress()?._id || null : null"
+    [showSetDefault]="recipientType() === 'SELF'"
+    (picked)="onPicked($event)"
+    (addNew)="addNewAddress()"
+    (closed)="picker.set(false)"
+  />
+}
+
+@if (walletOpen()) {
+  <app-dialog title="Kho ưu đãi" subtitle="Mã đã lưu và mã đang có thể dùng cho đơn này" (closed)="walletOpen.set(false)">
+    @if (wallet() === null) {
+      <span class="sp-skel d-block" style="height: 96px"></span>
+    } @else if (!wallet()!.length) {
+      <p class="text-body-secondary m-0">Bạn chưa có mã khuyến mãi nào. Theo dõi Soulprint để nhận ưu đãi mới!</p>
+    } @else {
+      <div class="sp-co__wallet">
+        @for (v of wallet(); track v.code) {
+          <div class="sp-co__wv" [class.is-off]="!v.eligible">
+            <span class="sp-co__wbadge">{{ badge(v) }}</span>
+            <div class="flex-grow-1 min-w-0">
+              <strong>{{ v.code }}</strong>
+              <span class="d-block small">{{ v.description || v.name }}</span>
+              @if (v.reason) {
+                <span class="d-block small text-danger">{{ v.reason }}</span>
+              } @else if (v.discount) {
+                <span class="d-block small text-success">Giảm {{ v.discount | vnd }} cho đơn này</span>
+              }
+            </div>
+            <button class="btn btn-sm" [class.btn-primary]="v.eligible" [class.btn-outline-secondary]="!v.eligible" type="button" [disabled]="!v.eligible || codes().includes(v.code)" (click)="applyVoucher(v.code)">
+              {{ codes().includes(v.code) ? 'Đang dùng' : 'Dùng mã này' }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+    <div dialog-footer>
+      <button class="btn btn-outline-primary" type="button" (click)="walletOpen.set(false)">Đóng</button>
+    </div>
+  </app-dialog>
+}
+
+@if (confirmReplace(); as r) {
+  <app-dialog title="Thay mã ưu đãi?" size="sm" (closed)="replace(false)">
+    <p class="m-0">Mỗi đơn chỉ dùng 1 mã giảm giá và 1 mã miễn phí vận chuyển. Thay {{ r.replaces }} bằng {{ r.code }}?</p>
+    <div dialog-footer>
+      <button class="btn btn-outline-primary" type="button" (click)="replace(false)">Giữ mã cũ</button>
+      <button class="btn btn-primary" type="button" (click)="replace(true)">Thay mã</button>
+    </div>
+  </app-dialog>
+}

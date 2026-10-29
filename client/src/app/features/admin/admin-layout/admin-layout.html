@@ -1,0 +1,138 @@
+<a class="visually-hidden-focusable" href="#admin-main">Bỏ qua thanh điều hướng</a>
+<div class="sp-adm" [class.is-nav-open]="navOpen()" [class.is-pinned]="pinned()">
+  <!-- Thanh dọc kiểu Google - từ 992px chỉ hiện icon, rê chuột hoặc Tab tới thì mở rộng đè lên nội dung
+       (nội dung không co lại); ghim thì luôn mở và nội dung nhường chỗ. Dưới 992px là menu trượt như cũ. -->
+  <aside class="sp-adm__side" aria-label="Điều hướng quản trị">
+    <div class="sp-adm__brandrow">
+      <a class="sp-adm__brand" routerLink="/quan-tri">
+        <img src="/assets/brand/soulprint-mark.png" alt="" width="36" height="36" />
+        <span class="lb"><strong>Soulprint</strong><small>Trang quản trị</small></span>
+      </a>
+      <button type="button" class="sp-adm__pin" (click)="togglePin()" [attr.aria-pressed]="pinned()" [attr.aria-label]="pinned() ? 'Bỏ ghim menu' : 'Ghim menu luôn mở'" [title]="pinned() ? 'Bỏ ghim menu' : 'Ghim menu luôn mở'">
+        <app-icon [name]="pinned() ? 'chevron-left' : 'chevron-right'" [size]="18" />
+      </button>
+    </div>
+    <nav class="sp-adm__nav">
+      @for (g of nav(); track g.group) {
+        <p class="sp-adm__group"><span class="lb">{{ g.group }}</span></p>
+        @for (i of g.items; track i.path) {
+          <a [routerLink]="link(i.path)" routerLinkActive="is-on" [routerLinkActiveOptions]="{ exact: i.path === '' }" ariaCurrentWhenActive="page" [attr.title]="i.label">
+            <span class="ic">
+              <app-icon [name]="i.icon" [size]="20" />
+              @if (countFor(i.path); as n) {
+                <span class="sp-adm__dot" aria-hidden="true">{{ n > 99 ? '99+' : n }}</span>
+              }
+            </span>
+            <span class="lb">{{ i.label }}</span>
+            @if (countFor(i.path); as n) {
+              <span class="sp-count sp-count--danger ms-auto lb" [attr.aria-label]="n + ' việc chờ'">{{ n }}</span>
+            }
+          </a>
+        }
+      }
+    </nav>
+    @if (auth.currentUser(); as u) {
+      <a class="sp-adm__me" routerLink="/quan-tri/ho-so" [attr.title]="u.fullName">
+        <span class="sp-avatar">{{ u.initials }}</span>
+        <span class="lb"><strong>{{ u.fullName }}</strong><small>{{ roleNames() }}</small></span>
+      </a>
+    }
+  </aside>
+  <div class="sp-adm__scrim" (click)="navOpen.set(false)"></div>
+
+  <div class="sp-adm__main">
+    <header class="sp-adm__top">
+      <button class="btn sp-adm__burger" type="button" (click)="navOpen.set(true)" aria-label="Mở menu quản trị">
+        <app-icon name="menu" />
+      </button>
+      <p class="sp-adm__crumb"><a routerLink="/quan-tri">Quản trị</a> <app-icon name="chevron-right" [size]="16" /> <strong>{{ pageTitle() }}</strong></p>
+      <!-- Ô tìm đơn, sản phẩm, khách (theo SCR-41) -->
+      <form class="sp-adm__search d-none d-lg-flex" role="search" (submit)="$event.preventDefault(); search()">
+        <app-icon name="search" [size]="20" />
+        <input class="form-control" type="search" name="q" placeholder="Tìm đơn, sản phẩm, khách" aria-label="Tìm đơn theo mã hoặc SĐT, tìm sản phẩm theo tên hoặc SKU" [(ngModel)]="searchText" />
+      </form>
+      <div class="sp-adm__tools">
+        <div class="sp-adm__bell">
+          <button class="btn sp-adm__ic" type="button" (click)="bellOpen.set(!bellOpen())" [attr.aria-expanded]="bellOpen()" aria-haspopup="menu" [attr.aria-label]="'Việc chờ xử lý: ' + bellTotal()">
+            <app-icon name="bell" />
+            @if (bellTotal()) {
+              <span class="sp-adm__bellnum" aria-hidden="true">{{ bellTotal() > 99 ? '99+' : bellTotal() }}</span>
+            }
+          </button>
+          @if (bellOpen()) {
+            <div class="sp-adm__menu sp-adm__menu--bell" role="menu">
+              @if (mentions().length) {
+                <div class="sp-adm__menuhead d-flex justify-content-between align-items-center">
+                  <span>Nhắc đến bạn ({{ unreadMentions() }})</span>
+                  @if (unreadMentions()) {
+                    <button class="btn btn-link btn-sm p-0" type="button" (click)="$event.stopPropagation(); readAllMentions()">Đã đọc hết</button>
+                  }
+                </div>
+                @for (m of mentions(); track m._id) {
+                  <button role="menuitem" type="button" class="sp-adm__mention" [class.is-read]="!!m.readAt" (click)="openMention(m)">
+                    <app-icon name="users" [size]="18" />
+                    <span><b>{{ m.byName }}</b> nhắc bạn ở đơn {{ m.orderCode }}<small class="d-block text-body-secondary">{{ m.excerpt }}</small></span>
+                  </button>
+                }
+              }
+              <p class="sp-adm__menuhead">Việc chờ xử lý</p>
+              @if (auth.currentUser()?.can('DON_HANG.XEM')) {
+                <a role="menuitem" routerLink="/quan-tri/don-hang" [queryParams]="{ view: 'to-confirm' }"><app-icon name="cart" [size]="18" /> Đơn cần xác nhận <b>{{ toConfirm() }}</b></a>
+              }
+              @if (auth.currentUser()?.can('DON_HANG.NGOAI_LE_DAC_BIET')) {
+                <a role="menuitem" routerLink="/quan-tri/don-hang" [queryParams]="{ view: 'approval' }"><app-icon name="shield" [size]="18" /> Ngoại lệ chờ duyệt <b>{{ pendingApprovals() }}</b></a>
+              }
+              @if (auth.currentUser()?.can('HAU_MAI.XEM')) {
+                <a role="menuitem" routerLink="/quan-tri/yeu-cau"><app-icon name="refresh" [size]="18" /> Yêu cầu hậu mãi chờ duyệt <b>{{ pendingRequests() }}</b></a>
+              }
+              @if (auth.currentUser()?.can('HO_TRO.XEM')) {
+                <a role="menuitem" routerLink="/quan-tri/ho-tro"><app-icon name="headset" [size]="18" /> Hội thoại cần trả lời <b>{{ waitingChats() }}</b></a>
+              }
+              @if (auth.currentUser()?.can('DON_NHAP.XEM')) {
+                <a role="menuitem" routerLink="/quan-tri/don-nhap"><app-icon name="clock" [size]="18" /> Đơn gấp chờ chốt <b>{{ urgentDrafts() }}</b></a>
+              }
+            </div>
+          }
+        </div>
+        <!-- Chat nổi kiểu Messenger web: mở danh sách hội thoại, bấm để mở cửa sổ ở góc dưới phải -->
+        @if (auth.currentUser()?.can('HO_TRO.XEM')) {
+          <div class="sp-adm__bell">
+            <button class="btn sp-adm__ic" type="button" (click)="dock.listOpen.set(!dock.listOpen())" [attr.aria-expanded]="dock.listOpen()" [attr.aria-label]="'Chat với khách, ' + waitingChats() + ' hội thoại cần trả lời'">
+              <app-icon name="chat" />
+              @if (waitingChats()) {
+                <span class="sp-adm__bellnum" aria-hidden="true">{{ waitingChats() > 99 ? '99+' : waitingChats() }}</span>
+              }
+            </button>
+          </div>
+        }
+        <a class="btn sp-adm__ic d-none d-md-inline-flex" routerLink="/" target="_blank" aria-label="Mở cửa hàng"><app-icon name="store" /></a>
+        <button class="btn sp-adm__ic" type="button" (click)="theme.toggle()" [attr.aria-label]="theme.mode() === 'dark' ? 'Chuyển sang chế độ Sáng' : 'Chuyển sang chế độ Tối'">
+          <app-icon [name]="theme.mode() === 'dark' ? 'sun' : 'moon'" />
+        </button>
+        @if (auth.currentUser(); as u) {
+          <div class="sp-adm__user">
+            <button class="btn sp-adm__userbtn" type="button" (click)="menuOpen.set(!menuOpen())" [attr.aria-expanded]="menuOpen()" aria-haspopup="menu">
+              <span class="sp-avatar">{{ u.initials }}</span>
+              <!-- Đủ họ tên, hẹp thì cắt "..." ở cuối (tên gọi ngắn 2 chữ cuối làm "Quản trị Soulprint" thành "trị Soulprint") -->
+              <span class="sp-adm__username d-none d-sm-inline" [attr.title]="u.fullName">{{ u.fullName }}</span>
+              <app-icon name="chevron-down" [size]="16" />
+            </button>
+            @if (menuOpen()) {
+              <div class="sp-adm__menu" role="menu">
+                <a role="menuitem" routerLink="/quan-tri/ho-so"><app-icon name="user" [size]="18" /> Hồ sơ</a>
+                <button role="menuitem" type="button" (click)="logout()"><app-icon name="logout" [size]="18" /> Đăng xuất</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </header>
+    <main id="admin-main" class="sp-adm__content" [class.has-chat]="chatOpen()">
+      <router-outlet />
+    </main>
+    @if (auth.currentUser()?.can('HO_TRO.XEM')) {
+      <app-chat-dock />
+    }
+  </div>
+</div>
+<app-toasts />

@@ -1,0 +1,237 @@
+<div class="container sp-list">
+  <nav aria-label="Vị trí trang">
+    <ol class="breadcrumb sp-crumbs">
+      <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+      @switch (mode()) {
+        @case ('category') {
+          <li class="breadcrumb-item"><a routerLink="/san-pham">Danh mục</a></li>
+        }
+        @case ('collection') {
+          <li class="breadcrumb-item"><a routerLink="/san-pham">Bộ sưu tập</a></li>
+        }
+      }
+      <li class="breadcrumb-item active" aria-current="page">{{ heading() }}</li>
+    </ol>
+  </nav>
+
+  @if (ended(); as e) {
+    <!-- SCR-32 bộ sưu tập đã kết thúc -->
+    <section class="sp-ended">
+      <span class="sp-badge sp-badge--out">Đã kết thúc</span>
+      <h1>{{ e.collection.name }}</h1>
+      <p class="text-body-secondary">{{ e.collection.description }}</p>
+      <div class="sp-state">
+        <span class="sp-state__ic"><app-icon name="clock" [size]="32" /></span>
+        <h2 class="h4">Bộ sưu tập này đã kết thúc</h2>
+        <p>Các món trong bộ sưu tập có thể vẫn còn bán lẻ. Bạn xem thử những bộ sưu tập đang mở nhé.</p>
+        <a class="btn btn-primary" routerLink="/san-pham">Xem tất cả sản phẩm</a>
+      </div>
+      @if (e.openCollections.length) {
+        <h2 class="h3 mt-5">Bộ sưu tập đang mở</h2>
+        <div class="sp-open-colls">
+          @for (c of e.openCollections; track c._id) {
+            <a class="sp-open-coll" [routerLink]="['/bo-suu-tap', c.slug]">
+              @if (c.coverImage) {
+                <img [src]="c.coverImage" alt="" loading="lazy" />
+              }
+              <span class="sp-badge sp-badge--primary">Đang mở</span>
+              <strong>{{ c.name }}</strong>
+            </a>
+          }
+        </div>
+      }
+    </section>
+  } @else if (missing()) {
+    <div class="sp-state my-5">
+      <span class="sp-state__ic"><app-icon name="search" [size]="32" /></span>
+      <h1 class="h3">{{ mode() === 'collection' ? 'Không tìm thấy bộ sưu tập' : 'Không tìm thấy danh mục' }}</h1>
+      <p>Đường dẫn có thể đã thay đổi. Bạn xem các danh mục khác nhé.</p>
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        @for (c of categories(); track c._id) {
+          <a class="sp-chip sp-chip--sm" [routerLink]="['/danh-muc', c.slug]">{{ c.name }}</a>
+        }
+      </div>
+    </div>
+  } @else {
+    <!-- Đầu trang theo route -->
+    @if (mode() === 'collection' && collection(); as c) {
+      <header class="sp-cover">
+        @if (c.coverImage) {
+          <img [src]="c.coverImage" alt="" />
+        }
+        <div class="sp-cover__body">
+          <span class="sp-badge sp-badge--primary">Bộ sưu tập</span>
+          <h1>{{ c.name }}</h1>
+          @if (c.description) {
+            <p>{{ c.description }}</p>
+          }
+          @if (result(); as r) {
+            <span class="sp-cover__count">{{ r.total }} sản phẩm</span>
+          }
+        </div>
+      </header>
+    } @else {
+      <header class="sp-listhead">
+        <h1>{{ heading() }}</h1>
+        @if (mode() === 'category' && category(); as c) {
+          <p>{{ c.description }} | {{ c.productCount }} sản phẩm</p>
+        }
+        @if (mode() === 'search') {
+          <form class="sp-search-page" role="search" (submit)="$event.preventDefault(); search(kw.value)">
+            <app-icon name="search" [size]="20" />
+            <input #kw class="form-control" type="search" [value]="filter().q" placeholder="Tìm quà cho chàng..." aria-label="Từ khóa tìm kiếm" />
+            <button class="btn btn-primary" type="submit">Tìm</button>
+          </form>
+        }
+      </header>
+    }
+
+    <!-- Chip lọc nhanh (UC-DIS-04 bước 1, nhánh 2a) -->
+    <div class="sp-chips my-3" role="group" aria-label="Lọc nhanh">
+      <button class="sp-chip" type="button" [class.is-on]="!filter().chip" [attr.aria-pressed]="!filter().chip" (click)="setChip(null)">Tất cả</button>
+      @for (c of chips; track c.value) {
+        <button class="sp-chip" type="button" [class.is-on]="filter().chip === c.value" [attr.aria-pressed]="filter().chip === c.value" (click)="setChip(c.value)">
+          @if (c.value === 'goi-y-ai') {
+            <app-icon name="sparkle" [size]="16" />
+          }
+          {{ c.label }}
+        </button>
+      }
+      <button class="sp-chip" type="button" [class.is-on]="filter().price === under300k" [attr.aria-pressed]="filter().price === under300k" (click)="toggleUnder300k()">
+        Dưới 300.000đ
+      </button>
+    </div>
+
+    <div class="sp-list__body">
+      <aside class="sp-list__side d-none d-lg-block" aria-label="Bộ lọc">
+        <app-filter-panel
+          [state]="filter()"
+          [categories]="categories()"
+          [tagGroups]="tagGroups()"
+          [categoryMode]="mode() === 'category' ? 'links' : mode() === 'collection' ? 'hidden' : 'multi'"
+          [currentCategory]="slug()"
+          (changed)="apply($event)"
+          (cleared)="clearAll()"
+        />
+      </aside>
+
+      <section class="sp-list__main" aria-live="polite">
+        <div class="sp-sortbar">
+          <button class="btn btn-outline-primary d-lg-none sp-filter-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sp-filter-drawer" aria-controls="sp-filter-drawer">
+            <app-icon name="filter" [size]="20" /> Lọc
+            @if (criteriaCount()) {
+              <span class="badge rounded-pill text-bg-primary">{{ criteriaCount() }}</span>
+            }
+          </button>
+          <span class="sp-sortbar__count d-none d-md-inline">{{ rangeText() }}</span>
+          <label class="sp-sortbar__sort">
+            <span class="d-none d-sm-inline">Sắp xếp</span>
+            <select class="form-select" [value]="filter().sort || ''" (change)="setSort($any($event.target).value)" aria-label="Sắp xếp">
+              @for (s of sorts; track s.value) {
+                <option [value]="s.value" [selected]="(filter().sort || '') === s.value">{{ s.label }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
+        @if (activeChips().length) {
+          <div class="sp-active-filters">
+            <span class="text-body-secondary">Đang lọc:</span>
+            @for (a of activeChips(); track a.label) {
+              <button class="sp-chip sp-chip--sm" type="button" (click)="apply(a.patch)" [attr.aria-label]="'Bỏ lọc ' + a.label">
+                {{ a.label }} <app-icon name="close" [size]="14" />
+              </button>
+            }
+            <button class="btn btn-link btn-sm" type="button" (click)="clearAll()">Xóa tất cả</button>
+          </div>
+        }
+
+        @if (loading()) {
+          <div class="sp-grid" aria-busy="true">
+            @for (i of skeleton; track i) {
+              <span class="sp-skel" style="aspect-ratio: 3 / 4"></span>
+            }
+          </div>
+        } @else if (errMessage()) {
+          <div class="sp-state" role="alert">
+            <span class="sp-state__ic"><app-icon name="alert-circle" [size]="32" /></span>
+            <p>{{ errMessage() }}</p>
+            <button class="btn btn-primary" type="button" (click)="retry()">Thử lại</button>
+          </div>
+        } @else if (result(); as r) {
+          @if (r.items.length) {
+            <div class="sp-grid">
+              @for (p of r.items; track p._id) {
+                <app-product-card [product]="p" />
+              }
+            </div>
+            <app-pagination [page]="r.page" [pageSize]="r.pageSize" [total]="r.total" (pageChange)="setPage($event)" />
+          } @else if (mode() === 'search' && filter().q && !criteriaCount() && !filter().chip) {
+            <!-- UC-DIS-03 5Ea: không có kết quả tìm kiếm -->
+            <div class="sp-state">
+              <span class="sp-state__ic"><app-icon name="search" [size]="32" /></span>
+              <h2 class="h4">Không tìm thấy kết quả cho '{{ filter().q }}'</h2>
+              <p>Thử từ khóa khác, hoặc để Sâu Béo gợi ý món quà hợp với chàng.</p>
+              <a class="btn btn-accent" routerLink="/tu-van-qua"><app-icon name="sparkle" [size]="20" /> Nhờ AI tìm quà</a>
+            </div>
+            @if (popular().length) {
+              <h2 class="h3 mt-5 mb-3">Sản phẩm phổ biến</h2>
+              <div class="sp-grid">
+                @for (p of popular(); track p._id) {
+                  <app-product-card [product]="p" />
+                }
+              </div>
+            }
+          } @else if (mode() === 'search' && !filter().q) {
+            <div class="sp-state">
+              <span class="sp-state__ic"><app-icon name="search" [size]="32" /></span>
+              <p>Nhập từ khóa để tìm quà, ví dụ "bình giữ nhiệt", "anime", "gaming".</p>
+              @if (recent.items().length) {
+                <div class="sp-recent">
+                  <span class="sp-recent__title">Tìm kiếm gần đây</span>
+                  <div class="sp-chips justify-content-center">
+                    @for (q of recent.items(); track q) {
+                      <button type="button" class="sp-chip sp-chip--sm" (click)="search(q)"><app-icon name="clock" [size]="14" /> {{ q }}</button>
+                    }
+                  </div>
+                  <button type="button" class="btn btn-link btn-sm" (click)="recent.clear()">Xóa lịch sử</button>
+                </div>
+              }
+            </div>
+          } @else {
+            <!-- UC-DIS-04 3Ea: rỗng thì giữ nguyên bộ lọc -->
+            <div class="sp-state">
+              <span class="sp-state__ic"><app-icon name="filter" [size]="32" /></span>
+              <p>Không có sản phẩm phù hợp với bộ lọc hiện tại. Thử bỏ bớt một số tiêu chí</p>
+              <button class="btn btn-outline-primary" type="button" (click)="clearAll()">Xóa tất cả bộ lọc</button>
+            </div>
+          }
+        }
+      </section>
+    </div>
+  }
+</div>
+
+<!-- Ngăn kéo bộ lọc ở Mobile/Tablet (UC-DIS-04 AC4) -->
+<div class="offcanvas offcanvas-start sp-filter-drawer" tabindex="-1" id="sp-filter-drawer" aria-labelledby="sp-filter-drawer-title">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title h4" id="sp-filter-drawer-title">Bộ lọc</h2>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Đóng bộ lọc"></button>
+  </div>
+  <div class="offcanvas-body">
+    <app-filter-panel
+      [state]="filter()"
+      [categories]="categories()"
+      [tagGroups]="tagGroups()"
+      [categoryMode]="mode() === 'category' ? 'links' : mode() === 'collection' ? 'hidden' : 'multi'"
+      [currentCategory]="slug()"
+      (changed)="apply($event)"
+      (cleared)="clearAll()"
+    />
+  </div>
+  <div class="sp-filter-drawer__foot">
+    <button class="btn btn-primary w-100" type="button" data-bs-dismiss="offcanvas">
+      Xem {{ result()?.total ?? 0 }} sản phẩm
+    </button>
+  </div>
+</div>

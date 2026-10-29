@@ -1,0 +1,18 @@
+<div class="sp-dialog__scrim" (click)="closed.emit()"></div>
+<div class="sp-dialog" [class]="'sp-dialog--' + size" role="dialog" aria-modal="true" [attr.aria-label]="title">
+  <div class="sp-dialog__head">
+    <div>
+      <h2 class="h4 m-0">{{ title }}</h2>
+      @if (subtitle) {
+        <p class="sp-dialog__sub">{{ subtitle }}</p>
+      }
+    </div>
+    <button class="btn sp-dialog__x" type="button" (click)="closed.emit()" aria-label="Đóng"><app-icon name="close" /></button>
+  </div>
+  <div class="sp-dialog__body">
+    <ng-content />
+  </div>
+  <div class="sp-dialog__foot">
+    <ng-content select="[dialog-footer]" />
+  </div>
+</div>

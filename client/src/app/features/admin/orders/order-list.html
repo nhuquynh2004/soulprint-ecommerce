@@ -1,0 +1,316 @@
+<header class="sp-aph">
+  <div>
+    <h1>Đơn hàng</h1>
+    <p>{{ monthCount() }} đơn trong tháng, {{ urgentCount() }} đơn khẩn cấp cần xử lý trước</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" type="button" [attr.aria-pressed]="showStats()" (click)="toggleStats()">
+      <app-icon name="chart" [size]="18" /> Phân tích
+    </button>
+    @if (auth.can('DON_NHAP.TAO')) {
+      <a class="btn btn-primary d-inline-flex align-items-center gap-2" routerLink="/quan-tri/don-nhap/moi"><app-icon name="plus" [size]="18" /> Tạo đơn nháp</a>
+    }
+  </div>
+</header>
+
+@if (showStats()) {
+  <section class="sp-ostats" aria-label="Phân tích đơn hàng">
+    <div class="sp-ostats__head">
+      <span>Phân tích so với {{ statDays() }} ngày trước đó</span>
+      <div class="sp-seg" role="group" aria-label="Khoảng thời gian">
+        <button type="button" [class.is-on]="statDays() === 7" (click)="setDays(7)">7 ngày</button>
+        <button type="button" [class.is-on]="statDays() === 30" (click)="setDays(30)">30 ngày</button>
+      </div>
+    </div>
+    <div class="sp-ostats__grid">
+      @for (m of metrics(); track m.key) {
+        <div class="sp-ostat">
+          <span class="sp-ostat__label">{{ m.label }}</span>
+          <strong class="sp-ostat__val">{{ metricValue(m) }}</strong>
+          <div class="d-flex justify-content-between align-items-end gap-2">
+            <span class="sp-ostat__chg" [class.is-good]="metricGood(m)" [class.is-bad]="!metricGood(m) && m.value !== m.previous">{{ metricChange(m) }}</span>
+            <app-sparkline [values]="m.series" />
+          </div>
+        </div>
+      } @empty {
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          <span class="sp-skel" style="height: 92px"></span>
+        }
+      }
+    </div>
+  </section>
+}
+
+<nav class="sp-tabs2 sp-otabs" role="tablist" aria-label="Lọc nhanh đơn hàng">
+  @for (t of views; track t.key) {
+    <button type="button" role="tab" [class.is-on]="view() === t.key" [attr.aria-selected]="view() === t.key" (click)="setView(t.key)">
+      {{ t.label }}
+      @if (t.key !== 'all') {
+        <span class="sp-count" [class.sp-count--danger]="t.key === 'urgent' && counts()[t.key]">{{ counts()[t.key] || 0 }}</span>
+      }
+    </button>
+  }
+</nav>
+<p class="sp-ohint"><app-icon name="info" [size]="16" /> {{ viewHint() }}</p>
+
+@if (sel.count()) {
+  <app-bulk-bar class="d-block mb-3" [count]="sel.count()" unit="đơn" [actions]="bulkActions()" [busy]="busy()" (action)="onBulk($event)" (cleared)="sel.clear()" />
+} @else {
+  <div class="sp-atools sp-otools">
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm mã đơn, tên khách, số điện thoại, thẻ" aria-label="Tìm đơn hàng" [value]="q()" (input)="onSearch($any($event.target).value)" />
+    </div>
+    <div class="sp-ofilter">
+      <button class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" type="button" [attr.aria-expanded]="filterOpen()" (click)="openFilter()">
+        <app-icon name="filter" [size]="18" /> Bộ lọc{{ chips().length ? ' (' + chips().length + ')' : '' }}
+      </button>
+      @if (filterOpen()) {
+        <div class="sp-ofilter__panel" role="dialog" aria-label="Bộ lọc đơn hàng">
+          <fieldset>
+            <legend>Trạng thái đơn</legend>
+            @for (s of orderStatuses; track s.key) {
+              <label class="form-check"><input class="form-check-input" type="checkbox" [checked]="hasDraft('orderStatus', s.key)" (change)="toggleDraft('orderStatus', s.key)" /> {{ s.label }}</label>
+            }
+          </fieldset>
+          <fieldset>
+            <legend>Thanh toán</legend>
+            @for (s of paymentStatuses; track s.key) {
+              <label class="form-check"><input class="form-check-input" type="checkbox" [checked]="hasDraft('paymentStatus', s.key)" (change)="toggleDraft('paymentStatus', s.key)" /> {{ s.label }}</label>
+            }
+            <select class="form-select form-select-sm mt-2" aria-label="Phương thức" [value]="draftFilters().paymentMethod || ''" (change)="setDraft('paymentMethod', $any($event.target).value)">
+              <option value="">Mọi phương thức</option>
+              <option value="COD">COD</option>
+              <option value="ONLINE">Online (cọc hoặc 100%)</option>
+            </select>
+          </fieldset>
+          <fieldset>
+            <legend>Cá nhân hóa</legend>
+            <select class="form-select form-select-sm" aria-label="Cá nhân hóa" [value]="draftFilters().personalized || ''" (change)="setDraft('personalized', $any($event.target).value)">
+              <option value="">Tất cả</option>
+              <option value="true">Có cá nhân hóa</option>
+              <option value="false">Không cá nhân hóa</option>
+            </select>
+          </fieldset>
+          <fieldset>
+            <legend>Nguồn đơn</legend>
+            @for (s of sources; track s.key) {
+              <label class="form-check"><input class="form-check-input" type="checkbox" [checked]="hasDraft('source', s.key)" (change)="toggleDraft('source', s.key)" /> {{ s.label }}</label>
+            }
+          </fieldset>
+          <fieldset>
+            <legend>Đơn vị vận chuyển</legend>
+            @for (s of carriers; track s.key) {
+              <label class="form-check"><input class="form-check-input" type="checkbox" [checked]="hasDraft('carrier', s.key)" (change)="toggleDraft('carrier', s.key)" /> {{ s.label }}</label>
+            }
+          </fieldset>
+          <fieldset>
+            <legend>Thẻ</legend>
+            <select class="form-select form-select-sm" aria-label="Thẻ" [value]="draftFilters().tag || ''" (change)="setDraft('tag', $any($event.target).value)">
+              <option value="">Mọi thẻ</option>
+              @for (t of knownTags(); track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+          </fieldset>
+          <fieldset>
+            <legend>Ngày đặt</legend>
+            <div class="d-flex gap-2">
+              <input class="form-control form-control-sm" type="date" aria-label="Từ ngày" [value]="draftFilters().from || ''" (change)="setDraft('from', $any($event.target).value)" />
+              <input class="form-control form-control-sm" type="date" aria-label="Đến ngày" [value]="draftFilters().to || ''" (change)="setDraft('to', $any($event.target).value)" />
+            </div>
+          </fieldset>
+          <div class="sp-ofilter__foot">
+            <button class="btn btn-link" type="button" (click)="draftFilters.set({})">Bỏ chọn</button>
+            <button class="btn btn-primary" type="button" (click)="applyFilter()">Áp dụng</button>
+          </div>
+        </div>
+      }
+    </div>
+    <select class="form-select sp-atools__sel" aria-label="Sắp xếp" [value]="sort()" (change)="setSort($any($event.target).value)">
+      <option value="">Ưu tiên</option>
+      <option value="moi-nhat">Mới nhất</option>
+      <option value="cu-nhat">Cũ nhất</option>
+      <option value="tong-giam">Tổng tiền cao nhất</option>
+    </select>
+    <app-column-manager [columns]="columns" storageKey="sp.cols.orders" (changed)="onColumns($event)" />
+  </div>
+}
+
+<app-filter-chips [chips]="chips()" (removed)="removeChip($event)" (clearedAll)="clearFilters()" />
+
+@if (loading()) {
+  <span class="sp-skel d-block" style="height: 420px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!items().length) {
+  <div class="sp-state">
+    <app-icon name="cart" [size]="40" />
+    <p>{{ q() || chips().length || view() !== 'all' ? 'Không có đơn khớp bộ lọc.' : 'Chưa có đơn hàng nào.' }}</p>
+  </div>
+} @else {
+  <p class="sp-oswipe d-md-none">Vuốt ngang để xem thêm cột</p>
+  <div class="sp-table-wrap">
+    <table class="table sp-atable sp-otable align-middle">
+      <thead>
+        <tr>
+          <th scope="col" class="sp-cb">
+            <input class="form-check-input" type="checkbox" aria-label="Chọn tất cả" [checked]="sel.allOf(pageCodes())" [indeterminate]="sel.someOf(pageCodes())" (change)="sel.togglePage(pageCodes())" />
+          </th>
+          @for (c of shownColumns(); track c) {
+            @switch (c) {
+              @case ('priority') { <th scope="col">Ưu tiên</th> }
+              @case ('code') { <th scope="col">Mã đơn</th> }
+              @case ('customer') { <th scope="col">Khách hàng</th> }
+              @case ('qty') { <th scope="col" class="text-center">SL</th> }
+              @case ('total') { <th scope="col" class="text-end">Tổng tiền</th> }
+              @case ('status') { <th scope="col">Trạng thái</th> }
+              @case ('tags') { <th scope="col">Thẻ</th> }
+            }
+          }
+          <th scope="col" class="text-end">Thao tác nhanh</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (o of items(); track o.code) {
+          <tr [class.is-selected]="sel.has(o.code)">
+            <td class="sp-cb"><input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn đơn ' + o.code" [checked]="sel.has(o.code)" (change)="sel.toggle(o.code)" /></td>
+            @for (c of shownColumns(); track c) {
+              @switch (c) {
+                @case ('priority') {
+                  <td class="sp-oprio">
+                    <span class="sp-prio" [ngClass]="'sp-prio--' + priorityClass(o)">
+                      <app-icon [name]="o.priority === 'BINH_THUONG' ? 'clock' : 'alert-circle'" [size]="14" /> {{ priorityLabel[o.priority] }}
+                    </span>
+                    @if (o.priorityReason) {
+                      <small class="d-block">{{ o.priorityReason }}</small>
+                    }
+                    @if (o.slaRemaining) {
+                      <small class="d-block" [class.text-danger]="overdue(o)" [class.fw-semibold]="overdue(o)">{{ deadlineText(o) }}</small>
+                    }
+                  </td>
+                }
+                @case ('code') {
+                  <td>
+                    <a class="sp-ocode" [routerLink]="['/quan-tri/don-hang', o.code]">{{ o.code }}</a>
+                    <small class="d-block text-body-secondary">{{ o.createdAt | date: 'dd/MM HH:mm' }}</small>
+                    @if (o.createdBy === 'ADMIN') {
+                      <small class="d-block text-body-secondary">Nhân viên tạo</small>
+                    }
+                  </td>
+                }
+                @case ('customer') {
+                  <td>
+                    <span class="d-block fw-semibold">{{ o.customer.fullName }}</span>
+                    <small class="text-body-secondary">{{ o.customer.phone }}</small>
+                  </td>
+                }
+                @case ('qty') {
+                  <td class="text-center">
+                    <span class="sp-oqty" tabindex="0" (mouseenter)="hovered.set(o.code)" (mouseleave)="hovered.set(null)" (focus)="hovered.set(o.code)" (blur)="hovered.set(null)">
+                      {{ o.itemCount }}
+                      @if (hovered() === o.code) {
+                        <span class="sp-hovc" role="tooltip">
+                          @for (it of o.itemsPreview; track it._id) {
+                            <span class="sp-hovc__it">
+                              @if (it.image) {
+                                <img [src]="it.image" alt="" width="36" height="36" />
+                              }
+                              <span>
+                                <strong>{{ it.name }}</strong>
+                                <span>{{ it.variantName }}, x{{ it.quantity }}</span>
+                                @if (it.personalizationText) {
+                                  <span>Cá nhân hóa: {{ it.personalizationText }}</span>
+                                }
+                              </span>
+                            </span>
+                          }
+                        </span>
+                      }
+                    </span>
+                  </td>
+                }
+                @case ('total') {
+                  <td class="text-end">
+                    <strong class="d-block">{{ o.total | vnd }}</strong>
+                    <span class="sp-pay" [ngClass]="'sp-pay--' + o.paymentStatus">{{ o.paymentBadge }}</span>
+                    <small class="d-block text-body-secondary">{{ o.paymentMethod === 'COD' ? 'COD' : 'Online' }}</small>
+                  </td>
+                }
+                @case ('status') {
+                  <td>
+                    <span [class]="'sp-status sp-status--' + o.orderStatus">{{ o.orderStatusLabel }}</span>
+                    @if (o.carrier) {
+                      <small class="d-block text-body-secondary mt-1">{{ o.carrier }}</small>
+                    }
+                  </td>
+                }
+                @case ('tags') {
+                  <td>
+                    @if (o.tags.length) {
+                      <span class="sp-tagrow">
+                        <span class="sp-tagx" [class.sp-tagx--urgent]="o.tags[0] === 'Đơn gấp'" [title]="o.tags[0]">{{ o.tags[0] }}</span>
+                        @if (o.tags.length > 1) {
+                          <span class="sp-tagx sp-tagx--more" [title]="o.tags.slice(1).join(', ')">+{{ o.tags.length - 1 }}</span>
+                        }
+                      </span>
+                    } @else {
+                      <span class="text-body-secondary">-</span>
+                    }
+                  </td>
+                }
+              }
+            }
+            <td class="text-end text-nowrap">
+              <a class="btn sp-iconbtn" [routerLink]="['/quan-tri/don-hang', o.code]" [attr.aria-label]="'Xem chi tiết ' + o.code" title="Xem chi tiết"><app-icon name="eye" [size]="18" /></a>
+              @if (auth.can('DON_HANG.IN_PHIEU') && o.orderStatus !== 'DA_HUY') {
+                <button class="btn sp-iconbtn" type="button" [attr.aria-label]="'In phiếu ' + o.code" title="In phiếu đóng gói" (click)="print([o.code])"><app-icon name="file" [size]="18" /></button>
+              } @else {
+                <!-- Giữ chỗ cùng cỡ nút In phiếu để các nút thẳng cột -->
+                <button class="btn sp-iconbtn invisible" type="button" tabindex="-1" aria-hidden="true"><app-icon name="file" [size]="18" /></button>
+              }
+              <app-row-menu [items]="rowMenu(o)" [label]="'Thao tác khác với ' + o.code" (picked)="onRowMenu(o, $event)" />
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+    <span class="text-body-secondary small">Hiển thị {{ (page() - 1) * pageSize() + 1 }} - {{ (page() - 1) * pageSize() + items().length }} trong {{ total() }} đơn</span>
+    @if (total() > pageSize()) {
+      <app-pagination [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="goPage($event)" />
+    }
+  </div>
+}
+
+@if (tagDialog(); as d) {
+  <app-confirm-dialog [title]="(d.action === 'ADD_TAGS' ? 'Gắn thẻ cho ' : 'Gỡ thẻ khỏi ') + d.codes.length + ' đơn'" [confirmLabel]="d.action === 'ADD_TAGS' ? 'Gắn thẻ' : 'Gỡ thẻ'" [busy]="busy() || !tagInput().trim()" (confirm)="applyTag()" (cancel)="tagDialog.set(null)">
+    <label class="sp-field w-100">
+      <span>Thẻ (tối đa 30 ký tự)</span>
+      <input class="form-control" maxlength="30" list="sp-known-tags" [value]="tagInput()" (input)="tagInput.set($any($event.target).value)" (keydown.enter)="applyTag()" />
+      <datalist id="sp-known-tags">
+        @for (t of knownTags(); track t) {
+          <option [value]="t"></option>
+        }
+      </datalist>
+    </label>
+    <p class="small text-body-secondary mt-2 mb-0">Mỗi đơn tối đa 10 thẻ. Đơn đã đủ 10 thẻ sẽ được bỏ qua kèm lý do.</p>
+  </app-confirm-dialog>
+}
+
+@if (noteFor(); as o) {
+  <app-confirm-dialog [title]="'Ghi chú nội bộ cho ' + o.code" confirmLabel="Lưu" [busy]="busy() || !noteText().trim()" (confirm)="saveNote()" (cancel)="noteFor.set(null)">
+    <label class="sp-field w-100">
+      <span>Chỉ nhân viên thấy (1-1000 ký tự)</span>
+      <textarea class="form-control" rows="4" maxlength="1000" [value]="noteText()" (input)="noteText.set($any($event.target).value)"></textarea>
+    </label>
+  </app-confirm-dialog>
+}
+
+@if (slips(); as s) {
+  <app-packing-slips [slips]="s" (done)="slips.set(null)" />
+}

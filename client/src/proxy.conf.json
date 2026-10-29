@@ -1,0 +1,17 @@
+[
+  {
+    "context": ["/api", "/images", "/data"],
+    "target": "http://localhost:3000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  {
+    "context": ["/dvhc"],
+    "target": "https://provinces.open-api.vn",
+    "pathRewrite": { "^/dvhc": "/api/v2" },
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+]

@@ -1,0 +1,542 @@
+// Footer "biển quà": theo thiết kế SCR-02.
+// Bản thiết kế dùng lớp .is-tablet / .is-mobile trên khung; ở đây đổi thành media query:
+// máy tính bảng 576-991px, điện thoại dưới 576px. Không dùng mã màu rời, chỉ token (_tokens.scss).
+// ViewEncapsulation.None nên mọi luật đặt dưới app-footer.
+app-footer {
+  display: block;
+
+  .sp-ft {
+    position: relative;
+    overflow: hidden;
+    color: var(--sp-color-on-ocean);
+    background: linear-gradient(180deg, var(--sp-ocean-top) 0%, var(--sp-ocean-mid) 52%, var(--sp-ocean-floor) 100%);
+  }
+
+  // Vệt sáng xuyên nước
+  .sp-ft__rays {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+
+    .beam {
+      position: absolute;
+      top: -6%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--sp-primary-50) 0%, transparent 82%);
+      filter: blur(5px);
+      transform: skewX(-16deg);
+      transform-origin: 50% 0;
+      opacity: 0.06;
+      animation-name: sp-beam4;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+    }
+  }
+
+  .sp-ft__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.5fr repeat(4, minmax(0, 1fr));
+    gap: 32px;
+    padding: 48px 0 8px;
+  }
+
+  .sp-ft__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 20px;
+
+    .lg {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font: 700 24px/30px var(--sp-font-display);
+      color: var(--sp-color-on-ocean);
+      text-decoration: none;
+
+      img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--sp-color-on-ocean);
+      }
+    }
+
+    p {
+      margin: 0;
+      color: var(--sp-color-on-ocean);
+    }
+
+    p a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .slogan {
+      font-style: italic;
+      color: var(--sp-primary-100);
+    }
+
+    .btn-accent {
+      align-self: flex-start;
+    }
+  }
+
+  .sp-ft__social {
+    display: flex;
+    gap: 4px;
+
+    a {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--sp-color-on-ocean);
+      background: color-mix(in srgb, var(--sp-color-on-ocean) 12%, transparent);
+      text-decoration: none;
+      font: 700 16px/1 var(--sp-font-body);
+
+      &:hover {
+        background: color-mix(in srgb, var(--sp-color-on-ocean) 22%, transparent);
+      }
+    }
+  }
+
+  .sp-ft__col {
+    h2 {
+      margin: 0 0 8px;
+      font: 700 15px/20px var(--sp-font-body);
+      color: var(--sp-color-on-ocean);
+      letter-spacing: 0.02em;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a {
+      display: flex;
+      align-items: center;
+      min-height: 32px;
+      color: var(--sp-color-on-ocean);
+      text-decoration: none;
+      font-size: 14px;
+      line-height: 20px;
+      opacity: 0.92;
+
+      &:hover {
+        text-decoration: underline;
+        opacity: 1;
+      }
+    }
+  }
+
+  // Cảnh biển: bong bóng + SVG
+  .sp-ft__sea {
+    position: relative;
+    height: 150px;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .sp-ft__bub {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid color-mix(in srgb, var(--sp-color-on-ocean) 55%, transparent);
+    background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--sp-color-on-ocean) 50%, transparent), color-mix(in srgb, var(--sp-color-on-ocean) 6%, transparent) 60%);
+  }
+
+  .sp-footer__sea {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    margin: 0;
+    line-height: 0;
+    overflow: hidden;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .ltr,
+    .bob,
+    .eat {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .word {
+      font-family: var(--sp-font-display);
+      font-weight: 700;
+      text-anchor: middle;
+      filter: drop-shadow(0 4px 0 var(--sp-ocean-deep)) drop-shadow(0 10px 12px color-mix(in srgb, var(--sp-primary-900) 28%, transparent));
+    }
+
+    .ltr {
+      font: inherit;
+      stroke: var(--sp-primary-50);
+      stroke-opacity: 0.6;
+      stroke-width: 1.5;
+      paint-order: stroke;
+      transform-origin: 50% 100%;
+    }
+
+    .ltr.calm {
+      animation: sp-calm 6s ease-in-out infinite;
+    }
+
+    .s1 {
+      stop-color: var(--sp-accent-200);
+    }
+
+    .s2 {
+      stop-color: var(--sp-success-200);
+    }
+
+    .s3 {
+      stop-color: var(--sp-primary-300);
+    }
+
+    .veil {
+      fill: var(--sp-primary-300);
+      opacity: 0.2;
+    }
+
+    .wave {
+      fill: var(--sp-ocean-floor);
+      opacity: 0.74;
+    }
+
+    .wave-back-g {
+      animation: sp-wave-r 16s linear infinite;
+    }
+
+    .wave-front-g {
+      animation: sp-wave-l 10s linear infinite;
+    }
+
+    .weed {
+      fill: none;
+      stroke: var(--sp-success-600);
+      stroke-width: 7;
+      stroke-linecap: round;
+      transform-box: fill-box;
+      transform-origin: 50% 100%;
+      animation: sp-sway 4.2s ease-in-out infinite;
+
+      &.dark {
+        stroke: var(--sp-success-700);
+      }
+    }
+
+    .coral path {
+      fill: none;
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .coral.pink path {
+      stroke: var(--sp-danger-200);
+    }
+
+    .coral.pink circle {
+      fill: var(--sp-danger-100);
+    }
+
+    .coral.gold path {
+      stroke: var(--sp-warning-300);
+    }
+
+    .coral.gold circle {
+      fill: var(--sp-warning-200);
+    }
+
+    .bob {
+      animation: sp-bob 3.4s ease-in-out infinite;
+    }
+
+    // Hộp quà có Sâu Béo
+    .gift--lg {
+      transform: scale(1.4);
+    }
+
+    .g-box {
+      fill: var(--sp-color-accent);
+    }
+
+    .g-lid {
+      fill: var(--sp-accent-300);
+    }
+
+    .g-rib {
+      fill: var(--sp-primary-500);
+    }
+
+    .g-bow {
+      fill: none;
+      stroke: var(--sp-primary-500);
+      stroke-width: 3;
+    }
+
+    .g-lidwrap {
+      transform-box: fill-box;
+      transform-origin: 0% 100%;
+      animation: sp-lid 32s linear infinite;
+    }
+
+    // 3 linh vật theo trục đam mê
+    .k-eye {
+      fill: var(--sp-primary-900);
+    }
+
+    .k-hi {
+      fill: var(--sp-primary-50);
+    }
+
+    .k-blush {
+      fill: var(--sp-danger-100);
+      opacity: 0.85;
+    }
+
+    .k-mouth {
+      fill: none;
+      stroke: var(--sp-primary-900);
+      stroke-width: 1.4;
+      stroke-linecap: round;
+    }
+
+    .ks-body {
+      fill: var(--sp-primary-50);
+      stroke: var(--sp-primary-800);
+      stroke-width: 1.5;
+    }
+
+    .ks-patch {
+      fill: var(--sp-axis-sport);
+    }
+
+    .ka-head {
+      fill: var(--sp-primary-800);
+      stroke: var(--sp-primary-50);
+      stroke-width: 1.2;
+    }
+
+    .ka-face {
+      fill: var(--sp-warning-50);
+    }
+
+    .ka-band {
+      fill: var(--sp-axis-anime);
+    }
+
+    .ka-plate {
+      fill: var(--sp-primary-100);
+      stroke: var(--sp-axis-anime);
+      stroke-width: 1;
+    }
+
+    .ka-tail {
+      fill: none;
+      stroke: var(--sp-info-300);
+      stroke-width: 3.5;
+      stroke-linecap: round;
+    }
+
+    .kg-body {
+      fill: var(--sp-axis-game);
+      stroke: var(--sp-primary-50);
+      stroke-width: 1.5;
+    }
+
+    .kg-pad {
+      fill: none;
+      stroke: var(--sp-primary-50);
+      stroke-width: 2.6;
+      stroke-linecap: round;
+    }
+
+    .kg-btn.a {
+      fill: var(--sp-color-accent);
+    }
+
+    .kg-btn.b {
+      fill: var(--sp-danger-200);
+    }
+
+    .jr {
+      animation-duration: 28s;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+    }
+
+    .jr.pop {
+      transform-box: fill-box;
+      transform-origin: 50% 100%;
+    }
+  }
+
+  // Mỗi kích thước có SVG riêng nên gradient chữ có id riêng
+  .sp-ft__scene--d .ltr {
+    fill: url(#spWordFill-d);
+  }
+
+  .sp-ft__scene--t .ltr {
+    fill: url(#spWordFill-t);
+  }
+
+  .sp-ft__scene--m .ltr {
+    fill: url(#spWordFill-m);
+  }
+
+  .sp-ft__legal {
+    position: relative;
+    z-index: 3;
+    padding: 12px 0 16px;
+    font: 500 12px/16px var(--sp-font-body);
+    color: var(--sp-color-on-ocean);
+    background: var(--sp-ocean-floor);
+
+    .container {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px 16px;
+      flex-wrap: wrap;
+    }
+
+    nav {
+      display: flex;
+      gap: 16px;
+    }
+
+    span,
+    a {
+      white-space: nowrap;
+    }
+
+    a {
+      color: var(--sp-color-on-ocean);
+      min-height: 24px;
+      display: inline-flex;
+      align-items: center;
+      text-decoration: underline;
+    }
+  }
+
+  // Máy tính bảng (SCR-02-Tablet): cột thương hiệu chiếm cả hàng, 4 cột liên kết
+  @media (max-width: 991.98px) {
+    .sp-ft__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 24px 20px;
+      padding-top: 40px;
+    }
+
+    .sp-ft__brand {
+      grid-column: 1 / -1;
+      flex-flow: row wrap;
+      align-items: center;
+      gap: 8px 20px;
+    }
+
+    .sp-ft__col a {
+      font-size: 13px;
+      white-space: nowrap;
+    }
+  }
+
+  // Máy tính bảng: thiết kế ẩn dòng địa chỉ để cột thương hiệu gọn 2 hàng
+  @media (min-width: 576px) and (max-width: 991.98px) {
+    .sp-ft__addr {
+      display: none;
+    }
+  }
+
+  // Điện thoại (SCR-02-Mobile): 2 cột liên kết
+  @media (max-width: 575.98px) {
+    .sp-ft__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px 16px;
+      padding-top: 32px;
+    }
+
+    .sp-ft__brand {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .sp-ft__sea {
+      height: 140px;
+    }
+
+    .sp-ft__legal .container {
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+
+  // Mobile: hộp quà và 3 linh vật lần lượt bơi ngang (mỗi con trễ 10 giây), con đầu đứng sẵn giữa cảnh
+  .sp-ft__scene--v2 .drift {
+    transform: translateX(var(--x0));
+    animation: sp-drift 40s linear infinite both;
+  }
+
+  .sp-ft__scene--v2 .drift:first-of-type {
+    transform: translateX(40%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sp-ft__rays .beam {
+      animation: none;
+      opacity: 0.1;
+    }
+
+    .sp-footer__sea * {
+      animation: none !important;
+    }
+  }
+}
+
+// Keyframes chép nguyên từ thiết kế (tên giữ nguyên vì SVG gọi bằng style nội dòng)
+@keyframes sp-beam4 { 0%, 100% { opacity: 0.04; transform: skewX(-15deg) translateX(-8px) scaleY(0.92); } 35% { opacity: 0.22; transform: skewX(-11deg) translateX(10px) scaleY(1); } 65% { opacity: 0.11; transform: skewX(-17deg) translateX(2px) scaleY(0.97); } }
+@keyframes sp-drift { 0% { transform: translateX(var(--x0)); } 25% { transform: translateX(var(--x1)); } 25.01%, 100% { transform: translateX(var(--x0)); } }
+@keyframes sp-calm { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-3px); } }
+@keyframes sp-wave-r { 0% { transform: translateX(-1200px); } 100% { transform: translateX(0px); } }
+@keyframes sp-wave-l { 0% { transform: translateX(0px); } 100% { transform: translateX(-1200px); } }
+@keyframes sp-sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+@keyframes sp-bob { 0%, 100% { transform: translateY(0px) rotate(-6deg); } 50% { transform: translateY(-7px) rotate(6deg); } }
+@keyframes sp-lid { 0% { transform: rotate(0deg); } 12.59% { transform: rotate(0deg); } 13.39%, 14.79% { transform: translate(-4px, -6px) rotate(-38deg); } 15.59% { transform: rotate(0deg); } 23.4% { transform: rotate(0deg); } 24.2%, 25.6% { transform: translate(-4px, -6px) rotate(-38deg); } 26.4% { transform: rotate(0deg); } 34.21% { transform: rotate(0deg); } 35.01%, 36.41% { transform: translate(-4px, -6px) rotate(-38deg); } 37.21% { transform: rotate(0deg); } 62.59% { transform: rotate(0deg); } 63.39%, 64.79% { transform: translate(-4px, -6px) rotate(-38deg); } 65.59% { transform: rotate(0deg); } 73.4% { transform: rotate(0deg); } 74.2%, 75.6% { transform: translate(-4px, -6px) rotate(-38deg); } 76.4% { transform: rotate(0deg); } 84.21% { transform: rotate(0deg); } 85.01%, 86.41% { transform: translate(-4px, -6px) rotate(-38deg); } 87.21% { transform: rotate(0deg); } 100% { transform: rotate(0deg); } }
+@keyframes sp-gx-d4{0%,10.71%{transform:translateX(165px);animation-timing-function:ease-in}15.00%{transform:translateX(231px);animation-timing-function:linear}46.59%{transform:translateX(1270px)}46.63%{transform:translateX(-70px)}49.94%{transform:translateX(33px);animation-timing-function:cubic-bezier(.25,.6,.35,1)}60.65%,100%{transform:translateX(165px)}}
+@keyframes sp-gg-d4{0%{transform:scale(1)}35.15%{transform:scale(1)}36.04%{transform:scale(1.14,.9)}37.11%{transform:scale(1)}36.77%{transform:scale(1)}37.66%{transform:scale(1.14,.9)}38.73%{transform:scale(1)}38.39%{transform:scale(1)}39.29%{transform:scale(1.14,.9)}40.36%{transform:scale(1)}64.04%{transform:scale(1)}64.94%{transform:scale(1.14,.9)}66.01%{transform:scale(1)}66.19%{transform:scale(1)}67.08%{transform:scale(1.14,.9)}68.15%{transform:scale(1)}68.33%{transform:scale(1)}69.22%{transform:scale(1.14,.9)}70.29%{transform:scale(1)}100%{transform:scale(1)}}
+@keyframes sp-gl-d4{0%,33.90%{transform:rotate(0)}34.97%,40.71%{transform:rotate(-38deg)}41.79%,66.01%{transform:rotate(0)}67.08%,72.08%{transform:rotate(-38deg)}73.15%,100%{transform:rotate(0)}}
+@keyframes sp-im-d40{0%,34.79%{transform:translateX(0)}36.04%{transform:translateX(-12px)}69.19%{transform:translateX(-12px)}69.22%,71.01%{transform:translateX(-780px);animation-timing-function:ease-in-out}89.58%,100%{transform:translateX(0)}}
+@keyframes sp-ip-d40{0%,34.79%{transform:scale(1);opacity:1}36.04%{transform:scale(.1);opacity:0}69.19%{transform:scale(.1);opacity:0}69.22%{transform:translateY(-14px) scale(.3);opacity:1}71.01%,100%{transform:scale(1);opacity:1}}
+@keyframes sp-im-d41{0%,36.41%{transform:translateX(0)}37.66%{transform:translateX(-12px)}67.04%{transform:translateX(-12px)}67.08%,68.86%{transform:translateX(-830px);animation-timing-function:ease-in-out}88.63%,100%{transform:translateX(0)}}
+@keyframes sp-ip-d41{0%,36.41%{transform:scale(1);opacity:1}37.66%{transform:scale(.1);opacity:0}67.04%{transform:scale(.1);opacity:0}67.08%{transform:translateY(-14px) scale(.3);opacity:1}68.86%,100%{transform:scale(1);opacity:1}}
+@keyframes sp-im-d42{0%,38.04%{transform:translateX(0)}39.29%{transform:translateX(-12px)}64.90%{transform:translateX(-12px)}64.94%,66.72%{transform:translateX(-880px);animation-timing-function:ease-in-out}87.67%,100%{transform:translateX(0)}}
+@keyframes sp-ip-d42{0%,38.04%{transform:scale(1);opacity:1}39.29%{transform:scale(.1);opacity:0}64.90%{transform:scale(.1);opacity:0}64.94%{transform:translateY(-14px) scale(.3);opacity:1}66.72%,100%{transform:scale(1);opacity:1}}
+@keyframes sp-gx-t4{0%,10.71%{transform:translateX(152px);animation-timing-function:ease-in}15.00%{transform:translateX(212px);animation-timing-function:linear}43.50%{transform:translateX(1070px)}43.54%{transform:translateX(-70px)}47.14%{transform:translateX(32px);animation-timing-function:cubic-bezier(.25,.6,.35,1)}57.86%,100%{transform:translateX(152px)}}
+@keyframes sp-gg-t4{0%{transform:scale(1)}31.89%{transform:scale(1)}32.79%{transform:scale(1.14,.9)}33.86%{transform:scale(1)}33.50%{transform:scale(1)}34.39%{transform:scale(1.14,.9)}35.46%{transform:scale(1)}35.11%{transform:scale(1)}36.00%{transform:scale(1.14,.9)}37.07%{transform:scale(1)}61.25%{transform:scale(1)}62.14%{transform:scale(1.14,.9)}63.21%{transform:scale(1)}63.39%{transform:scale(1)}64.29%{transform:scale(1.14,.9)}65.36%{transform:scale(1)}65.54%{transform:scale(1)}66.43%{transform:scale(1.14,.9)}67.50%{transform:scale(1)}100%{transform:scale(1)}}
+@keyframes sp-gl-t4{0%,30.64%{transform:rotate(0)}31.71%,37.43%{transform:rotate(-38deg)}38.50%,63.21%{transform:rotate(0)}64.29%,69.29%{transform:rotate(-38deg)}70.36%,100%{transform:rotate(0)}}
+@keyframes sp-im-t40{0%,31.54%{transform:translateX(0)}32.79%{transform:translateX(-12px)}66.39%{transform:translateX(-12px)}66.43%,68.21%{transform:translateX(-618px);animation-timing-function:ease-in-out}82.93%,100%{transform:translateX(0)}}
+@keyframes sp-ip-t40{0%,31.54%{transform:scale(1);opacity:1}32.79%{transform:scale(.1);opacity:0}66.39%{transform:scale(.1);opacity:0}66.43%{transform:translateY(-14px) scale(.3);opacity:1}68.21%,100%{transform:scale(1);opacity:1}}
+@keyframes sp-im-t41{0%,33.14%{transform:translateX(0)}34.39%{transform:translateX(-12px)}64.25%{transform:translateX(-12px)}64.29%,66.07%{transform:translateX(-663px);animation-timing-function:ease-in-out}81.86%,100%{transform:translateX(0)}}
+@keyframes sp-ip-t41{0%,33.14%{transform:scale(1);opacity:1}34.39%{transform:scale(.1);opacity:0}64.25%{transform:scale(.1);opacity:0}64.29%{transform:translateY(-14px) scale(.3);opacity:1}66.07%,100%{transform:scale(1);opacity:1}}
+@keyframes sp-im-t42{0%,34.75%{transform:translateX(0)}36.00%{transform:translateX(-12px)}62.11%{transform:translateX(-12px)}62.14%,63.93%{transform:translateX(-708px);animation-timing-function:ease-in-out}80.79%,100%{transform:translateX(0)}}
+@keyframes sp-ip-t42{0%,34.75%{transform:scale(1);opacity:1}36.00%{transform:scale(.1);opacity:0}62.11%{transform:scale(.1);opacity:0}62.14%{transform:translateY(-14px) scale(.3);opacity:1}63.93%,100%{transform:scale(1);opacity:1}}

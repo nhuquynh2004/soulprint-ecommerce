@@ -1,0 +1,46 @@
+@if (useSaved() && saved) {
+  <div class="sp-ra__saved">
+    <app-icon name="briefcase" [size]="22" />
+    <span class="flex-grow-1">
+      <strong>{{ saved.bankName }} | {{ saved.account }}</strong>
+      <small>{{ saved.accountName }} | Chuyển khoản ngân hàng</small>
+    </span>
+    <button class="btn btn-link btn-sm" type="button" (click)="setSaved(false)">Thay đổi</button>
+  </div>
+  <p class="sp-ra__hint">Tài khoản đã lưu. Tiền về trong 1 - 3 ngày làm việc.</p>
+} @else {
+  @if (!editOnly) {
+    <p class="sp-ra__hint mt-0">Soulprint hoàn tiền qua chuyển khoản ngân hàng, tiền về trong 1 - 3 ngày làm việc.</p>
+  }
+  <div class="sp-ra__form">
+    <label class="sp-field m-0">
+      <span class="sp-field__label">Ngân hàng <span class="req">*</span></span>
+      <select class="form-select" [(ngModel)]="account.bankName" (ngModelChange)="emit()" (blur)="touch('bankName')" [class.is-invalid]="!!error('bankName')">
+        <option value="">Chọn ngân hàng</option>
+        @for (b of banks; track b) {
+          <option [value]="b">{{ b }}</option>
+        }
+      </select>
+      <span class="invalid-feedback">{{ error('bankName') }}</span>
+    </label>
+    <label class="sp-field m-0">
+      <span class="sp-field__label">Số tài khoản <span class="req">*</span></span>
+      <input class="form-control" inputmode="numeric" maxlength="20" placeholder="6 đến 20 chữ số" [value]="account.accountNumber" (input)="onNumber($any($event.target))" (blur)="touch('accountNumber')" [class.is-invalid]="!!error('accountNumber')" />
+      <span class="invalid-feedback">{{ error('accountNumber') }}</span>
+    </label>
+    <label class="sp-field m-0">
+      <span class="sp-field__label">Tên chủ tài khoản <span class="req">*</span></span>
+      <input class="form-control text-uppercase" maxlength="60" placeholder="NGUYEN VAN A" [(ngModel)]="account.accountName" (ngModelChange)="emit()" (blur)="normalizeName()" [class.is-invalid]="!!error('accountName')" />
+      <span class="invalid-feedback">{{ error('accountName') }}</span>
+    </label>
+    @if (!editOnly) {
+      <label class="form-check m-0">
+        <input class="form-check-input" type="checkbox" [(ngModel)]="saveAccount" (ngModelChange)="emit()" />
+        <span class="form-check-label">Lưu tài khoản cho lần sau</span>
+      </label>
+    }
+    @if (saved && !forceNew && !editOnly) {
+      <button class="btn btn-link btn-sm px-0 align-self-start" type="button" (click)="setSaved(true)">Dùng tài khoản đã lưu</button>
+    }
+  </div>
+}

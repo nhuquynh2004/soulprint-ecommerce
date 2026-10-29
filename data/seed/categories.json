@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Trạm bù nước",
+    "slug": "tram-bu-nuoc",
+    "code": "TBN",
+    "parentSlug": null,
+    "description": "Bình giữ nhiệt, ly, cốc cá nhân hóa để anh ấy luôn đủ nước",
+    "image": "/images/categories/tram-bu-nuoc.svg",
+    "sortOrder": 1,
+    "isActive": true
+  },
+  {
+    "name": "Không gian chill",
+    "slug": "khong-gian-chill",
+    "code": "KGC",
+    "parentSlug": null,
+    "description": "Đèn, tranh, board game cho góc thư giãn",
+    "image": "/images/categories/khong-gian-chill.svg",
+    "sortOrder": 2,
+    "isActive": true
+  },
+  {
+    "name": "Vật bất ly thân",
+    "slug": "vat-bat-ly-than",
+    "code": "VBL",
+    "parentSlug": null,
+    "description": "Đồng hồ, balo, gear dùng mỗi ngày",
+    "image": "/images/categories/vat-bat-ly-than.svg",
+    "sortOrder": 3,
+    "isActive": true
+  },
+  {
+    "name": "Mê mẩn",
+    "slug": "me-man",
+    "code": "MMN",
+    "parentSlug": null,
+    "description": "Những món anh ấy mê mẩn: mô hình, figure, dụng cụ thể thao, đồ chơi game",
+    "image": "/images/categories/me-man.svg",
+    "sortOrder": 4,
+    "isActive": true
+  },
+  {
+    "name": "Điểm nhấn cá nhân",
+    "slug": "diem-nhan-ca-nhan",
+    "code": "DNC",
+    "parentSlug": null,
+    "description": "Áo, mũ in tên riêng thể hiện cá tính",
+    "image": "/images/categories/diem-nhan-ca-nhan.svg",
+    "sortOrder": 5,
+    "isActive": true
+  },
+  {
+    "name": "Giftbox",
+    "slug": "giftbox",
+    "code": "GBX",
+    "parentSlug": null,
+    "description": "Hộp quà combo đóng gói sẵn",
+    "image": "/images/categories/giftbox.svg",
+    "sortOrder": 6,
+    "isActive": true
+  }
+]

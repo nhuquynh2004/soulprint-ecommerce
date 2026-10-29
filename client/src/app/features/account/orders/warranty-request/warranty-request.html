@@ -1,0 +1,170 @@
+<a class="sp-more" [routerLink]="['/tai-khoan/don-hang', code]"><app-icon name="arrow-left" [size]="18" /> Chi tiết đơn {{ code }}</a>
+
+@if (done(); as w) {
+  <!-- "Đã tiếp nhận yêu cầu bảo hành" (UC-TRK-05 bước 4) -->
+  <section class="sp-rr-done">
+    <span class="sp-rr-done__ic"><app-icon name="check-circle" [size]="40" /></span>
+    <h1>Đã tiếp nhận yêu cầu bảo hành</h1>
+    <p>
+      Mã bảo hành <strong>{{ w.code }}</strong> |
+      @if (w.shippingMethod === 'SHIPPER_LAY') {
+        Shipper đến lấy hàng sau khi Soulprint duyệt yêu cầu, thời gian xử lý 5 - 7 ngày làm việc.
+      } @else {
+        Vui lòng gửi sản phẩm về {{ w.returnAddress || 'cửa hàng Soulprint' }}, ghi mã {{ w.code }} ngoài thùng.
+      }
+    </p>
+    <ol class="sp-steps">
+      @for (s of w.progress; track $index) {
+        <li [class.is-done]="s.state === 'done'" [class.is-current]="s.state === 'current'">
+          <strong>{{ s.label }}</strong>
+          {{ s.at ? (s.at | date: 'dd/MM HH:mm') : '' }}
+        </li>
+      }
+    </ol>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+      <a class="btn btn-primary" [routerLink]="['/tai-khoan/don-hang', code]">Xem chi tiết đơn</a>
+      <a class="btn btn-outline-primary" routerLink="/tai-khoan/don-hang">Về đơn hàng của tôi</a>
+    </div>
+  </section>
+} @else if (loadError()) {
+  <div class="sp-state" role="alert">
+    <h1 class="h4">{{ loadError() }}</h1>
+    <a class="btn btn-primary" routerLink="/tai-khoan/don-hang">Về Đơn hàng của tôi</a>
+  </div>
+} @else if (!order()) {
+  <span class="sp-skel d-block mt-3" style="height: 420px"></span>
+} @else {
+  @let o = order()!;
+  <header class="sp-rr-head">
+    <h1>Yêu cầu bảo hành</h1>
+    <p>Đơn {{ o.code }} | đã giao {{ o.deliveredAt | date: 'dd/MM/yyyy' }}</p>
+  </header>
+
+  @if (!item()) {
+    <!-- Chọn sản phẩm còn bảo hành -->
+    <section class="sp-acard">
+      <h2>Chọn sản phẩm cần bảo hành</h2>
+      @for (it of eligible(); track it._id) {
+        <label class="sp-rr-item" [class.is-on]="itemId() === it._id">
+          <input class="form-check-input" type="radio" name="wr-item" [disabled]="!it.warranty?.allowed" (change)="itemId.set(it._id)" />
+          @if (it.image) {
+            <img [src]="it.image" [alt]="it.name" width="64" height="64" />
+          }
+          <span class="flex-grow-1">
+            <strong>{{ it.name }}</strong>
+            <small>{{ it.variantName }}, bảo hành {{ it.warranty?.months }} tháng</small>
+            <small [class.text-danger]="it.warranty?.expired">
+              {{ it.warranty?.expired ? 'Hết hạn bảo hành từ ' + (it.warranty?.until | date: 'dd/MM/yyyy') : it.warranty?.open ? 'Đang có yêu cầu bảo hành' : 'Còn bảo hành đến ' + (it.warranty?.until | date: 'dd/MM/yyyy') }}
+            </small>
+          </span>
+        </label>
+      } @empty {
+        <p class="text-body-secondary m-0">Đơn này không có sản phẩm được bảo hành.</p>
+      }
+    </section>
+  } @else {
+    @let it = item()!;
+    @let wa = it.warranty;
+    @if (!wa || !wa.months) {
+      <div class="sp-alert sp-alert--warning mb-0"><app-icon name="alert" [size]="20" /><div><strong>Sản phẩm này không có bảo hành</strong><p>Cần hỗ trợ? Gọi 1900 1234.</p></div></div>
+    } @else if (wa.expired) {
+      <!-- 2Ea: hết hạn bảo hành -->
+      <section class="sp-acard sp-wr-item">
+        @if (it.image) {
+          <img [src]="it.image" [alt]="it.name" width="72" height="72" />
+        }
+        <div>
+          <strong>{{ it.name }}</strong>
+          <small>Đơn {{ o.code }} | {{ it.variantName }}{{ it.personalizationText ? ', ' + it.personalizationText : '' }}</small>
+          <span class="sp-status sp-status--TU_CHOI mt-1">Hết hạn bảo hành từ {{ wa.until | date: 'dd/MM/yyyy' }}</span>
+        </div>
+      </section>
+      <div class="sp-alert sp-alert--warning mt-3 mb-0">
+        <app-icon name="alert" [size]="20" />
+        <div>
+          <strong>Sản phẩm đã hết thời hạn bảo hành từ ngày {{ wa.until | date: 'dd/MM/yyyy' }}</strong>
+          <p>Cần hỗ trợ sửa chữa? Liên hệ hotline 1900 1234.</p>
+        </div>
+      </div>
+    } @else if (wa.open) {
+      <div class="sp-alert sp-alert--info mb-0"><app-icon name="info" [size]="20" /><div><strong>Sản phẩm đang có yêu cầu bảo hành chưa kết thúc</strong><p>Xem tiến độ ở chi tiết đơn hàng.</p></div></div>
+    } @else {
+      @if (error()) {
+        <div class="sp-alert sp-alert--danger mb-3" role="alert"><app-icon name="alert-circle" [size]="20" /><div><strong>Chưa gửi được yêu cầu</strong><p>{{ error() }}</p></div></div>
+      }
+      <form class="sp-pf-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="sp-pf-main">
+          <section class="sp-acard">
+            <h2 class="sp-rr-h"><span class="sp-stepno">1</span> Sản phẩm cần bảo hành</h2>
+            <div class="sp-wr-item">
+              @if (it.image) {
+                <img [src]="it.image" [alt]="it.name" width="72" height="72" />
+              }
+              <div>
+                <strong>{{ it.name }}</strong>
+                <small>Đơn {{ o.code }} | {{ it.variantName }}{{ it.personalizationText ? ', ' + it.personalizationText : '' }}</small>
+                <span class="sp-status sp-status--DA_HOAN_TAT mt-1">Còn bảo hành đến {{ wa.until | date: 'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="sp-acard">
+            <h2 class="sp-rr-h"><span class="sp-stepno">2</span> Tình trạng lỗi</h2>
+            <p class="sp-field__label mb-2">Hiện tượng <span class="text-danger">*</span></p>
+            <div class="sp-chips flex-wrap" role="radiogroup" aria-label="Hiện tượng">
+              @for (s of symptoms; track s.key) {
+                <button class="sp-chip sp-chip--sm" type="button" role="radio" [attr.aria-checked]="value().symptom === s.key" [class.is-on]="value().symptom === s.key" (click)="form.controls.symptom.setValue(s.key)">{{ s.label }}</button>
+              }
+            </div>
+            @if (submitted() && form.controls.symptom.invalid) {
+              <p class="sp-field__error mt-1">Chọn hiện tượng</p>
+            }
+            <label class="sp-field mt-3">
+              <span class="sp-field__label">Mô tả chi tiết <span class="req">*</span></span>
+              <textarea class="form-control" rows="3" formControlName="description" [maxlength]="textMax" placeholder="VD dãy đèn bên phải không sáng từ 2 ngày nay" [class.is-invalid]="submitted() && form.controls.description.invalid"></textarea>
+              <span class="sp-field__hint text-end">{{ value().description.length }}/{{ textMax }}</span>
+            </label>
+            <p class="sp-field__label mb-2">Ảnh tình trạng <span class="text-danger">*</span></p>
+            <app-photo-input formControlName="images" [invalid]="submitted() && form.controls.images.invalid" hint="Cần ít nhất 1 ảnh, tối đa 5 ảnh JPG, PNG, mỗi ảnh dưới 10MB." />
+            @if (submitted() && form.controls.images.invalid) {
+              <p class="sp-field__error mt-1">Thêm ít nhất 1 ảnh chứng minh</p>
+            }
+          </section>
+
+          <section class="sp-acard">
+            <h2 class="sp-rr-h"><span class="sp-stepno">3</span> Cách gửi sản phẩm</h2>
+            <div class="sp-rr-choices">
+              <label class="sp-modecard" [class.is-on]="value().shippingMethod === 'SHIPPER_LAY'">
+                <input class="form-check-input" type="radio" formControlName="shippingMethod" value="SHIPPER_LAY" />
+                <span><strong>Shipper đến lấy</strong><small>Miễn phí 2 chiều trong thời hạn bảo hành</small></span>
+              </label>
+              <label class="sp-modecard" [class.is-on]="value().shippingMethod === 'TU_GUI'">
+                <input class="form-check-input" type="radio" formControlName="shippingMethod" value="TU_GUI" />
+                <span><strong>Tự gửi đến cửa hàng</strong><small>Địa chỉ kho hiện sau khi gửi yêu cầu</small></span>
+              </label>
+            </div>
+            @if (value().shippingMethod === 'SHIPPER_LAY') {
+              <p class="sp-field__label mt-3 mb-2">Địa chỉ lấy hàng</p>
+              <app-address-select prefix="pickupAddress" [fieldErrors]="fieldErrors()" (changed)="address.set($event)" />
+            }
+          </section>
+        </div>
+
+        <aside class="sp-pf-side">
+          <section class="sp-acard sp-rr-sum">
+            <h2>Thông tin bảo hành</h2>
+            <dl>
+              <dt>Ngày giao</dt><dd>{{ o.deliveredAt | date: 'dd/MM/yyyy' }}</dd>
+              <dt>Thời hạn</dt><dd>{{ wa.months }} tháng</dd>
+              <dt>Hạn bảo hành</dt><dd>{{ wa.until | date: 'dd/MM/yyyy' }}</dd>
+              <dt>Đã bảo hành</dt><dd>{{ wa.count }} lần</dd>
+            </dl>
+            <p class="sp-rr-sum__left"><app-icon name="info" [size]="16" /> Không áp dụng cho hư hỏng do rơi vỡ, vào nước hoặc tự ý sửa chữa.</p>
+            <button class="btn btn-primary w-100" type="submit" [disabled]="sending()">{{ sending() ? 'Đang gửi...' : 'Gửi yêu cầu bảo hành' }}</button>
+            <a class="btn btn-link w-100" routerLink="/chinh-sach/bao-hanh" target="_blank">Xem chính sách đầy đủ</a>
+          </section>
+        </aside>
+      </form>
+    }
+  }
+}

@@ -1,0 +1,125 @@
+<header class="sp-aph">
+  <div>
+    <h1>Bộ sưu tập</h1>
+    <p>{{ counts()['ALL'] || 0 }} bộ sưu tập | {{ onHome() }} đang hiện trên trang chủ</p>
+  </div>
+  @if (auth.can('BO_SUU_TAP.TAO')) {
+    <a class="btn btn-primary d-inline-flex align-items-center gap-2" routerLink="/quan-tri/bo-suu-tap/moi">
+      <app-icon name="plus" [size]="20" /> Tạo bộ sưu tập
+    </a>
+  }
+</header>
+
+@if (sel.count()) {
+  <app-bulk-bar class="d-block mb-2" [count]="sel.count()" unit="bộ sưu tập" [actions]="bulkActions()" [busy]="busy()" (action)="onBulk($event)" (cleared)="sel.clear(); onlySelected.set(false)" />
+  <div class="form-check form-switch mb-3">
+    <input id="only-sel" class="form-check-input" type="checkbox" role="switch" [checked]="onlySelected()" (change)="onlySelected.set(!onlySelected())" />
+    <label class="form-check-label" for="only-sel">Chỉ hiện mục đã chọn</label>
+  </div>
+} @else {
+  <div class="sp-atools">
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm bộ sưu tập" aria-label="Tìm bộ sưu tập" [value]="q()" (input)="onSearch($any($event.target).value)" />
+    </div>
+    <select class="form-select sp-atools__sel" aria-label="Lọc theo trạng thái" [value]="status()" (change)="setFilter('status', $any($event.target).value)">
+      <option value="">Mọi trạng thái</option>
+      @for (s of statuses; track s) {
+        <option [value]="s">{{ statusLabel[s] }} ({{ counts()[s] || 0 }})</option>
+      }
+    </select>
+    <select class="form-select sp-atools__sel" aria-label="Lọc theo loại" [value]="type()" (change)="setFilter('type', $any($event.target).value)">
+      <option value="">Mọi loại</option>
+      <option value="THU_CONG">Chọn tay</option>
+      <option value="TU_DONG">Tự động</option>
+    </select>
+    <select class="form-select sp-atools__sel" aria-label="Lọc theo nơi hiển thị" [value]="home()" (change)="setFilter('home', $any($event.target).value)">
+      <option value="">Mọi nơi hiển thị</option>
+      <option value="true">Hiện trên trang chủ</option>
+      <option value="false">Không ở trang chủ</option>
+    </select>
+  </div>
+  <app-filter-chips [chips]="chips()" (removed)="setFilter($any($event), '')" (clearedAll)="clearFilters()" />
+}
+
+@if (loading()) {
+  <span class="sp-skel" style="height: 360px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!rows().length) {
+  <div class="sp-state">
+    <app-icon name="layers" [size]="40" />
+    <p>{{ q() || chips().length ? 'Không có bộ sưu tập khớp bộ lọc.' : 'Chưa có bộ sưu tập nào.' }}</p>
+  </div>
+} @else {
+  <div class="sp-table-wrap">
+    <table class="table sp-atable align-middle">
+      <thead>
+        <tr>
+          <th scope="col" class="sp-cb">
+            <input class="form-check-input" type="checkbox" aria-label="Chọn tất cả" [checked]="sel.allOf(pageIds())" [indeterminate]="sel.someOf(pageIds())" (change)="sel.togglePage(pageIds())" />
+          </th>
+          <th scope="col" colspan="2">Tên</th>
+          <th scope="col">Loại</th>
+          <th scope="col">Nơi hiển thị</th>
+          <th scope="col">Trạng thái</th>
+          <th scope="col"><span class="visually-hidden">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of rows(); track c._id) {
+          <tr [class.is-selected]="sel.has(c._id!)">
+            <td class="sp-cb"><input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn ' + c.name" [checked]="sel.has(c._id!)" (change)="sel.toggle(c._id!)" /></td>
+            <td class="sp-cthumb">
+              @if (c.coverImage) {
+                <img [src]="c.coverImage" alt="" />
+              } @else {
+                <span><app-icon name="layers" [size]="18" /></span>
+              }
+            </td>
+            <td>
+              <a class="sp-cname" [routerLink]="['/quan-tri/bo-suu-tap', c._id]">{{ c.name }}</a>
+              <small class="d-block text-body-secondary">{{ c.productCount ?? 0 }} sản phẩm | {{ timeText(c) }}</small>
+            </td>
+            <td>{{ c.type === 'THU_CONG' ? 'Chọn tay' : 'Tự động' }}</td>
+            <td>
+              @if (c.status === 'HIEN_THI' || c.showOnHome) {
+                <div class="d-flex flex-wrap gap-1">
+                  @if (c.status === 'HIEN_THI') {
+                    <span class="sp-badge sp-badge--neutral">Website</span>
+                  }
+                  @if (c.showOnHome) {
+                    <span class="sp-badge sp-badge--neutral">Trang chủ</span>
+                  }
+                </div>
+              } @else {
+                <span class="text-body-secondary">Chưa hiển thị</span>
+              }
+            </td>
+            <td><span class="sp-status" [class]="'sp-status sp-status--' + c.displayStatus">{{ statusLabel[c.displayStatus!] }}</span></td>
+            <td class="text-end"><app-row-menu [items]="rowMenu(c)" [label]="'Thao tác với ' + c.name" (picked)="onRowMenu(c, $event)" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (!onlySelected() && total() > pageSize()) {
+    <div class="d-flex justify-content-end mt-3">
+      <app-pagination [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="goPage($event)" />
+    </div>
+  }
+}
+
+@if (confirmDelete(); as c) {
+  <app-confirm-dialog [title]="'Xóa ' + c.ids.length + ' bộ sưu tập?'" confirmLabel="Xóa" [danger]="true" (confirm)="doDelete()" (cancel)="confirmDelete.set(null)">
+    <p class="mb-1">Sản phẩm trong bộ sưu tập không bị ảnh hưởng. Không hoàn tác được.</p>
+    <ul class="mb-0">
+      @for (n of c.names.slice(0, 5); track $index) {
+        <li>{{ n }}</li>
+      }
+    </ul>
+  </app-confirm-dialog>
+}

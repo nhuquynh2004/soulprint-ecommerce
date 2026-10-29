@@ -1,0 +1,279 @@
+// SCR-24 Tra cứu đơn hàng
+.sp-lk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-4);
+  padding-top: var(--sp-space-5);
+  padding-bottom: var(--sp-space-8);
+}
+
+.sp-lk__steps {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2) var(--sp-space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sp-color-text-subtle);
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .is-on {
+    color: var(--sp-color-primary);
+  }
+
+  .is-done {
+    color: var(--sp-color-success);
+  }
+}
+
+.sp-lk__num {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+.sp-lk__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 520px) minmax(0, 300px);
+  justify-content: center;
+  gap: var(--sp-space-5);
+  align-items: start;
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: minmax(0, 560px);
+  }
+}
+
+.sp-lk__card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-space-6);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-surface);
+
+  h1 {
+    margin: var(--sp-space-2) 0;
+    font-family: var(--sp-font-body); // Theo SCR-24 - Montserrat 28px
+    font-size: clamp(24px, 3vw, 28px);
+  }
+
+  @media (max-width: 575.98px) {
+    padding: var(--sp-space-5) var(--sp-space-4);
+  }
+}
+
+.sp-lk__lead {
+  color: var(--sp-color-text-muted);
+}
+
+.sp-lk__alt {
+  margin: var(--sp-space-3) 0 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+.sp-lk__demo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--sp-space-2) var(--sp-space-3);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-warning-subtle);
+  font-size: 14px;
+}
+
+.sp-lk__tip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+  padding: var(--sp-space-5);
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-primary-subtle);
+
+  app-icon {
+    color: var(--sp-color-primary);
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--sp-color-text-muted);
+  }
+
+  @media (max-width: 991.98px) {
+    display: none;
+  }
+}
+
+// Ô OTP 6 số
+.sp-otp {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 52px));
+  gap: var(--sp-space-2);
+
+  input {
+    height: 56px;
+    padding: 0;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  &.is-error input {
+    border-color: var(--sp-color-danger);
+  }
+
+  @media (max-width: 575.98px) {
+    gap: 6px;
+
+    input {
+      height: 48px;
+      font-size: 20px;
+    }
+  }
+}
+
+.sp-lk__resend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--sp-space-3);
+  font-size: 14px;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-lk__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-space-3);
+
+  h1 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--sp-space-2);
+    margin: 0 0 4px;
+    font-size: clamp(22px, 3vw, 28px);
+  }
+
+  p {
+    margin: 0;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-lk__masked {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 14px;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-lk__invite {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-4);
+  padding: var(--sp-space-4) var(--sp-space-5);
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-primary-subtle);
+
+  > app-icon {
+    flex: none;
+    color: var(--sp-color-primary);
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--sp-color-text-muted);
+  }
+
+  @media (max-width: 575.98px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.sp-lk__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-3);
+    width: 100%;
+    padding: var(--sp-space-3) var(--sp-space-4);
+    border: 1px solid var(--sp-color-border);
+    border-radius: var(--sp-radius-lg);
+    background: var(--sp-color-surface);
+    color: inherit;
+    text-align: left;
+
+    &:hover {
+      border-color: var(--sp-color-primary);
+    }
+  }
+}
+
+.sp-lk__thumb {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface-alt);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.sp-lk__info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 14px;
+
+  span,
+  small {
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-lk__side {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+
+  strong {
+    color: var(--sp-color-primary);
+  }
+}

@@ -1,0 +1,65 @@
+[
+  {
+    "code": "QUAN_TRI",
+    "name": "Quản trị",
+    "description": "Toàn quyền, gồm nhân viên, phân quyền và cài đặt cửa hàng",
+    "type": "MAC_DINH",
+    "isFullAccess": true,
+    "permissions": []
+  },
+  {
+    "code": "BAN_HANG",
+    "name": "Nhân viên bán hàng",
+    "description": "Đơn hàng, đơn nháp, khách hàng, hậu mãi, hỗ trợ, catalog và trang chủ",
+    "type": "MAC_DINH",
+    "isFullAccess": false,
+    "permissions": [
+      "TONG_QUAN.XEM",
+      "DON_HANG.XEM", "DON_HANG.SUA", "DON_HANG.IN_PHIEU", "DON_HANG.HUY_DON",
+      "DON_NHAP.XEM", "DON_NHAP.TAO", "DON_NHAP.SUA", "DON_NHAP.XOA", "DON_NHAP.KICH_HOAT",
+      "HAU_MAI.XEM", "HAU_MAI.SUA", "HAU_MAI.XAC_NHAN_NHAN_HANG", "HAU_MAI.DUYET_TU_CHOI", "HAU_MAI.HOAN_TIEN",
+      "HANG_LUU_KHO.XEM", "HANG_LUU_KHO.SUA",
+      "KHACH_HANG.XEM", "KHACH_HANG.SUA", "KHACH_HANG.KHOA_TAI_KHOAN", "KHACH_HANG.AN_DANH_GIA",
+      "HO_TRO.XEM", "HO_TRO.TRA_LOI",
+      "SAN_PHAM.XEM", "SAN_PHAM.TAO", "SAN_PHAM.SUA", "SAN_PHAM.XOA", "SAN_PHAM.SUA_GIA",
+      "DANH_MUC.XEM", "DANH_MUC.TAO", "DANH_MUC.SUA", "DANH_MUC.XOA",
+      "TAGS.XEM", "TAGS.TAO", "TAGS.SUA", "TAGS.XOA",
+      "VOUCHER.XEM", "VOUCHER.TAO", "VOUCHER.SUA", "VOUCHER.XOA", "VOUCHER.XUAT_CSV",
+      "BO_SUU_TAP.XEM", "BO_SUU_TAP.TAO", "BO_SUU_TAP.SUA", "BO_SUU_TAP.XOA",
+      "TRANG_CHU.XEM", "TRANG_CHU.SUA", "TRANG_CHU.XUAT_BAN",
+      "GOI_QUA.XEM", "GOI_QUA.TAO", "GOI_QUA.SUA", "GOI_QUA.XOA"
+    ]
+  },
+  {
+    "code": "KHO",
+    "name": "Kho",
+    "description": "Đơn cần đóng gói, giao vận chuyển, tồn kho và hàng lưu kho",
+    "type": "MAC_DINH",
+    "isFullAccess": false,
+    "permissions": [
+      "TONG_QUAN.XEM",
+      "DON_HANG.XEM", "DON_HANG.DONG_GOI", "DON_HANG.GIAO_VAN_CHUYEN", "DON_HANG.IN_PHIEU",
+      "HAU_MAI.XEM", "HAU_MAI.XAC_NHAN_NHAN_HANG",
+      "HANG_LUU_KHO.XEM", "HANG_LUU_KHO.SUA", "HANG_LUU_KHO.TIEU_HUY",
+      "SAN_PHAM.XEM", "SAN_PHAM.CAP_NHAT_TON",
+      "GOI_QUA.XEM", "GOI_QUA.QUAN_LY_VAT_LIEU", "GOI_QUA.NHAP_KHO"
+    ]
+  },
+  {
+    "code": "VT_CHAM_SOC_KHACH_HANG",
+    "name": "Chăm sóc khách hàng",
+    "description": "Hỗ trợ khách hàng, xem đơn hàng, khách hàng và đánh giá",
+    "type": "TUY_CHINH",
+    "isFullAccess": false,
+    "permissions": [
+      "TONG_QUAN.XEM",
+      "DON_HANG.XEM",
+      "HAU_MAI.XEM",
+      "KHACH_HANG.XEM", "KHACH_HANG.SUA", "KHACH_HANG.AN_DANH_GIA",
+      "HO_TRO.XEM", "HO_TRO.TRA_LOI",
+      "SAN_PHAM.XEM",
+      "VOUCHER.XEM",
+      "GOI_QUA.XEM"
+    ]
+  }
+]

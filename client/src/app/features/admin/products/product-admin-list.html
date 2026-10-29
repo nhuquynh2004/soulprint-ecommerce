@@ -1,0 +1,233 @@
+<header class="sp-aph">
+  <div>
+    <h1>Sản phẩm</h1>
+    <p>{{ summary() }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" type="button" (click)="exportCsv()">
+      <app-icon name="upload" [size]="20" /> Xuất CSV
+    </button>
+    @if (auth.can('SAN_PHAM.TAO')) {
+      <a class="btn btn-primary d-inline-flex align-items-center gap-2" routerLink="/quan-tri/san-pham/moi">
+        <app-icon name="plus" [size]="20" /> Thêm sản phẩm
+      </a>
+    }
+  </div>
+</header>
+
+<nav class="sp-tabs2" role="tablist" aria-label="Lọc theo trạng thái">
+  @for (t of tabs; track t.key) {
+    <button role="tab" type="button" [class.is-on]="status() === t.key" [attr.aria-selected]="status() === t.key" (click)="setTab(t.key)">
+      {{ t.label }}
+      @if (t.key) {
+        <span class="sp-count">{{ data()?.counts?.[t.key] || 0 }}</span>
+      }
+    </button>
+  }
+</nav>
+
+<!-- Tab Ẩn và Lưu trữ có dòng giải thích -->
+@if (status() === 'DA_AN') {
+  <p class="sp-tabnote">Sản phẩm Ẩn tạm thời không hiện ở mọi nơi phía khách (mở liên kết sẽ báo không tìm thấy). Chọn Hiển thị lại để bán tiếp.</p>
+} @else if (status() === 'NGUNG_BAN') {
+  <p class="sp-tabnote">Sản phẩm Lưu trữ là sản phẩm ngừng bán: ẩn khỏi cửa hàng nhưng giữ dữ liệu đơn hàng và báo cáo. Dùng thay cho Xóa khi sản phẩm đã có đơn.</p>
+}
+@if (sel.count()) {
+  <app-bulk-bar class="d-block mb-3" [count]="sel.count()" unit="sản phẩm" [actions]="bulkActions()" [busy]="busy()" (action)="onBulk($event)" (cleared)="sel.clear()" />
+} @else {
+  <div class="sp-atools">
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm theo tên hoặc SKU" aria-label="Tìm sản phẩm" [value]="q()" (input)="onSearch($any($event.target).value)" />
+    </div>
+    <select class="form-select sp-atools__sel" aria-label="Lọc theo danh mục" [value]="category()" (change)="setFilter('category', $any($event.target).value)">
+      <option value="">Mọi danh mục</option>
+      @for (c of flatCategories(); track c._id) {
+        <option [value]="c._id">{{ c.name }}</option>
+      }
+    </select>
+    <select class="form-select sp-atools__sel" aria-label="Lọc theo mức tồn" [value]="stockStatus()" (change)="setFilter('stockStatus', $any($event.target).value)">
+      <option value="">Mọi mức tồn</option>
+      <option value="CON_HANG">Còn hàng</option>
+      <option value="SAP_HET">Sắp hết</option>
+      <option value="HET_HANG">Hết hàng</option>
+    </select>
+    <div class="position-relative">
+      <button class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 h-100" type="button" [attr.aria-expanded]="showFilter()" (click)="showFilter.set(!showFilter())">
+        <app-icon name="filter" [size]="18" /> Bộ lọc
+      </button>
+      @if (showFilter()) {
+        <div class="sp-popover">
+          <label class="form-label" for="f-axis">Trục đam mê</label>
+          <select id="f-axis" class="form-select" [value]="axis()" (change)="setFilter('axis', $any($event.target).value); showFilter.set(false)">
+            <option value="">Tất cả</option>
+            <option value="THE_THAO">Thể thao</option>
+            <option value="ANIME">Anime</option>
+            <option value="GAME">Game</option>
+          </select>
+        </div>
+      }
+    </div>
+    <select class="form-select sp-atools__sel" aria-label="Sắp xếp" [value]="sort()" (change)="sort.set($any($event.target).value); reload()">
+      <option value="">Mới cập nhật</option>
+      <option value="ten">Tên A-Z</option>
+      <option value="-ten">Tên Z-A</option>
+      <option value="gia">Giá tăng dần</option>
+      <option value="-gia">Giá giảm dần</option>
+      <option value="ton">Tồn kho tăng dần</option>
+      <option value="-ton">Tồn kho giảm dần</option>
+    </select>
+  </div>
+  <app-filter-chips [chips]="chips()" (removed)="removeChip($event)" (clearedAll)="clearFilters()" />
+}
+
+@if (result(); as r) {
+  <div class="sp-alert sp-alert--warning mb-3" role="status">
+    <app-icon name="alert" [size]="20" />
+    <div class="flex-grow-1">
+      <strong>{{ r.text }}</strong>
+      <p class="mb-0">Bỏ qua {{ r.skipped.length }}: @for (s of r.skipped; track s.id; let last = $last) {{{ s.name || 'sản phẩm' }}: {{ s.reason }}{{ last ? '' : '; ' }}}</p>
+    </div>
+    @if (r.canArchive) {
+      <button class="btn btn-outline-secondary btn-sm" type="button" (click)="archiveSkipped()">Lưu trữ</button>
+    }
+    <button class="btn btn-sm" type="button" aria-label="Đóng" (click)="result.set(null)"><app-icon name="close" [size]="18" /></button>
+  </div>
+}
+
+@if (loading()) {
+  <span class="sp-skel" style="height: 420px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (data(); as d) {
+  @if (!d.items.length) {
+    <div class="sp-state">
+      <app-icon name="package" [size]="40" />
+      <p>{{ q() || chips().length || status() ? 'Không có sản phẩm khớp bộ lọc.' : 'Chưa có sản phẩm nào.' }}</p>
+      @if (q() || chips().length) {
+        <button class="btn btn-outline-secondary" type="button" (click)="clearFilters()">Xóa bộ lọc</button>
+      }
+    </div>
+  } @else {
+    <div class="sp-table-wrap">
+      <table class="table sp-atable align-middle">
+        <thead>
+          <tr>
+            <th scope="col" class="sp-cb">
+              <input class="form-check-input" type="checkbox" aria-label="Chọn tất cả sản phẩm trong trang" [checked]="sel.allOf(pageIds())" [indeterminate]="sel.someOf(pageIds())" (change)="sel.togglePage(pageIds())" />
+            </th>
+            <th scope="col" colspan="2">
+              <button type="button" class="sp-sortbtn" [class.is-on]="sort().endsWith('ten')" (click)="sortBy('ten')">Tên <app-icon [name]="sortIcon('ten')" [size]="14" /></button>
+            </th>
+            <th scope="col">Danh mục</th>
+            <th scope="col" class="text-end">
+              <button type="button" class="sp-sortbtn" [class.is-on]="sort().endsWith('gia')" (click)="sortBy('gia')">Giá <app-icon [name]="sortIcon('gia')" [size]="14" /></button>
+            </th>
+            <th scope="col">
+              <button type="button" class="sp-sortbtn" [class.is-on]="sort().endsWith('ton')" (click)="sortBy('ton')">Tồn kho <app-icon [name]="sortIcon('ton')" [size]="14" /></button>
+            </th>
+            <th scope="col">Trạng thái</th>
+            <th scope="col"><span class="visually-hidden">Thao tác</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of d.items; track p._id) {
+            <tr [class.is-selected]="sel.has(p._id)">
+              <td class="sp-cb">
+                <input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn ' + p.name" [checked]="sel.has(p._id)" (change)="sel.toggle(p._id)" />
+              </td>
+              <td class="sp-pthumb">
+                @if (p.image) {
+                  <img [src]="p.image" alt="" loading="lazy" />
+                } @else {
+                  <span><app-icon name="image" [size]="18" /></span>
+                }
+              </td>
+              <td>
+                <a class="sp-pname" [routerLink]="['/quan-tri/san-pham', p._id]">{{ p.name }}</a>
+                <small class="d-block text-body-secondary">SKU {{ p.sku || 'chưa có' }}</small>
+              </td>
+              <td>{{ p.category || '-' }}</td>
+              <td class="text-end fw-bold text-nowrap">
+                @if (p.price !== null) {
+                  {{ (p.salePrice ?? p.price) | vnd }}
+                  @if (p.salePrice) {
+                    <small class="d-block text-body-secondary text-decoration-line-through fw-normal">{{ p.price | vnd }}</small>
+                  }
+                } @else {
+                  -
+                }
+              </td>
+              <td>
+                <div class="d-flex align-items-center gap-2 text-nowrap">
+                  <!-- Dòng không có nút xổ vẫn chừa chỗ để số tồn thẳng cột -->
+                  @if (p.variants.length > 1) {
+                    <button type="button" class="btn sp-expand" [class.is-on]="expanded() === p._id" [attr.aria-expanded]="expanded() === p._id" [attr.aria-label]="'Tồn theo biến thể của ' + p.name" (click)="toggleExpand(p._id)">
+                      <app-icon [name]="expanded() === p._id ? 'chevron-down' : 'chevron-right'" [size]="16" />
+                    </button>
+                  } @else {
+                    <span class="sp-expand-gap" aria-hidden="true"></span>
+                  }
+                  <strong class="sp-stocknum">{{ p.totalStock }}</strong>
+                  <span class="sp-stock" [class]="'sp-stock sp-stock--' + p.stockStatus">{{ stockLabel[p.stockStatus] }}</span>
+                </div>
+              </td>
+              <td><span class="sp-status" [class]="'sp-status sp-status--' + p.status">{{ statusLabel[p.status] }}</span></td>
+              <td class="text-end">
+                <app-row-menu [items]="rowMenu(p)" [label]="'Thao tác với ' + p.name" (picked)="onRowMenu(p, $event)" />
+              </td>
+            </tr>
+            @if (expanded() === p._id) {
+              <tr class="sp-vrow">
+                <td colspan="8">
+                  <div class="sp-vrow__in">
+                    <strong>Tồn theo biến thể</strong>
+                    <div class="d-flex flex-wrap gap-2">
+                      @for (v of p.variants; track v.sku) {
+                        <span class="sp-vchip" [class.is-low]="v.isActive !== false && v.stock <= (v.lowStockThreshold ?? 5)" [class.is-off]="v.isActive === false" [title]="v.sku">
+                          {{ v.name }} <b>{{ v.stock }}</b>
+                        </span>
+                      }
+                    </div>
+                    <small class="text-body-secondary ms-auto">Tổng {{ p.totalStock }} | cảnh báo khi một biến thể chạm ngưỡng sắp hết</small>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="sp-listfoot">
+      <span>Hiển thị {{ (d.page - 1) * d.pageSize + 1 }} - {{ (d.page - 1) * d.pageSize + d.items.length }} trong {{ d.total }} sản phẩm</span>
+      <app-pagination [page]="d.page" [pageSize]="d.pageSize" [total]="d.total" (pageChange)="goPage($event)" />
+    </div>
+  }
+}
+
+@if (confirmDelete(); as c) {
+  <app-confirm-dialog [title]="'Xóa ' + c.ids.length + ' sản phẩm?'" confirmLabel="Xóa" [danger]="true" (confirm)="doDelete()" (cancel)="confirmDelete.set(null)">
+    <p class="mb-1">Không hoàn tác được. Sản phẩm đã có đơn hàng sẽ được bỏ qua (chỉ lưu trữ được).</p>
+    @if (c.names.length) {
+      <ul class="mb-0">
+        @for (n of c.names.slice(0, 5); track n) {
+          <li>{{ n }}</li>
+        }
+        @if (c.names.length > 5) {
+          <li>và {{ c.names.length - 5 }} sản phẩm khác</li>
+        }
+      </ul>
+    }
+  </app-confirm-dialog>
+}
+
+@if (stockDialog()) {
+  <app-stock-dialog [products]="selectedRows()" (done)="onDialogDone($event)" />
+}
+
+@if (tagDialog()) {
+  <app-bulk-tag-dialog [productIds]="sel.ids()" (done)="onDialogDone($event)" />
+}

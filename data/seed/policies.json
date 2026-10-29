@@ -1,0 +1,38 @@
+[
+  {
+    "slug": "doi-tra",
+    "title": "Chính sách đổi trả và hoàn tiền",
+    "sortOrder": 1,
+    "content": "<p><strong>1. Hủy đơn</strong></p><ul><li>Đơn không cá nhân hóa: bạn tự hủy khi đơn đang Chờ xác nhận hoặc Đang chuẩn bị.</li><li>Đơn có món cá nhân hóa: bạn tự hủy khi đơn còn Chờ xác nhận. Soulprint xác nhận đơn là bắt đầu in, khắc nên sau đó không hủy được.</li><li>Đơn đã thanh toán (kể cả tiền cọc) mà hủy trước khi bắt đầu cá nhân hóa: hoàn 100% số đã trả.</li><li>Đơn đã bắt đầu cá nhân hóa mà bị hủy hoặc bạn từ chối nhận hàng: phần giá trị món cá nhân hóa không được hoàn; bạn có 14 ngày để yêu cầu nhận lại hàng (trả phí vận chuyển mới và phần còn thiếu của đơn), quá hạn sản phẩm được xử lý, không bồi thường. Mỗi đơn được giao lại tối đa 1 lần.</li><li>Soulprint không thực hiện được đơn hoặc hủy vì lý do từ phía Soulprint: hoàn 100% số đã trả, kể cả món cá nhân hóa, kèm voucher xin lỗi giảm 10% cho đơn sau.</li></ul><p><strong>2. Sửa đơn trước khi xác nhận</strong></p><ul><li>Khi đơn còn Chờ xác nhận, bạn sửa được thông tin giao hàng, đổi Giao cho tôi sang Giao người nhận (thanh toán online cho đủ 100%), sửa hoặc thêm cá nhân hóa cho món có hỗ trợ.</li><li>Phải trả thêm thì đơn chỉ thay đổi sau khi bạn thanh toán xong. Đã trả dư thì Soulprint hoàn phần dư bằng chuyển khoản, hoặc bạn chọn nhận voucher dùng ngay (dùng trong 90 ngày, đã nhận voucher thì không đổi lại sang chuyển khoản).</li><li>Sửa làm thay đổi giá trị đơn được 1 lần mỗi đơn; cần sửa thêm, bạn nhắn Soulprint.</li></ul><p><strong>3. Đổi trả</strong></p><p>Soulprint nhận yêu cầu đổi/trả trong <strong>{{so_ngay_doi_tra}} ngày</strong> kể từ khi đơn hàng được giao thành công, kể cả khi đơn đã tự hoàn tất.</p><ul><li>Sản phẩm không cá nhân hóa: đổi/trả với mọi lý do nếu còn tem, nhãn, chưa sử dụng và còn bao bì gốc.</li><li>Sản phẩm cá nhân hóa (in, khắc, thiết kế riêng): chỉ đổi/trả khi lỗi từ Soulprint (lỗi in/khắc, hư hỏng khi nhận, giao sai sản phẩm hoặc size, không đúng mô tả), kèm ảnh bằng chứng.</li><li>Yêu cầu đính kèm 1-5 ảnh JPG/PNG, bắt buộc có ảnh nếu lý do là lỗi in/khắc, hư hỏng hoặc sản phẩm cá nhân hóa.</li><li>Soulprint chịu phí vận chuyển cho yêu cầu đổi/trả được duyệt. Yêu cầu được xử lý trong 24-48 giờ làm việc.</li></ul><p><strong>4. Hoàn tiền</strong></p><ul><li>Hoàn bằng chuyển khoản tới tài khoản ngân hàng bạn nhập (hoặc đã lưu sẵn trong Tài khoản), tiền về trong 1 - 3 ngày làm việc kể từ khi Soulprint chuyển.</li><li>Đơn trả online chưa tạo được (thanh toán xong nhưng hết hàng): hoàn qua cổng thanh toán.</li><li>Hoàn tiền của yêu cầu đổi/trả: tối đa 5 ngày làm việc sau khi Soulprint nhận và kiểm tra hàng.</li></ul><p>Cần hỗ trợ, gọi <strong>{{hotline}}</strong>.</p>"
+  },
+  {
+    "slug": "bao-hanh",
+    "title": "Chính sách bảo hành",
+    "sortOrder": 2,
+    "content": "<p>Soulprint bảo hành lỗi nhà sản xuất theo thời hạn ghi trên từng sản phẩm, tính từ khi đơn hàng được giao thành công:</p><ul><li>6 tháng với phụ kiện thời trang.</li><li>12 tháng với đồng hồ và thiết bị công nghệ.</li></ul><p>Không bảo hành hư hỏng do người dùng hoặc hao mòn tự nhiên.</p><p>Gửi yêu cầu bảo hành ở trang Đơn hàng của tôi, kèm 1-5 ảnh mô tả lỗi (bắt buộc). Soulprint phản hồi trong 24-48 giờ làm việc và chịu phí vận chuyển khi yêu cầu được duyệt.</p><p>Cần hỗ trợ, gọi <strong>{{hotline}}</strong>.</p>"
+  },
+  {
+    "slug": "thanh-toan",
+    "title": "Chính sách thanh toán và đặt cọc",
+    "sortOrder": 3,
+    "content": "<p>Soulprint hỗ trợ 2 phương thức: <strong>thanh toán khi nhận hàng (COD)</strong> và <strong>thanh toán online</strong>.</p><ul><li>Đơn giao cho người nhận khác: thanh toán online trước 100%.</li><li>Đơn giao cho bạn có món cá nhân hóa: đặt cọc online {{ty_le_coc}} giá trị từng món cá nhân hóa; phần còn lại trả khi nhận hàng hoặc trả online trước. Đơn chỉ được tạo khi cọc thành công.</li><li>Đơn chỉ gồm sản phẩm không cá nhân hóa: tự chọn COD hoặc thanh toán online 100%.</li><li>Sticker trang trí cho món tự thiết kế tính {{phi_sticker}} mỗi sticker, tối đa 3 sticker mỗi sản phẩm; in, khắc chữ miễn phí.</li></ul><p><strong>Khi đơn thay đổi trước khi xác nhận</strong></p><ul><li>Đơn trả online 100%: tổng tăng thì bạn trả thêm phần chênh, tổng giảm thì được hoàn phần dư.</li><li>Đơn đã cọc: sửa nội dung cá nhân hóa (VD thêm sticker) thì giữ tiền cọc, phần tăng cộng vào số thu khi giao. Đổi sang sản phẩm, phân loại, số lượng khác hoặc thêm cá nhân hóa cho món chưa cá nhân hóa thì tiền cọc tính lại: thiếu thì cọc thêm, dư thì trừ vào số thu khi giao.</li><li>Đơn COD chưa trả gì mà có thêm món cá nhân hóa: cần đặt cọc trước khi đơn thay đổi.</li></ul><p><strong>Đơn đặt gấp</strong></p><p>Cần nhận trước ngày giao sớm nhất, bạn gửi yêu cầu đặt gấp (chưa cần thanh toán). Shop trao đổi trong khung chat, chốt ngày giao, phụ phí giao gấp (không áp dụng voucher) và phương thức thanh toán; bạn thanh toán theo đúng phương thức shop đã chốt.</p>"
+  },
+  {
+    "slug": "van-chuyen",
+    "title": "Chính sách vận chuyển",
+    "sortOrder": 4,
+    "content": "<p>Phí vận chuyển đồng giá <strong>{{phi_van_chuyen}}</strong> mỗi đơn trên toàn quốc.</p><p><strong>Ngày giao sớm nhất</strong> = ngày đặt + 1 ngày nếu đặt từ 12:00 + 3 ngày làm hàng nếu đơn có món cá nhân hóa + thời gian vận chuyển (2 ngày trong TP. Hồ Chí Minh, 4 ngày với tỉnh khác).</p><ul><li>Giao cho bạn: hiện ngày dự kiến nhận hàng.</li><li>Giao người nhận: bạn chọn ngày và khung giờ giao, từ ngày giao sớm nhất.</li><li>Cần nhận sớm hơn: chọn Đặt gấp ở bước thanh toán, shop sẽ liên hệ chốt ngày và phụ phí.</li></ul><p>Đơn được giao thành công sẽ tự hoàn tất sau 72 giờ nếu bạn chưa bấm Đã nhận hàng; bạn vẫn gửi được yêu cầu đổi/trả trong thời hạn.</p><p>Bạn theo dõi đơn ở trang Đơn hàng của tôi hoặc tra cứu bằng số điện thoại và mã đơn.</p>"
+  },
+  {
+    "slug": "bao-mat",
+    "title": "Chính sách bảo mật",
+    "sortOrder": 5,
+    "content": "<p>Soulprint chỉ thu thập thông tin cần cho việc giao hàng và chăm sóc khách hàng: họ tên, số điện thoại, email, địa chỉ nhận hàng, và tài khoản ngân hàng khi bạn cần nhận tiền hoàn.</p><ul><li>Mật khẩu được mã hóa một chiều, nhân viên không xem được.</li><li>Số tài khoản nhận tiền hoàn chỉ hiển thị dạng che số với bạn.</li><li>Thông tin không được bán hay chia sẻ cho bên thứ ba ngoài đơn vị vận chuyển.</li></ul><p>Bạn có thể sửa thông tin, sổ địa chỉ và tài khoản nhận tiền hoàn trong trang Tài khoản bất cứ lúc nào.</p>"
+  },
+  {
+    "slug": "dieu-khoan",
+    "title": "Điều khoản sử dụng",
+    "sortOrder": 6,
+    "content": "<p>Khi mua sắm tại Soulprint, bạn đồng ý với các điều khoản sau:</p><ul><li>Nội dung cá nhân hóa (chữ in, khắc, sticker thiết kế) do bạn cung cấp và chịu trách nhiệm; Soulprint có quyền từ chối nội dung vi phạm pháp luật hoặc thuần phong mỹ tục. Nội dung in, khắc theo giới hạn ký tự của từng sản phẩm; cần nội dung dài hơn, bạn nhắn Soulprint để được hỗ trợ.</li><li>Giá và khuyến mãi áp dụng tại thời điểm đặt hàng.</li><li>Các chính sách hủy đơn, đổi trả, hoàn tiền, bảo hành, thanh toán và vận chuyển là một phần của điều khoản này.</li></ul><p>Mọi thắc mắc, liên hệ <strong>{{hotline}}</strong>.</p>"
+  }
+]

@@ -1,0 +1,145 @@
+// Ghi đè sau khi import Bootstrap (design-tokens.md Mục 5.2).
+// Bootstrap 5.3 chỉ có 1 giá trị cho màu chủ đề ($primary...), nên bản Tối phải ghi đè biến --bs-*.
+
+[data-bs-theme="dark"] {
+  --bs-primary: #80A3E5;
+  --bs-primary-rgb: 128, 163, 229;
+  --bs-link-color: #80A3E5;
+  --bs-link-color-rgb: 128, 163, 229;
+  --bs-link-hover-color: #AAC2EE;
+  --bs-link-hover-color-rgb: 170, 194, 238;
+  --bs-success: #43EFB6;
+  --bs-success-rgb: 67, 239, 182;
+  --bs-warning: #F7B23B;
+  --bs-warning-rgb: 247, 178, 59;
+  --bs-danger: #F37272;
+  --bs-danger-rgb: 243, 114, 114;
+  --bs-info: #BA9EFA;
+  --bs-info-rgb: 186, 158, 250;
+  --bs-secondary: #A8B3C7;
+  --bs-secondary-rgb: 168, 179, 199;
+  --bs-form-invalid-color: #F37272;
+  --bs-form-invalid-border-color: #F37272;
+  --bs-form-valid-color: #43EFB6;
+  --bs-form-valid-border-color: #43EFB6;
+  --bs-box-shadow-sm: 0 1px 2px rgba(0, 0, 0, .40);
+  --bs-box-shadow: 0 2px 6px rgba(0, 0, 0, .45);
+  --bs-box-shadow-lg: 0 12px 28px rgba(0, 0, 0, .60);
+  --bs-focus-ring-color: #2B66D4;
+}
+
+// Nền thẻ, ô nhập, hộp thoại theo surface của từng chế độ
+:root,
+[data-bs-theme] {
+  --bs-body-bg: var(--sp-color-bg);
+  --bs-card-bg: var(--sp-color-surface);
+}
+
+.card,
+.modal-content,
+.dropdown-menu,
+.offcanvas,
+.form-control,
+.form-select {
+  background-color: var(--sp-color-surface);
+}
+
+.form-control,
+.form-select,
+.form-check-input {
+  border-color: var(--sp-color-border-strong);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--sp-color-primary);
+  box-shadow: 0 0 0 3px var(--sp-focus-ring);
+}
+
+// Lớp nút: Bootstrap biên dịch màu thẳng vào --bs-btn-*, nên trỏ lại về token cho cả 2 chế độ
+.btn-primary {
+  --bs-btn-bg: var(--sp-color-primary);
+  --bs-btn-border-color: var(--sp-color-primary);
+  --bs-btn-color: var(--sp-color-on-primary);
+  --bs-btn-hover-bg: var(--sp-color-primary-hover);
+  --bs-btn-hover-border-color: var(--sp-color-primary-hover);
+  --bs-btn-hover-color: var(--sp-color-on-primary);
+  --bs-btn-active-bg: var(--sp-color-primary-hover);
+  --bs-btn-active-border-color: var(--sp-color-primary-hover);
+  --bs-btn-active-color: var(--sp-color-on-primary);
+  --bs-btn-disabled-bg: var(--sp-color-primary-subtle);
+  --bs-btn-disabled-border-color: var(--sp-color-primary-subtle);
+  --bs-btn-disabled-color: var(--sp-color-text-subtle);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--sp-color-primary);
+  --bs-btn-border-color: var(--sp-color-primary);
+  --bs-btn-hover-bg: var(--sp-color-primary-subtle);
+  --bs-btn-hover-border-color: var(--sp-color-primary);
+  --bs-btn-hover-color: var(--sp-color-primary);
+  --bs-btn-active-bg: var(--sp-color-primary-subtle);
+  --bs-btn-active-border-color: var(--sp-color-primary);
+  --bs-btn-active-color: var(--sp-color-primary);
+}
+
+// Viền đỏ theo token để chế độ Tối đủ tương phản (#BC1010 trên nền tối chỉ khoảng 3:1)
+.btn-outline-danger {
+  --bs-btn-color: var(--sp-color-danger);
+  --bs-btn-border-color: var(--sp-color-danger);
+  --bs-btn-hover-bg: var(--sp-color-danger);
+  --bs-btn-hover-border-color: var(--sp-color-danger);
+  --bs-btn-hover-color: var(--sp-color-on-danger);
+  --bs-btn-active-bg: var(--sp-color-danger);
+  --bs-btn-active-border-color: var(--sp-color-danger);
+  --bs-btn-active-color: var(--sp-color-on-danger);
+  --bs-btn-disabled-color: var(--sp-color-danger);
+  --bs-btn-disabled-border-color: var(--sp-color-danger);
+}
+
+// Nút viền trung tính: Bootstrap dùng $secondary cho cả chế độ Tối nên chữ chỉ khoảng 2,4:1 trên nền tối
+.btn-outline-secondary {
+  --bs-btn-color: var(--sp-color-text-muted);
+  --bs-btn-border-color: var(--sp-color-border-strong);
+  --bs-btn-hover-bg: var(--sp-color-surface-alt);
+  --bs-btn-hover-border-color: var(--sp-color-border-strong);
+  --bs-btn-hover-color: var(--sp-color-text);
+  --bs-btn-active-bg: var(--sp-color-surface-alt);
+  --bs-btn-active-border-color: var(--sp-color-border-strong);
+  --bs-btn-active-color: var(--sp-color-text);
+}
+
+.btn-danger {
+  --bs-btn-bg: var(--sp-color-danger);
+  --bs-btn-border-color: var(--sp-color-danger);
+  --bs-btn-color: var(--sp-color-on-danger);
+  --bs-btn-hover-bg: var(--sp-color-danger);
+  --bs-btn-hover-border-color: var(--sp-color-danger);
+  --bs-btn-hover-color: var(--sp-color-on-danger);
+}
+
+// Bootstrap không có lớp accent: nút "Thêm gói quà", nút nổi Sâu Béo
+.btn-accent {
+  --bs-btn-bg: var(--sp-color-accent);
+  --bs-btn-border-color: var(--sp-color-accent);
+  --bs-btn-color: var(--sp-color-on-accent);
+  --bs-btn-hover-bg: var(--sp-accent-600);
+  --bs-btn-hover-border-color: var(--sp-accent-600);
+  --bs-btn-hover-color: var(--sp-color-on-accent);
+  --bs-btn-active-bg: var(--sp-accent-600);
+  --bs-btn-active-border-color: var(--sp-accent-600);
+  --bs-btn-active-color: var(--sp-color-on-accent);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--sp-color-primary);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+// Ô ghi chú tự cao theo nội dung (directive AutosizeTextarea), không kéo đổi cỡ; quá 320px thì cuộn
+textarea.form-control {
+  resize: none;
+  max-height: 320px;
+  overflow-y: auto;
+}

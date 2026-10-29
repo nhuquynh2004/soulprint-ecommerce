@@ -1,0 +1,188 @@
+// SCR-49 form - bám SCR-49-Desktop-Form, Form-ThanhToan, GiamGia, GiaoHang
+.sp-acard.has-error {
+  border-color: var(--sp-color-danger);
+}
+
+.sp-dsearch {
+  position: relative;
+  margin-bottom: var(--sp-space-3);
+}
+
+.sp-dsearch__list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 20;
+  margin: 0;
+  padding: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-md);
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: var(--sp-radius-sm);
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+      background: var(--sp-color-surface-alt);
+    }
+
+    img {
+      border-radius: var(--sp-radius-sm);
+      object-fit: cover;
+    }
+  }
+}
+
+.sp-dline {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-3) 0;
+  border-bottom: 1px solid var(--sp-color-border);
+
+  img {
+    flex: none;
+    border-radius: var(--sp-radius-md);
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .sp-dline {
+    flex-wrap: wrap;
+  }
+}
+
+.sp-dline__var {
+  width: auto;
+  max-width: 200px;
+}
+
+.sp-dline__qty {
+  width: 70px;
+}
+
+.sp-dline__price {
+  min-width: 110px;
+}
+
+.sp-iconbtn {
+  display: inline-flex;
+  padding: 6px;
+  border: 0;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-dmoney {
+  margin: 0;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-space-3);
+    padding: 6px 0;
+  }
+
+  dt {
+    font-weight: 400;
+  }
+
+  dd {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .is-total {
+    margin-top: 4px;
+    border-top: 1px solid var(--sp-color-border);
+    font-weight: 800;
+    font-size: 17px;
+  }
+}
+
+.sp-field__label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sp-x {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+
+// Mobile/Tablet: khối Sản phẩm và Thanh toán lên trước, cột Khách hàng sau
+@media (max-width: 991.98px) {
+  .sp-pf-main {
+    order: 1;
+  }
+
+  .sp-pf-side {
+    order: 2;
+  }
+}
+
+// Đơn gấp
+.sp-urg {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-space-3);
+  margin-bottom: var(--sp-space-4);
+  padding: var(--sp-space-3) var(--sp-space-4);
+  border: 1px solid var(--sp-color-warning);
+  border-left-width: 4px;
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-warning-subtle);
+
+  &.is-locked {
+    border-color: var(--sp-color-success);
+    background: var(--sp-color-success-subtle);
+  }
+
+  small {
+    display: block;
+    margin-top: 4px;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-urg__main {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.sp-urg__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-weight: 700;
+  color: var(--sp-color-warning);
+
+  .is-locked & {
+    color: var(--sp-color-success);
+  }
+}
+
+.sp-urg__fee {
+  align-items: center;
+
+  dd input {
+    width: 120px;
+  }
+}

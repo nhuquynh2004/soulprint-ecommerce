@@ -1,0 +1,1854 @@
+// Lớp giao diện dùng chung của bộ thiết kế,
+// viết lại gọn bằng token. Dùng ở nhiều trang nên đặt toàn cục thay vì trong từng component.
+
+// Khối nội dung có tiêu đề + liên kết "Xem tất cả"
+.sp-sec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-5);
+  margin-block: var(--sp-space-7);
+}
+
+.sp-sec-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-space-4);
+
+  h2 {
+    margin: 0;
+  }
+
+  p {
+    margin: var(--sp-space-1) 0 0;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-space-1);
+  min-height: var(--sp-tap-min);
+  color: var(--sp-color-primary);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+// Lưới thẻ sản phẩm: 2 cột Mobile, 3 Tablet, 4 Desktop
+.sp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-space-3);
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--sp-space-4);
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--sp-space-5);
+  }
+}
+
+// Hàng cuộn ngang ("Có thể bạn quan tâm")
+.sp-hscroll {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(160px, 46%);
+  gap: var(--sp-space-3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: var(--sp-space-2);
+
+  > * {
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 768px) {
+    grid-auto-columns: minmax(200px, 30%);
+  }
+
+  @media (min-width: 1200px) {
+    grid-auto-columns: calc((100% - 3 * var(--sp-space-5)) / 4);
+    gap: var(--sp-space-5);
+  }
+}
+
+// Nhãn
+.sp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--sp-radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+
+  &--new {
+    background: var(--sp-color-accent);
+    color: var(--sp-color-on-accent);
+  }
+
+  &--sale,
+  &--hot {
+    background: var(--sp-color-danger-subtle);
+    color: var(--sp-color-danger);
+  }
+
+  &--perso {
+    background: var(--sp-color-info-subtle);
+    color: var(--sp-color-info);
+  }
+
+  &--out,
+  &--neutral {
+    background: var(--sp-color-surface-alt);
+    color: var(--sp-color-text-muted);
+    border-color: var(--sp-color-border);
+  }
+
+  &--primary {
+    background: var(--sp-color-primary-subtle);
+    color: var(--sp-color-primary);
+  }
+
+  // Đơn gấp
+  &--warning {
+    background: var(--sp-color-warning-subtle);
+    color: var(--sp-color-warning);
+  }
+}
+
+// Giá
+.sp-price {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+
+  &__now {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 28px;
+    color: var(--sp-color-text);
+  }
+
+  &__was {
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--sp-color-text-subtle);
+    text-decoration: line-through;
+  }
+
+  &__off {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 16px;
+    color: var(--sp-color-danger);
+    background: var(--sp-color-danger-subtle);
+    border-radius: var(--sp-radius-pill);
+    padding: 2px 8px;
+  }
+
+  &--lg &__now {
+    font-size: 32px;
+    line-height: 40px;
+    color: var(--sp-color-primary);
+
+    @media (max-width: 767.98px) {
+      font-size: 28px;
+      line-height: 36px;
+    }
+  }
+}
+
+// Chip lọc nhanh
+.sp-chips {
+  display: flex;
+  gap: var(--sp-space-2);
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.sp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px; // Theo .sp-tag của thiết kế
+  padding: 0 14px;
+  border-radius: var(--sp-radius-pill);
+  border: 1.5px solid var(--sp-color-border-strong);
+  background: var(--sp-color-surface);
+  color: var(--sp-color-text);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--sp-color-primary);
+  }
+
+  // Đang chọn: nền xanh nhạt, chữ xanh (.sp-tag.is-selected)
+  &.is-on {
+    background: var(--sp-color-primary-subtle);
+    border-color: var(--sp-color-primary);
+    color: var(--sp-color-primary);
+    font-weight: 600;
+  }
+
+  &--sm {
+    min-height: 32px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+}
+
+// Khối trạng thái rỗng / lỗi (08_Sitemap_Screens.md Mục trạng thái)
+.sp-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-7) var(--sp-space-4);
+  text-align: center;
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-surface-alt);
+  color: var(--sp-color-text-muted);
+
+  .sp-state__ic {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sp-color-primary-subtle);
+    color: var(--sp-color-primary);
+  }
+
+  h2,
+  h3 {
+    color: var(--sp-color-text);
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    max-width: 520px;
+  }
+}
+
+// Khung xương khi đang tải
+.sp-skel {
+  display: block;
+  border-radius: var(--sp-radius-md);
+  background: linear-gradient(90deg, var(--sp-color-surface-alt) 25%, var(--sp-color-border) 50%, var(--sp-color-surface-alt) 75%);
+  background-size: 200% 100%;
+  animation: sp-skel 1.2s ease-in-out infinite;
+}
+
+@keyframes sp-skel {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-skel {
+    animation: none;
+  }
+}
+
+// Đường dẫn vị trí (breadcrumb)
+.sp-crumbs {
+  // Theo .sp-crumbs của thiết kế - 14px đậm 500, mũi tên chevron, mục cuối đậm 600 màu chữ chính
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--sp-color-text-muted);
+  margin: var(--sp-space-4) 0;
+
+  a {
+    color: var(--sp-color-text-muted);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--sp-color-primary);
+    }
+  }
+
+  .breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  // Breadcrumb dạng "A / B" ở khu quản trị: Angular bỏ khoảng trắng giữa thẻ nên dấu "/" cần lề riêng
+  > span[aria-hidden="true"] {
+    margin: 0 6px;
+  }
+
+  .breadcrumb-item + .breadcrumb-item::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    margin-right: var(--bs-breadcrumb-item-padding-x);
+    background: var(--sp-color-text-subtle);
+    mask: url('/assets/icons/chevron-right.svg') center / 16px no-repeat;
+  }
+
+  .breadcrumb-item.active {
+    color: var(--sp-color-text);
+    font-weight: 600;
+  }
+}
+
+// Nội dung HTML do Quản trị soạn (mô tả sản phẩm, chính sách)
+.sp-prose {
+  line-height: 1.7;
+
+  ul,
+  ol {
+    padding-left: 1.25rem;
+  }
+
+  li + li {
+    margin-top: var(--sp-space-1);
+  }
+}
+
+// Hộp thoại đang mở thì khóa cuộn trang nền
+.sp-no-scroll {
+  overflow: hidden;
+}
+
+// Ô nhập của form (nhãn, dấu * bắt buộc, gợi ý, lỗi dưới ô)
+.sp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--sp-space-4);
+
+  > label,
+  .sp-field__label {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .req {
+    color: var(--sp-color-danger);
+  }
+
+  .form-control,
+  .form-select {
+    min-height: var(--sp-tap-min);
+  }
+}
+
+.sp-field__hint {
+  font-size: 12px;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-field__error {
+  font-size: 13px;
+  color: var(--sp-color-danger);
+  font-weight: 500;
+}
+
+.sp-field__icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  > app-icon {
+    position: absolute;
+    left: 14px;
+    color: var(--sp-color-text-subtle);
+    pointer-events: none;
+  }
+
+  .form-control {
+    padding-left: 40px;
+  }
+}
+
+// Thông báo trong trang - kiểu duy nhất cho mọi thông báo gắn với trang hoặc khối (08 Mục 5).
+// 4 sắc thái --info, --success, --warning, --danger cùng cỡ chữ 14px, biểu tượng 20px, bo góc lg, đệm 12px 16px.
+// Chữ màu thường cho dễ đọc, sắc thái nằm ở nền, viền và biểu tượng. 2 bố cục:
+//   1 dòng:   <p class="sp-alert sp-alert--info"><app-icon name="info" [size]="20" /> Nội dung</p>
+//   tiêu đề:  <div class="sp-alert sp-alert--warning"><app-icon .../><div><strong>Tiêu đề</strong><p>Nội dung</p>[nút]</div></div>
+.sp-alert {
+  --sp-alert-tone: var(--sp-color-primary);
+  --sp-alert-bg: var(--sp-color-primary-subtle);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: var(--sp-space-4);
+  padding: 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--sp-alert-tone) 28%, transparent);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-alert-bg);
+  color: var(--sp-color-text);
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+
+  > app-icon {
+    flex: none;
+    margin-top: 1px;
+    color: var(--sp-alert-tone);
+  }
+
+  flex-wrap: wrap;
+
+  // Nút ở cuối thông báo xuống dòng khi khung hẹp
+  > div,
+  > span {
+    flex: 1 1 220px;
+    min-width: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  // Tiêu đề: strong đứng trước đoạn chữ, hoặc gắn sp-alert__title khi chữ theo sau không nằm trong <p>
+  strong:has(+ p),
+  .sp-alert__title {
+    display: block;
+    font-weight: 700;
+  }
+
+  strong + p {
+    margin-top: 2px;
+  }
+
+  p + p {
+    margin-top: 4px;
+  }
+
+  &--info {
+    --sp-alert-tone: var(--sp-color-primary);
+    --sp-alert-bg: var(--sp-color-primary-subtle);
+  }
+
+  &--success {
+    --sp-alert-tone: var(--sp-color-success);
+    --sp-alert-bg: var(--sp-color-success-subtle);
+  }
+
+  &--warning {
+    --sp-alert-tone: var(--sp-color-warning);
+    --sp-alert-bg: var(--sp-color-warning-subtle);
+  }
+
+  &--danger {
+    --sp-alert-tone: var(--sp-color-danger);
+    --sp-alert-bg: var(--sp-color-danger-subtle);
+  }
+}
+
+// Thẻ nội dung (card) của trang tài khoản, quản trị
+.sp-panel {
+  padding: var(--sp-space-5);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-surface);
+  margin-bottom: var(--sp-space-4);
+
+  > h2,
+  .sp-panel__title {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-2);
+    font-family: var(--sp-font-body);
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 var(--sp-space-4);
+  }
+}
+
+.sp-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--sp-color-primary-subtle);
+  color: var(--sp-color-primary);
+  font-weight: 700;
+  font-size: 14px;
+
+  &--sm {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  &--lg {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+  }
+}
+
+.sp-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--sp-space-2);
+}
+
+// Khu quản trị: tiêu đề trang, tab, bảng, menu "..." (dùng chung cho các màn hình quản trị)
+.sp-aph {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--sp-space-3);
+  margin-bottom: var(--sp-space-4);
+
+  h1 {
+    margin: 0;
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-adm-narrow {
+  max-width: 860px;
+}
+
+.sp-tabs2 {
+  display: flex;
+  gap: var(--sp-space-2);
+  margin-bottom: var(--sp-space-4);
+  border-bottom: 1px solid var(--sp-color-border);
+
+  button,
+  a {
+    display: inline-flex;
+    flex: none; // màn hẹp: tab không xuống dòng, cả thanh cuộn ngang (TabScroll)
+    align-items: center;
+    gap: var(--sp-space-2);
+    min-height: var(--sp-tap-min);
+    padding: 0 var(--sp-space-3);
+    border: 0;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    background: none;
+    color: var(--sp-color-text-muted);
+    font-weight: 600;
+    text-decoration: none;
+
+    &.is-on {
+      color: var(--sp-color-primary);
+      border-bottom-color: var(--sp-color-primary);
+    }
+  }
+}
+
+.sp-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-surface-alt);
+  font-size: 12px;
+  color: var(--sp-color-text-muted);
+}
+
+// Số việc cần xử lý gấp (yêu cầu chờ duyệt, hội thoại chờ ở menu quản trị)
+.sp-count--danger {
+  background: var(--sp-color-danger);
+  color: var(--sp-color-on-danger);
+  font-weight: 700;
+}
+
+.sp-table-wrap {
+  // relative: chữ ẩn cho trình đọc màn hình (.visually-hidden, absolute) trong bảng nằm gọn trong khung cuộn,
+  // không kéo giãn chiều ngang của trang (S12 rà responsive)
+  position: relative;
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  overflow-x: auto;
+  background: var(--sp-color-surface);
+}
+
+.sp-atable {
+  --bs-table-bg: transparent;
+  margin: 0;
+  min-width: 760px;
+
+  thead th {
+    background: var(--sp-color-surface-alt);
+    color: var(--sp-color-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  td,
+  th {
+    padding: var(--sp-space-3);
+    border-color: var(--sp-color-border);
+  }
+}
+
+.sp-rowmenu {
+  position: relative;
+  display: inline-block;
+}
+
+.sp-rowmenu__btn {
+  display: inline-flex;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.sp-rowmenu__list {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  padding: 6px;
+  border-radius: var(--sp-radius-lg);
+  border: 1px solid var(--sp-color-border);
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-lg);
+  text-align: left;
+
+  a,
+  button {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-2);
+    min-height: 40px;
+    padding: 0 var(--sp-space-3);
+    border: 0;
+    border-radius: var(--sp-radius-md);
+    background: none;
+    color: var(--sp-color-text);
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+      background: var(--sp-color-primary-subtle);
+    }
+
+    &.text-danger {
+      color: var(--sp-color-danger);
+    }
+  }
+}
+
+// Menu của app-row-menu nổi theo vị trí nút (top, right đặt ở row-menu.ts) để không bị khung cuộn của bảng cắt
+.sp-rowmenu__list.sp-rowmenu__list--float {
+  position: fixed;
+  top: auto;
+  right: auto;
+  z-index: 1060;
+}
+
+// Chọn vai trò (SCR-57 hộp thoại Thêm nhân viên)
+.sp-rolepick {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+}
+
+.sp-rolepick__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-3);
+  border: 1.5px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  cursor: pointer;
+
+  .form-check-input {
+    float: none;
+    margin: 2px 0 0;
+    width: 20px;
+    height: 20px;
+    flex: none;
+  }
+
+  strong,
+  small {
+    display: block;
+  }
+
+  small {
+    color: var(--sp-color-text-muted);
+  }
+
+  &.is-on {
+    border-color: var(--sp-color-primary);
+    background: var(--sp-color-primary-subtle);
+  }
+}
+
+// Mục Nâng cao: Quyền riêng
+.sp-adv {
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+}
+
+.sp-adv__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+  width: 100%;
+  min-height: var(--sp-tap-min);
+  padding: var(--sp-space-2) var(--sp-space-3);
+  border: 0;
+  background: none;
+  color: var(--sp-color-text);
+  font-weight: 600;
+  text-align: left;
+
+  small {
+    font-weight: 400;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-adv__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-space-2);
+  padding: 0 var(--sp-space-3) var(--sp-space-3);
+}
+
+.sp-ovr {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) 150px auto;
+  gap: var(--sp-space-2);
+  width: 100%;
+  align-items: center;
+
+  input[type="date"] {
+    grid-column: 3;
+  }
+
+  @media (max-width: 575.98px) {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+.sp-ovr__x {
+  display: inline-flex;
+  padding: 8px;
+  color: var(--sp-color-danger);
+}
+
+.sp-ovr__err {
+  grid-column: 1 / -1;
+}
+
+// Nhãn trạng thái có chấm màu (nhân viên SCR-57, sản phẩm SCR-41, bộ sưu tập SCR-54)
+.sp-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-surface-alt);
+  color: var(--sp-color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &--HOAT_DONG,
+  &--DANG_HIEN_THI,
+  &--DANG_HIEN,
+  &--DANG_HOAT_DONG {
+    background: var(--sp-color-success-subtle);
+    color: var(--sp-color-success);
+  }
+
+  &--CHO_KICH_HOAT,
+  &--DA_LEN_LICH {
+    background: var(--sp-color-info-subtle);
+    color: var(--sp-color-info);
+  }
+
+  &--BI_KHOA,
+  &--HET_HAN {
+    background: var(--sp-color-danger-subtle);
+    color: var(--sp-color-danger);
+  }
+
+  &--TAM_NGUNG {
+    background: var(--sp-color-warning-subtle);
+    color: var(--sp-color-warning);
+  }
+
+  // Trạng thái đơn hàng (05 Mục 2.1) - dùng chung SCR-18, 19, 24 và khu quản trị (mỗi bước một màu):
+  // chờ xác nhận vàng (đang chờ shop), cá nhân hóa tím (màu thẻ Cá nhân hóa), chuẩn bị xanh nhạt, đang giao xanh đậm,
+  // đã giao xanh lá nhạt, hoàn thành xanh lá đậm, đã hủy đỏ.
+  &--CHO_XAC_NHAN,
+  &--CAN_XU_LY {
+    background: var(--sp-color-warning-subtle);
+    color: var(--sp-color-warning);
+  }
+
+  &--DANG_CA_NHAN_HOA {
+    background: var(--sp-color-info-subtle);
+    color: var(--sp-color-info);
+  }
+
+  &--DANG_CHUAN_BI {
+    background: var(--sp-color-primary-subtle);
+    color: var(--sp-color-primary);
+  }
+
+  &--DANG_VAN_CHUYEN {
+    background: var(--sp-color-primary);
+    color: var(--sp-color-on-primary);
+  }
+
+  &--DA_GIAO {
+    background: var(--sp-color-success-subtle);
+    color: var(--sp-color-success);
+  }
+
+  &--HOAN_THANH {
+    background: var(--sp-color-success);
+    color: var(--sp-color-on-success, var(--sp-color-on-primary));
+  }
+
+  &--DA_HUY {
+    background: var(--sp-color-danger-subtle);
+    color: var(--sp-color-danger);
+  }
+}
+
+// Trạng thái yêu cầu đặt gấp: cùng nguyên tắc màu với trạng thái đơn - vàng chờ shop, xanh chờ khách
+// thanh toán, xanh lá đã thành đơn, đỏ shop từ chối, xám khách hủy. Thẻ "Đơn gấp" luôn đỏ (.sp-urgent-tag).
+.sp-status {
+  &--URG_CHO_XEM_XET {
+    background: var(--sp-color-warning-subtle);
+    color: var(--sp-color-warning);
+  }
+
+  &--URG_DA_CHOT {
+    background: var(--sp-color-primary-subtle);
+    color: var(--sp-color-primary);
+  }
+
+  &--URG_DA_DAT {
+    background: var(--sp-color-success-subtle);
+    color: var(--sp-color-success);
+  }
+
+  &--URG_TU_CHOI {
+    background: var(--sp-color-danger-subtle);
+    color: var(--sp-color-danger);
+  }
+}
+
+.sp-urgent-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-danger);
+  color: var(--sp-color-on-danger);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+// Trạng thái thanh toán: khung vuông viền mảnh, không chấm, để không nhầm với trạng thái đơn
+.sp-pay {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid currentColor;
+  border-radius: var(--sp-radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--sp-color-text-muted);
+
+  &--DA_COC {
+    color: var(--sp-color-primary);
+  }
+
+  &--DA_THANH_TOAN {
+    color: var(--sp-color-success);
+  }
+
+  &--HOAN_TIEN_MOT_PHAN,
+  &--DA_HOAN_TIEN {
+    color: var(--sp-color-danger);
+  }
+}
+
+// Nhãn tồn kho (SCR-41): Còn hàng / Sắp hết / Hết hàng
+.sp-stock {
+  display: inline-flex;
+  padding: 2px 10px;
+  border-radius: var(--sp-radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--CON_HANG {
+    background: var(--sp-color-success-subtle);
+    color: var(--sp-color-success);
+  }
+
+  &--SAP_HET {
+    background: var(--sp-color-warning-subtle);
+    color: var(--sp-color-warning);
+  }
+
+  &--HET_HANG {
+    background: var(--sp-color-danger-subtle);
+    color: var(--sp-color-danger);
+  }
+}
+
+// Ô chọn ở cột đầu bảng quản trị
+.sp-atable .sp-cb {
+  width: 44px;
+
+  .form-check-input {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+  }
+}
+
+.sp-atable tr.is-selected td {
+  background: var(--sp-color-primary-subtle);
+}
+
+// Tiêu đề cột bấm để sắp xếp
+.sp-sortbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+
+  &.is-on {
+    color: var(--sp-color-primary);
+  }
+}
+
+// Form quản trị: thẻ trắng có tiêu đề đậm (SCR-42, SCR-54 Form, SCR-59)
+.sp-acard {
+  padding: var(--sp-space-4);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface);
+
+  & + & {
+    margin-top: var(--sp-space-3);
+  }
+
+  // Tiêu đề thẻ dùng font thân Montserrat 16px/700, không dùng font hiển thị
+  > h2,
+  .sp-acard__head h2 {
+    margin: 0 0 var(--sp-space-3);
+    font-family: var(--sp-font-body);
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 700;
+  }
+}
+
+// Dòng tiêu đề thẻ có liên kết/nút bên phải (S8)
+.sp-acard__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-space-2);
+  margin-bottom: var(--sp-space-3);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+// Mức ưu tiên BR-32 (SCR-47, 48, 51 - S8): chip có biểu tượng, màu theo mức
+.sp-prio {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--sp-radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--urgent {
+    background: var(--sp-color-danger-subtle);
+    color: var(--sp-color-danger);
+  }
+
+  &--attention {
+    background: var(--sp-color-warning-subtle);
+    color: var(--sp-color-text);
+  }
+
+  &--normal {
+    background: var(--sp-color-surface-alt);
+    color: var(--sp-color-text-muted);
+  }
+}
+
+// Tab con theo trạng thái, hàng công cụ (ô tìm + bộ lọc) của trang danh sách quản trị
+// SCR-57 - bám SCR-57-Desktop: tab, tab con theo trạng thái, ô tìm + lọc vai trò, bảng có menu "..."
+.sp-subtabs {
+  display: flex;
+  gap: var(--sp-space-1);
+  margin-bottom: var(--sp-space-3);
+  border-bottom: 1px solid var(--sp-color-border);
+  overflow-x: auto;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 0 var(--sp-space-3);
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--sp-color-text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+
+    &.is-on {
+      color: var(--sp-color-primary);
+      border-bottom-color: var(--sp-color-primary);
+    }
+  }
+}
+
+.sp-atools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+  margin-bottom: var(--sp-space-3);
+}
+
+.sp-atools__sel {
+  width: auto;
+  min-width: 150px;
+  max-width: 220px;
+}
+
+.sp-atools > .sp-field__icon {
+  min-width: 220px;
+}
+
+// Ô số có đơn vị ở bên phải (đ, sản phẩm, ký tự) - form quản trị
+.sp-unit {
+  position: relative;
+
+  .form-control {
+    padding-right: 84px;
+  }
+
+  > span {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--sp-color-text-muted);
+    font-size: 13px;
+    pointer-events: none;
+  }
+}
+
+.sp-chip--sm {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+// Thẻ chọn kiểu (radio dạng thẻ): trạng thái sản phẩm, kiểu In/Khắc
+// Bảng tiền trong hộp xác nhận sửa đơn (BR-47): dùng chung phía khách và nhân viên
+.sp-confirm-money {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--sp-space-2) var(--sp-space-4);
+  margin: 0 0 var(--sp-space-3);
+  padding: var(--sp-space-3);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface-alt);
+
+  dt {
+    font-weight: 500;
+    color: var(--sp-color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+  }
+}
+
+.sp-modecard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-space-3);
+  width: 100%;
+  padding: var(--sp-space-3);
+  border: 1.5px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  cursor: pointer;
+
+  .form-check-input {
+    float: none;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0;
+  }
+
+  strong,
+  small {
+    display: block;
+  }
+
+  small {
+    color: var(--sp-color-text-muted);
+  }
+
+  &.is-on {
+    border-color: var(--sp-color-primary);
+    background: var(--sp-color-primary-subtle);
+  }
+}
+
+// Placeholder của ô viết hoa (SKU) giữ chữ thường cho dễ đọc
+.text-uppercase::placeholder {
+  text-transform: none;
+}
+
+// Khung form quản trị (SCR-42, SCR-54 Form): header dính có nút lưu, 2 cột khoảng 66/34, cột phải dính khi cuộn
+.sp-pf-head {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-3);
+  margin-bottom: var(--sp-space-4);
+  padding: var(--sp-space-3) var(--sp-space-4);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-sm);
+}
+
+.sp-pf-back {
+  display: inline-flex;
+  padding: 6px;
+  border-radius: 50%;
+}
+
+.sp-pf-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2) var(--sp-space-3);
+  flex: 1 1 280px;
+  min-width: 0;
+
+  h1 {
+    margin: 0;
+    font-size: 22px;
+    line-height: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+}
+
+.sp-pf-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+}
+
+.sp-pf-issues {
+  margin: 4px 0 0;
+  padding-left: 18px;
+
+  a {
+    color: inherit;
+  }
+}
+
+.sp-pf-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: var(--sp-space-4);
+  align-items: start;
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sp-pf-main > .sp-acard {
+  scroll-margin-top: 96px;
+}
+
+.sp-pf-side {
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-3);
+
+  .sp-acard + .sp-acard {
+    margin-top: 0;
+  }
+
+  @media (max-width: 991.98px) {
+    position: static;
+    order: -1;
+  }
+}
+
+.sp-pf-no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--sp-color-surface-alt);
+  color: var(--sp-color-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: 2px;
+}
+
+
+// Nút chuyển kiểu xem (Lưới/Danh sách ở SCR-54, Desktop/Mobile ở SCR-55)
+.sp-seg {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface-alt);
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: var(--sp-radius-sm);
+    background: none;
+    color: var(--sp-color-text-muted);
+    font-weight: 600;
+
+    &.is-on {
+      background: var(--sp-color-surface);
+      color: var(--sp-color-primary);
+      box-shadow: var(--sp-shadow-xs);
+    }
+  }
+}
+
+// ===== Hậu mãi (S9): SCR-18, 19, 25, 26, 27, 28, 50 =====
+
+// Trạng thái yêu cầu đổi trả, bảo hành, hoàn tiền (05 Mục 2.3, 2.6)
+.sp-status {
+  &--DANG_YEU_CAU,
+  &--DANG_XEM_XET,
+  &--CHO_XU_LY {
+    background: var(--sp-color-warning-subtle);
+    color: var(--sp-color-warning);
+  }
+
+  &--DONG_Y,
+  &--DA_DUYET,
+  &--DA_NHAN_HANG {
+    background: var(--sp-color-info-subtle);
+    color: var(--sp-color-info);
+  }
+
+  &--DA_HOAN_TAT,
+  &--HOAN_TAT,
+  &--DA_HOAN {
+    background: var(--sp-color-success-subtle);
+    color: var(--sp-color-success);
+  }
+
+  &--TU_CHOI,
+  &--THAT_BAI {
+    background: var(--sp-color-danger-subtle);
+    color: var(--sp-color-danger);
+  }
+}
+
+// Tiến trình yêu cầu: Đã gửi → Đang xem xét → Shipper lấy hàng → Hoàn tất (ngang trên màn rộng, dọc trên điện thoại)
+.sp-steps {
+  display: flex;
+  gap: var(--sp-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    padding-top: 28px;
+    color: var(--sp-color-text-muted);
+    font-size: 13px;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 0;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--sp-color-border-strong);
+      border-radius: 50%;
+      background: var(--sp-color-surface);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 11px;
+      left: 22px;
+      right: 4px;
+      height: 2px;
+      background: var(--sp-color-border);
+    }
+
+    &:last-child::after {
+      display: none;
+    }
+
+    strong {
+      display: block;
+      color: var(--sp-color-text);
+      font-size: 14px;
+    }
+
+    &.is-done::before {
+      border-color: var(--sp-color-success);
+      background: var(--sp-color-success);
+    }
+
+    &.is-done::after {
+      background: var(--sp-color-success);
+    }
+
+    &.is-current::before {
+      border-color: var(--sp-color-primary);
+      box-shadow: 0 0 0 4px var(--sp-color-primary-subtle);
+    }
+
+    &.is-stop::before {
+      border-color: var(--sp-color-danger);
+      background: var(--sp-color-danger);
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    flex-direction: column;
+    gap: var(--sp-space-3);
+
+    li {
+      padding: 0 0 0 28px;
+
+      &::before {
+        top: 2px;
+      }
+
+      &::after {
+        top: 22px;
+        bottom: -12px;
+        left: 7px;
+        right: auto;
+        width: 2px;
+        height: auto;
+      }
+    }
+  }
+}
+
+// Lưới ảnh tải lên / ảnh bằng chứng
+.sp-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li,
+  a {
+    position: relative;
+    display: block;
+    width: 72px;
+    height: 72px;
+    border-radius: var(--sp-radius-md);
+    overflow: hidden;
+    background: var(--sp-color-surface-alt);
+  }
+
+  img,
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// Số thứ tự bước của form (SCR-25, SCR-26)
+.sp-stepno {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--sp-color-primary);
+  color: var(--sp-color-on-primary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+// SCR-50 Yêu cầu hậu mãi: hộp thoại thao tác, trang chi tiết yêu cầu
+.sp-rq__sum {
+  margin: 0 0 var(--sp-space-4);
+  padding: var(--sp-space-3);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface-alt);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sp-rq__addr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-space-3);
+  margin-bottom: var(--sp-space-3);
+  padding: var(--sp-space-3);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  font-size: 14px;
+
+  strong {
+    display: block;
+  }
+
+  .btn {
+    flex: none;
+  }
+}
+
+.sp-rq__item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+  margin-bottom: var(--sp-space-3);
+
+  img {
+    flex: none;
+    border-radius: var(--sp-radius-md);
+    object-fit: cover;
+  }
+
+  small {
+    display: block;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-rq__dl {
+  display: grid;
+  grid-template-columns: minmax(110px, auto) 1fr;
+  gap: 6px var(--sp-space-3);
+  margin: 0 0 var(--sp-space-3);
+  font-size: 14px;
+
+  dt {
+    color: var(--sp-color-text-muted);
+    font-weight: 400;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.sp-rq__pre {
+  white-space: pre-line;
+}
+
+.sp-rq__hist {
+  margin: 0;
+  padding-left: var(--sp-space-4);
+  font-size: 14px;
+
+  small {
+    color: var(--sp-color-text-muted);
+  }
+}
+
+// Tư vấn quà AI SCR-10 (ds bundle.css .sp-ai-result, .sp-why): khung một gợi ý và danh sách lý do,
+// dùng ở trang và ở thẻ kết quả (component con) nên đặt chung
+.sp-ai-result {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+  border-radius: var(--sp-radius-lg);
+  border: 1.5px solid var(--sp-color-border);
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-sm);
+
+  &.is-top {
+    border-color: var(--sp-color-primary);
+    box-shadow: 0 0 0 3px var(--sp-color-primary-subtle);
+  }
+
+  &--combo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.sp-why {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 20px;
+
+    app-icon {
+      flex: none;
+      color: var(--sp-color-success);
+    }
+
+    &.warn,
+    &.warn app-icon {
+      color: var(--sp-color-warning);
+    }
+  }
+}
+.sp-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sp-color-text-muted);
+}
+@media (max-width: 575.98px) {
+  .sp-ai-result {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 14px;
+    gap: 12px;
+  }
+}
+
+// Thanh kéo 2 đầu (ds bundle.css .sp-range) - SCR-10 Độ tuổi, Ngân sách.
+// 2 input range chồng lên nhau, chỉ núm nhận chuột
+.sp-range__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.sp-range {
+  width: 100%;
+  padding: 8px 0 4px;
+}
+
+.sp-range__value {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--sp-color-primary);
+}
+
+.sp-range__track {
+  position: relative;
+  height: 6px;
+  margin: 14px 12px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-border);
+
+  input[type='range'] {
+    position: absolute;
+    left: -12px;
+    top: -9px;
+    width: calc(100% + 24px);
+    height: 24px;
+    margin: 0;
+    background: none;
+    pointer-events: none;
+    appearance: none;
+    -webkit-appearance: none;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--sp-color-surface);
+      border: 2.5px solid var(--sp-color-primary);
+      box-shadow: var(--sp-shadow-sm);
+      pointer-events: auto;
+      cursor: grab;
+    }
+
+    &::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--sp-color-surface);
+      border: 2.5px solid var(--sp-color-primary);
+      box-shadow: var(--sp-shadow-sm);
+      pointer-events: auto;
+      cursor: grab;
+    }
+
+    &::-webkit-slider-runnable-track,
+    &::-moz-range-track {
+      background: transparent;
+    }
+
+    &:focus-visible::-webkit-slider-thumb {
+      box-shadow: 0 0 0 4px var(--sp-color-primary-subtle);
+    }
+
+    &:focus-visible::-moz-range-thumb {
+      box-shadow: 0 0 0 4px var(--sp-color-primary-subtle);
+    }
+  }
+}
+
+.sp-range__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--sp-color-primary);
+  border-radius: inherit;
+}
+
+.sp-range__labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--sp-color-text-muted);
+}
+
+
+// Thanh tab, chip, hàng thẻ cuộn ngang (directive TabScroll gắn lớp này): ẩn thanh cuộn,
+// mép mờ ở phía còn nội dung. Bảng (.sp-table-wrap) không dùng, giữ thanh cuộn.
+.sp-tabscroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // Kéo bằng chuột: không bôi đen chữ, con trỏ nắm
+  &.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  &.has-more-end {
+    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+  }
+
+  &.has-more-start {
+    mask-image: linear-gradient(to right, transparent, #000 40px);
+  }
+
+  &.has-more-start.has-more-end {
+    mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent);
+  }
+}
+
+// Khu quản trị theo .sp-admin của thiết kế - chữ cơ bản 14px/20px, điều khiển cao 36px (--ctl),
+// nút viền đậm nền trắng bo góc 8px (.sp-abtn), tiêu đề thẻ Montserrat 16px. Màn hình cảm ứng nhỏ giữ 44px.
+.sp-adm {
+  font-size: 14px;
+  line-height: 20px;
+
+  h2:not(.h1, .h3, .h4),
+  .h2 {
+    font-family: var(--sp-font-body);
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  small,
+  .small {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+  }
+
+  strong,
+  b {
+    font-weight: 600;
+  }
+
+  .sp-subtabs button,
+  .sp-tabs2 button {
+    min-height: 40px;
+  }
+
+  .form-label,
+  .sp-field > span:first-child,
+  .sp-field > label {
+    font-weight: 600;
+  }
+
+  @media (min-width: 768px) {
+    .btn:not(.btn-lg, .btn-link, .sp-adm__ic, .sp-adm__burger, .sp-adm__userbtn) {
+      min-height: 36px;
+      padding: 7px 12px;
+      font-size: 14px;
+      line-height: 20px;
+      border-radius: var(--sp-radius-md);
+    }
+
+    .btn-sm:not(.btn-link) {
+      min-height: 32px;
+      padding: 5px 10px;
+    }
+
+    .btn-outline-secondary {
+      --bs-btn-bg: var(--sp-color-surface);
+      --bs-btn-color: var(--sp-color-text);
+      --bs-btn-border-color: var(--sp-color-border-strong);
+      --bs-btn-hover-bg: var(--sp-color-primary-subtle);
+      --bs-btn-hover-color: var(--sp-color-text);
+      --bs-btn-hover-border-color: var(--sp-color-border-strong);
+      border-width: 1.5px;
+    }
+
+    .form-control:not(textarea),
+    .form-select {
+      min-height: 36px;
+      padding-top: 7px;
+      padding-bottom: 7px;
+      font-size: 14px;
+      line-height: 20px;
+    }
+  }
+}
+
+// Tiêu đề trang khu Tài khoản 32px (SCR-15 đến 23); dưới 768px giữ thang Mobile 28px
+@media (min-width: 768px) {
+  .sp-acct h1:not(.h4) {
+    font-size: 32px;
+    line-height: 40px;
+  }
+}
+
+// Chữ 14px như thiết kế ở bộ lọc SCR-02, tùy chọn và tab SCR-03, cột giới thiệu và tab của SCR-11, 12
+.sp-list__side,
+.sp-filter-drawer {
+  summary,
+  .form-check-label {
+    font-size: 14px;
+  }
+}
+
+.sp-optbtn,
+.sp-opt__size,
+.sp-tabs__list button {
+  font-size: 14px;
+}
+
+.sp-auth__ben li,
+.sp-auth__tabs a,
+.sp-af__lead,
+.sp-authwrap .form-check-label,
+.sp-authwrap a[href='/quen-mat-khau'],
+.sp-alogin .form-check-label, // SCR-60 cùng cỡ chữ với SCR-11
+.sp-alogin a[href='/quen-mat-khau'] {
+  font-size: 14px;
+}

@@ -1,0 +1,114 @@
+<div class="sp-filter">
+  <div class="sp-filter__head">
+    <h2 class="h4 m-0">Bộ lọc</h2>
+    @if (count) {
+      <button class="btn btn-link p-0" type="button" (click)="cleared.emit()">Xóa tất cả</button>
+    }
+  </div>
+
+  <!-- Danh mục gộp trục Đam mê -->
+  <details class="sp-fgroup" open>
+    <summary>
+      Danh mục
+      @if (state.categories.length + state.axes.length) {
+        <span class="sp-fbadge">{{ state.categories.length + state.axes.length }}</span>
+      }
+    </summary>
+    <div class="sp-fgroup__body">
+      @if (categoryMode !== 'hidden') {
+        @for (c of categories; track c._id) {
+          @if (categoryMode === 'links') {
+            <a class="sp-flink" [class.is-on]="c.slug === currentCategory" [routerLink]="['/danh-muc', c.slug]" queryParamsHandling="merge">
+              {{ c.name }} <span>{{ c.productCount }}</span>
+            </a>
+          } @else {
+            <label class="form-check">
+              <input class="form-check-input" type="checkbox" [checked]="state.categories.includes(c.slug)" (change)="toggleCategory(c.slug)" />
+              <span class="form-check-label">{{ c.name }}</span>
+              <span class="sp-fcount">{{ c.productCount }}</span>
+            </label>
+          }
+        }
+      }
+      <span class="sp-fsub">Theo đam mê</span>
+      @for (a of axes; track a.value) {
+        <label class="form-check">
+          <input class="form-check-input" type="checkbox" [checked]="state.axes.includes(a.value)" (change)="toggleAxis(a.value)" />
+          <span class="form-check-label">{{ a.label }}</span>
+        </label>
+      }
+    </div>
+  </details>
+
+  @for (g of shownGroups; track g.group) {
+    <details class="sp-fgroup" [open]="g.kind === 'RANGE' || selectedIn(g) > 0">
+      <summary>
+        {{ g.label }}
+        @if (selectedIn(g)) {
+          <span class="sp-fbadge">{{ selectedIn(g) }}</span>
+        }
+      </summary>
+      <div class="sp-fgroup__body">
+        @if (g.kind === 'RANGE') {
+          @if (g.rangeField === 'AGE') {
+            <app-range-slider
+              [label]="g.label"
+              [hideLabel]="true"
+              [min]="ageMin"
+              [max]="ageMax"
+              [value]="ageValue"
+              [text]="ageText"
+              [ariaText]="ageAria"
+              minLabel="6 tuổi"
+              maxLabel="40+ tuổi"
+              (committed)="setAge($event)"
+            />
+          } @else {
+            <app-range-slider
+              [label]="g.label"
+              [hideLabel]="true"
+              [min]="0"
+              [max]="budgetTop"
+              [step]="budgetStep"
+              [value]="priceValue"
+              [text]="priceText"
+              [ariaText]="priceAria"
+              minLabel="0đ"
+              [maxLabel]="(budgetTop | vnd) + '+'"
+              (committed)="setPrice($event)"
+            />
+          }
+        } @else {
+          @for (t of g.items; track t._id) {
+            <label class="form-check">
+              <input class="form-check-input" type="checkbox" [checked]="state.tags.includes(t.slug)" (change)="toggleTag(t.slug)" />
+              <span class="form-check-label">{{ t.name }}</span>
+            </label>
+          }
+        }
+      </div>
+    </details>
+  }
+
+  <details class="sp-fgroup" [open]="!!state.rating">
+    <summary>
+      Đánh giá
+      @if (state.rating) {
+        <span class="sp-fbadge">1</span>
+      }
+    </summary>
+    <div class="sp-fgroup__body">
+      @for (r of ratings; track r.value) {
+        <label class="form-check">
+          <input class="form-check-input" type="radio" [checked]="state.rating === r.value" (click)="setRating(r.value)" />
+          <span class="form-check-label"><app-rating [value]="r.value" [size]="14" [showScore]="false" /> {{ r.label }}</span>
+        </label>
+      }
+    </div>
+  </details>
+
+  <p class="sp-filter__ai">
+    <app-icon name="sparkle" [size]="18" />
+    <span>Cần lọc kỹ hơn? <a routerLink="/tu-van-qua">Tìm quà cùng AI</a></span>
+  </p>
+</div>

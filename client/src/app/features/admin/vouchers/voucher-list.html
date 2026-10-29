@@ -1,0 +1,120 @@
+<header class="sp-aph">
+  <div>
+    <h1>Voucher</h1>
+    <p>{{ counts()['ALL'] || 0 }} voucher | {{ counts()['DANG_HOAT_DONG'] || 0 }} đang hoạt động</p>
+  </div>
+  @if (auth.can('VOUCHER.TAO')) {
+    <a class="btn btn-primary d-inline-flex align-items-center gap-2" routerLink="/quan-tri/voucher/moi"><app-icon name="plus" [size]="20" /> Tạo voucher</a>
+  }
+</header>
+
+<nav class="sp-tabs2 sp-vtabs" role="tablist" aria-label="Lọc theo trạng thái">
+  @for (t of tabs; track t) {
+    <button type="button" role="tab" [class.is-on]="status() === t" [attr.aria-selected]="status() === t" (click)="setTab(t)">
+      {{ t ? statusLabel[t] : 'Tất cả' }}
+      @if (t) {
+        <span class="sp-count">{{ counts()[t] || 0 }}</span>
+      }
+    </button>
+  }
+</nav>
+
+@if (sel.count()) {
+  <app-bulk-bar class="d-block mb-3" [count]="sel.count()" unit="voucher" [actions]="bulkActions()" [busy]="busy()" (action)="onBulk($event)" (cleared)="sel.clear()" />
+} @else {
+  <div class="sp-atools">
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm theo mã hoặc tên" aria-label="Tìm voucher theo mã hoặc tên" [value]="q()" (input)="onSearch($any($event.target).value)" />
+    </div>
+    <select class="form-select sp-atools__sel" aria-label="Lọc theo loại ưu đãi" [value]="type()" (change)="setType($any($event.target).value)">
+      <option value="">Mọi loại ưu đãi</option>
+      <option value="PERCENT">Giảm theo %</option>
+      <option value="FIXED">Giảm số tiền</option>
+      <option value="FREESHIP">Miễn phí vận chuyển</option>
+    </select>
+  </div>
+}
+
+@if (loading()) {
+  <span class="sp-skel d-block" style="height: 360px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!items().length) {
+  <div class="sp-state">
+    <app-icon name="ticket" [size]="40" />
+    <p>{{ q() || type() || status() ? 'Không có voucher khớp bộ lọc.' : 'Chưa có voucher nào.' }}</p>
+  </div>
+} @else {
+  <div class="sp-table-wrap">
+    <table class="table sp-atable align-middle">
+      <thead>
+        <tr>
+          <th scope="col" class="sp-cb">
+            <input class="form-check-input" type="checkbox" aria-label="Chọn tất cả" [checked]="sel.allOf(pageIds())" [indeterminate]="sel.someOf(pageIds())" (change)="sel.togglePage(pageIds())" />
+          </th>
+          <th scope="col"><button class="sp-sortbtn" type="button" (click)="toggleSort('ma')">Mã <app-icon name="sort" [size]="14" /></button></th>
+          <th scope="col">Ưu đãi và điều kiện</th>
+          <th scope="col"><button class="sp-sortbtn" type="button" (click)="toggleSort('-dung')">Đã dùng <app-icon name="sort" [size]="14" /></button></th>
+          <th scope="col">Thời gian</th>
+          <th scope="col">Trạng thái</th>
+          <th scope="col"><span class="visually-hidden">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (v of items(); track v._id) {
+          <tr [class.is-selected]="sel.has(v._id!)">
+            <td class="sp-cb"><input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn ' + v.code" [checked]="sel.has(v._id!)" (change)="sel.toggle(v._id!)" /></td>
+            <td><a class="sp-vcode" [routerLink]="['/quan-tri/voucher', v._id]">{{ v.code }}</a></td>
+            <td>
+              <strong class="d-block">{{ v.name }}</strong>
+              <small class="text-body-secondary">{{ offer(v) }}</small>
+            </td>
+            <td class="sp-vused">
+              @if (v.totalQuantity) {
+                <span>{{ v.usedCount || 0 }}/{{ v.totalQuantity }}</span>
+                <span class="sp-vbar"><span [style.width.%]="usedPercent(v)"></span></span>
+              } @else {
+                <span>{{ v.usedCount || 0 }} lượt</span>
+                <small class="d-block text-body-secondary">Không giới hạn</small>
+              }
+            </td>
+            <td class="text-nowrap">{{ timeText(v) }}</td>
+            <td><span [class]="'sp-status sp-status--' + v.displayStatus">{{ statusLabel[v.displayStatus!] }}</span></td>
+            <td class="text-end"><app-row-menu [items]="rowMenu(v)" [label]="'Thao tác với ' + v.code" (picked)="onRowMenu(v, $event)" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+    <span class="text-body-secondary small">Hiển thị {{ (page() - 1) * pageSize() + 1 }} - {{ (page() - 1) * pageSize() + items().length }} trong {{ total() }} voucher</span>
+    @if (total() > pageSize()) {
+      <app-pagination [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="goPage($event)" />
+    }
+  </div>
+}
+
+@if (confirmDelete(); as list) {
+  <!-- 1f: voucher đã dùng/đã phân phối chuyển Lưu trữ, hộp xác nhận nói rõ -->
+  <app-confirm-dialog [title]="'Xóa ' + list.length + ' voucher đã chọn?'" confirmLabel="Xóa và lưu trữ" [danger]="true" (confirm)="doDelete()" (cancel)="confirmDelete.set(null)">
+    <p class="mb-2">Voucher đã có lượt dùng hoặc đã phát cho khách sẽ được chuyển vào Lưu trữ để giữ lịch sử đơn. Bản nháp chưa phát mới bị xóa hẳn.</p>
+    <ul class="sp-vdel">
+      @for (v of list.slice(0, 8); track v._id) {
+        <li>
+          <strong>{{ v.code }}</strong>
+          <span>{{ v.usedCount ? v.usedCount + ' lượt dùng → chuyển vào Lưu trữ' : v.status === 'BAN_NHAP' ? 'Bản nháp → xóa hẳn' : 'Đã phát cho khách → chuyển vào Lưu trữ' }}</span>
+        </li>
+      }
+    </ul>
+  </app-confirm-dialog>
+}
+
+@if (confirmPause(); as v) {
+  <app-confirm-dialog [title]="'Tạm ngừng ' + v.code + '?'" confirmLabel="Tạm ngừng" (confirm)="doPause()" (cancel)="confirmPause.set(null)">
+    <p class="m-0">Khách sẽ không áp dụng được mã này. Lịch sử đơn đã dùng giữ nguyên, bạn có thể bật lại khi còn hạn và còn lượt.</p>
+  </app-confirm-dialog>
+}

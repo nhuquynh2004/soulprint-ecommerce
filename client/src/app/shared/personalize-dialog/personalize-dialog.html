@@ -1,0 +1,212 @@
+<app-dialog title="Cá nhân hóa" [subtitle]="product.name + (variantLabel ? ', ' + variantLabel : '')" size="lg" (closed)="closed.emit()">
+  <div class="sp-pz">
+    <!-- Xem trước 2D bằng CSS -->
+    <div class="sp-pz__preview" [attr.aria-label]="'Xem trước ' + product.name">
+      <div class="sp-pz__stage">
+        <img [src]="product.image || '/assets/brand/soulprint-mark.png'" alt="" />
+        @switch (tab()) {
+          @case ('IN_KHAC') {
+            @if (engrave.mode === 'AO_DAU') {
+              <div class="sp-pz__jersey">
+                <span class="t">{{ top() || 'DÒNG TRÊN' }}</span>
+                <span class="n">{{ number() || '00' }}</span>
+                <span class="b">{{ bottom() }}</span>
+              </div>
+            } @else {
+              <div class="sp-pz__engrave">{{ text() || 'Nội dung khắc' }}</div>
+            }
+          }
+          @case ('THIET_KE') {
+            <div class="sp-pz__stickers">
+              @for (s of chosenStickers(); track s!.code) {
+                <img [src]="s!.image" [alt]="s!.name" />
+              }
+            </div>
+          }
+        }
+      </div>
+      <span class="sp-pz__note">{{ tab() === 'NONE' ? 'Sản phẩm trơn, không in hay khắc thêm' : 'Xem trước - màu thực tế có thể chênh nhẹ' }}</span>
+    </div>
+
+    <div class="sp-pz__form">
+      @if (variants.length > 1) {
+        <div class="sp-pz__variants" role="radiogroup" aria-label="Phân loại">
+          <span class="form-label">Phân loại</span>
+          <div class="d-flex flex-wrap gap-2">
+            @for (v of variants; track v.sku) {
+              <button type="button" class="sp-optbtn" role="radio" [class.is-on]="sku() === v.sku" [class.is-out]="v.stock <= 0" [attr.aria-checked]="sku() === v.sku" (click)="sku.set(v.sku)">
+                {{ v.name }}
+              </button>
+            }
+          </div>
+          @if (selectedVariantOut()) {
+            <p class="sp-pz__err" role="alert">Phân loại này không đủ hàng cho số lượng đang chọn</p>
+          }
+        </div>
+      }
+
+      @if (myDesigns().length) {
+        <div class="sp-pz__mine">
+          <span class="form-label">Thiết kế bạn đã lưu cho sản phẩm này</span>
+          <div class="sp-pz__minelist">
+            @for (d of myDesigns(); track d._id) {
+              <button type="button" class="sp-chip sp-chip--sm" [class.is-on]="loadedId() === d._id" [attr.aria-pressed]="loadedId() === d._id" (click)="loadDesign(d)">{{ d.name }}</button>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="sp-seg sp-pz__seg" role="tablist" aria-label="Kiểu cá nhân hóa">
+        @if (allowNone) {
+          <button type="button" role="tab" [class.is-on]="tab() === 'NONE'" [attr.aria-selected]="tab() === 'NONE'" (click)="tab.set('NONE')">
+            <span class="d-sm-none">Không</span><span class="d-none d-sm-inline">Không cá nhân hóa</span>
+          </button>
+        }
+        @if (types().includes('IN_KHAC')) {
+          <button type="button" role="tab" [class.is-on]="tab() === 'IN_KHAC'" [attr.aria-selected]="tab() === 'IN_KHAC'" (click)="tab.set('IN_KHAC')">In/Khắc</button>
+        }
+        @if (types().includes('THIET_KE')) {
+          <button type="button" role="tab" [class.is-on]="tab() === 'THIET_KE'" [attr.aria-selected]="tab() === 'THIET_KE'" (click)="tab.set('THIET_KE')">Thiết kế</button>
+        }
+      </div>
+
+      @switch (tab()) {
+        @case ('NONE') {
+          <div class="sp-pz__none">
+            <strong>Giữ nguyên bản</strong>
+            <span>{{ staffMode ? 'Sản phẩm trơn, không in hay khắc thêm.' : 'Bạn nhận sản phẩm trơn, không in hay khắc thêm. Bạn vẫn thêm được lời nhắn ở bước gói quà trong giỏ hàng.' }}</span>
+          </div>
+        }
+        @case ('IN_KHAC') {
+          @if (engrave.mode === 'AO_DAU') {
+            <p class="sp-pz__hint">Áo in 3 phần: dòng trên, số áo, dòng dưới. Chữ in hoa không dấu hiển thị đẹp nhất.</p>
+            <div class="sp-pz__grid">
+              <div>
+                <label class="form-label" for="pz-top">Dòng trên (tên)</label>
+                <input id="pz-top" class="form-control" [class.is-invalid]="overField() === 'top'" [value]="top()" (input)="onText('top', $any($event.target))" />
+                <div class="sp-pz__help"><span>Trên số áo</span><span [class.text-danger]="overField() === 'top'">{{ count(top()) }}/{{ engrave.topMaxChars }}</span></div>
+              </div>
+              <div>
+                <label class="form-label" for="pz-num">Số áo</label>
+                <input id="pz-num" class="form-control" inputmode="numeric" [value]="number()" (input)="onNumber($any($event.target))" />
+                <div class="sp-pz__help"><span>Chỉ chữ số</span><span>{{ number().length }}/{{ engrave.numberMaxDigits }}</span></div>
+              </div>
+              <div class="sp-pz__full">
+                <label class="form-label" for="pz-bottom">Dòng dưới</label>
+                <input id="pz-bottom" class="form-control" [class.is-invalid]="overField() === 'bottom'" [value]="bottom()" (input)="onText('bottom', $any($event.target))" />
+                <div class="sp-pz__help"><span>Dưới số áo, có thể để trống</span><span [class.text-danger]="overField() === 'bottom'">{{ count(bottom()) }}/{{ engrave.bottomMaxChars }}</span></div>
+              </div>
+            </div>
+          } @else {
+            <p class="sp-pz__hint">Sản phẩm này khắc 1 dòng chữ.</p>
+            <label class="form-label" for="pz-text">Nội dung khắc</label>
+            <input id="pz-text" class="form-control" [class.is-invalid]="overField() === 'text'" [value]="text()" (input)="onText('text', $any($event.target))" />
+            <div class="sp-pz__help">
+              <span>Chữ in hoa không dấu hiển thị đẹp nhất</span><span [class.text-danger]="overField() === 'text'">{{ count(text()) }}/{{ engrave.maxChars }}</span>
+            </div>
+          }
+          @if (overField(); as f) {
+            <p class="sp-pz__err" role="alert">Tối đa {{ maxOf(f) }} ký tự. Cần nội dung dài hơn, bạn nhắn Soulprint để được hỗ trợ.</p>
+          }
+          <div class="sp-pz__calc"><span>Phí In/Khắc</span><strong class="text-success">Miễn phí</strong></div>
+        }
+        @case ('THIET_KE') {
+          <div>
+            <div class="sp-pz__labelrow">
+              <span class="form-label mb-0">Sticker <small>{{ stickerFee | vnd }} mỗi sticker</small></span>
+              <span class="sp-pz__count" [class.is-full]="stickers().length >= STICKER_MAX">Đã chọn {{ stickers().length }}/{{ STICKER_MAX }}</span>
+            </div>
+            @if (!product.stickerSets.length) {
+              <p class="sp-pz__hint">Sản phẩm này chưa có sticker để thiết kế.</p>
+            }
+            @for (set of product.stickerSets; track set._id) {
+              <div class="sp-stkgroup">
+                <div class="sp-stkgroup__head">
+                  @if (set.kind === 'BST_MUA') {
+                    <span class="k">Mùa</span> {{ set.seasonLabel }}
+                    @if (set.badge === 'HOT') {
+                      <span class="sp-badge sp-badge--hot">Hot</span>
+                    } @else if (set.badge === 'MOI') {
+                      <span class="sp-badge sp-badge--new">Mới</span>
+                    }
+                  } @else {
+                    {{ set.name }}
+                  }
+                </div>
+                <div class="sp-stkgrid">
+                  @for (s of set.stickers; track s.code) {
+                    <button type="button" class="sp-stk" [class.is-on]="stickers().includes(s.code)" [attr.aria-pressed]="stickers().includes(s.code)" (click)="toggleSticker(s.code)">
+                      <img [src]="s.image" alt="" />
+                      <span>{{ s.name }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+            @if (limitHint()) {
+              <p class="sp-pz__err" role="alert">Tối đa {{ STICKER_MAX }} sticker</p>
+            }
+          </div>
+          @if (!staffMode) {
+            <p class="sp-pz__hint mb-0">Lời chúc gửi người nhận bạn ghi trên thiệp ở bước gói quà trong giỏ hàng.</p>
+          }
+          <div class="sp-pz__calc">
+            <span>{{ price() | vnd }} + {{ stickers().length }} sticker x {{ stickerFee | vnd }}</span>
+            <strong>= {{ perUnit() | vnd }}</strong>
+          </div>
+          <button type="button" class="btn btn-link p-0 align-self-start" [attr.aria-expanded]="breakOpen()" (click)="breakOpen.set(!breakOpen())">
+            <app-icon name="info" [size]="16" /> Chi tiết giá
+          </button>
+          @if (breakOpen()) {
+            <div class="sp-pz__break">
+              <div><span>{{ product.name }}</span><span>{{ price() | vnd }}</span></div>
+              @for (s of chosenStickers(); track s!.code) {
+                <div><span>Sticker {{ s!.name }}</span><span>{{ stickerFee | vnd }}</span></div>
+              }
+              <div><span>Tạm tính mỗi sản phẩm</span><span>{{ perUnit() | vnd }}</span></div>
+              <div class="is-total">
+                <span>{{ perUnit() | vnd }} x {{ quantity }}</span>
+                <span>{{ total() | vnd }}</span>
+              </div>
+            </div>
+          }
+        }
+      }
+
+      @if (tab() !== 'NONE' && allowSave) {
+        @if (isMember()) {
+          <div class="sp-pz__save">
+            <label class="form-check mb-0">
+              <input class="form-check-input" type="checkbox" [checked]="saveOn()" (change)="saveOn.set($any($event.target).checked)" />
+              <span class="form-check-label">Lưu vào Thiết kế đã lưu khi áp dụng</span>
+            </label>
+            @if (saveOn()) {
+              <input class="form-control form-control-sm" maxlength="60" aria-label="Tên thiết kế" [placeholder]="autoName() || 'Tên thiết kế'" [value]="designName()" (input)="designName.set($any($event.target).value)" />
+              <small class="text-body-secondary">Để trống thì dùng tên gợi ý. Xem lại ở Tài khoản, Thiết kế đã lưu.</small>
+            }
+          </div>
+        } @else {
+          <p class="sp-pz__hint mb-0"><button type="button" class="btn btn-link btn-sm p-0 align-baseline" (click)="askLogin()">Đăng nhập</button> để tự lưu thiết kế và dùng lại lần sau.</p>
+        }
+      }
+
+      @if (invalidReason() && tab() !== 'NONE') {
+        <p class="sp-pz__hint mb-0" role="status">{{ invalidReason() }}</p>
+      }
+      @if (error) {
+        <p class="sp-pz__err" role="alert">{{ error }}</p>
+      }
+    </div>
+  </div>
+
+  <div dialog-footer class="sp-pz__foot">
+    <div class="sp-pz__total">
+      <span>Tạm tính</span>
+      <strong>{{ total() | vnd }}</strong>
+    </div>
+    <div class="sp-pz__btns">
+      <button class="btn btn-outline-secondary" type="button" (click)="closed.emit()">Hủy</button>
+      <button class="btn btn-primary" type="button" [disabled]="!!invalidReason() || busy || selectedVariantOut()" (click)="apply()">{{ applyLabel }}</button>
+    </div>
+  </div>
+</app-dialog>

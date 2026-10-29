@@ -1,0 +1,62 @@
+@if (loading()) {
+  <span class="sp-skel d-block" style="height: 72px"></span>
+} @else if (mode() === 'new') {
+  <div class="sp-as__form">
+    <div class="sp-as__row">
+      <label class="sp-field m-0">
+        <span class="sp-field__label">Họ tên người nhận <span class="req">*</span></span>
+        <input class="form-control" maxlength="60" autocomplete="name" [(ngModel)]="form.recipientName" (ngModelChange)="emit()" [class.is-invalid]="!!err('recipientName')" />
+        <span class="invalid-feedback">{{ err('recipientName') }}</span>
+      </label>
+      <label class="sp-field m-0">
+        <span class="sp-field__label">Số điện thoại <span class="req">*</span></span>
+        <input class="form-control" inputmode="tel" maxlength="12" autocomplete="tel" [(ngModel)]="form.phone" (ngModelChange)="emit()" [class.is-invalid]="!!err('phone')" />
+        <span class="invalid-feedback">{{ err('phone') }}</span>
+      </label>
+    </div>
+    <div class="sp-as__row">
+      <label class="sp-field m-0">
+        <span class="sp-field__label">Tỉnh/Thành phố <span class="req">*</span></span>
+        <app-search-select ariaLabel="Tỉnh/Thành phố" placeholder="Chọn hoặc gõ Tỉnh/Thành phố" [ngModel]="form.provinceCode" (ngModelChange)="onProvince($event)" [options]="provinces() | searchOptions: 'code' : 'name'" [invalid]="!!err('province')" />
+        <span class="invalid-feedback">{{ err('province') }}</span>
+      </label>
+      <label class="sp-field m-0">
+        <span class="sp-field__label">Phường/Xã <span class="req">*</span></span>
+        <app-search-select ariaLabel="Phường/Xã" placeholder="Chọn hoặc gõ Phường/Xã" [(ngModel)]="form.ward" (ngModelChange)="emit()" [options]="wards() | searchOptions: 'name' : 'name'" [invalid]="!!err('ward')" />
+        <span class="invalid-feedback">{{ err('ward') }}</span>
+      </label>
+    </div>
+    <label class="sp-field m-0">
+      <span class="sp-field__label">Số nhà, tên đường <span class="req">*</span></span>
+      <input class="form-control" maxlength="200" autocomplete="street-address" [(ngModel)]="form.street" (ngModelChange)="emit()" [class.is-invalid]="!!err('street')" />
+      <span class="invalid-feedback">{{ err('street') }}</span>
+    </label>
+    <p class="sp-as__hint">Địa chỉ mới hoặc đã sửa sẽ tự động lưu vào kho địa chỉ.</p>
+    @if (addresses().length) {
+      <button class="btn btn-link btn-sm px-0 align-self-start" type="button" (click)="backToBook()">Chọn từ kho địa chỉ</button>
+    }
+  </div>
+} @else if (mode() === 'list') {
+  <div class="sp-as__list" role="radiogroup" aria-label="Kho địa chỉ">
+    @for (a of addresses(); track a._id) {
+      <label class="sp-modecard" [class.is-on]="a._id === selectedId()">
+        <input class="form-check-input" type="radio" name="as-pick" [checked]="a._id === selectedId()" (change)="choose(a._id)" />
+        <span>
+          <strong>{{ a.recipientName }}{{ a.isDefault ? ' | Địa chỉ của tôi' : '' }}</strong>
+          <small>{{ a.phone }} | {{ a.street }}, {{ a.ward }}, {{ a.province }}</small>
+        </span>
+      </label>
+    }
+    <button class="btn btn-outline-primary btn-sm align-self-start" type="button" (click)="startNew()"><app-icon name="plus" [size]="16" /> Nhập địa chỉ mới</button>
+  </div>
+} @else if (selected; as a) {
+  <div class="sp-as__card">
+    <app-icon name="map-pin" [size]="22" />
+    <span class="flex-grow-1">
+      <strong>{{ a.recipientName }}</strong>{{ a.isDefault ? ' | Địa chỉ của tôi' : '' }}
+      <small>{{ a.phone }} | {{ a.street }}, {{ a.ward }}, {{ a.province }}</small>
+    </span>
+    <button class="btn btn-link btn-sm" type="button" (click)="mode.set('list')">Chọn từ kho địa chỉ</button>
+  </div>
+  <p class="sp-as__hint">Địa chỉ mới hoặc đã sửa sẽ tự động lưu vào kho địa chỉ.</p>
+}

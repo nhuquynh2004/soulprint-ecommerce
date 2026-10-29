@@ -1,0 +1,32 @@
+<ul class="sp-photos" [class.is-invalid]="invalid">
+  @for (x of items(); track $index) {
+    <li>
+      @if (isVideo(x)) {
+        <video [src]="x" muted preload="metadata" aria-label="Video bằng chứng"></video>
+      } @else {
+        <img [src]="x" [alt]="'Ảnh ' + ($index + 1)" />
+      }
+      <button class="sp-pi__x" type="button" [attr.aria-label]="'Xóa tệp ' + ($index + 1)" [disabled]="disabled" (click)="remove($index)">
+        <app-icon name="close" [size]="14" />
+      </button>
+    </li>
+  }
+  @if (imageCount < max || (allowVideo && videoCount < 1)) {
+    <li>
+      <label class="sp-pi__add" [for]="inputId" [class.is-busy]="reading()">
+        <app-icon [name]="reading() ? 'clock' : 'plus'" [size]="20" />
+        <span>{{ reading() ? 'Đang đọc' : 'Thêm' }}</span>
+      </label>
+      <input class="visually-hidden" type="file" multiple [id]="inputId" [accept]="accept" [disabled]="disabled || reading()" (change)="pick($any($event.target))" />
+    </li>
+  }
+</ul>
+<p class="sp-pi__hint">
+  {{ hint || 'Tối đa ' + max + ' ảnh JPG, PNG, mỗi ảnh dưới ' + maxMB + 'MB' + (allowVideo ? ' và 1 video MP4 dưới ' + videoMaxMB + 'MB' : '') + '.' }}
+  @if (allowVideo) {
+    <span class="ms-1">{{ imageCount }}/{{ max }} ảnh | {{ videoCount }}/1 video</span>
+  }
+</p>
+@if (error()) {
+  <p class="sp-pi__err" role="alert">{{ error() }}</p>
+}

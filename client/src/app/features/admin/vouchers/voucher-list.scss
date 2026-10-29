@@ -1,0 +1,59 @@
+// SCR-45 - bám SCR-45-Desktop
+.sp-vtabs {
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  button {
+    flex: none;
+    white-space: nowrap;
+  }
+}
+
+.sp-vcode {
+  color: var(--sp-color-text);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--sp-color-primary);
+  }
+}
+
+.sp-vused {
+  min-width: 110px;
+}
+
+.sp-vbar {
+  display: block;
+  height: 4px;
+  margin-top: 6px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-surface-alt);
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    background: var(--sp-color-primary);
+  }
+}
+
+.sp-vdel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-space-3);
+    padding: var(--sp-space-2) var(--sp-space-3);
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-color-surface-alt);
+    font-size: 14px;
+  }
+}

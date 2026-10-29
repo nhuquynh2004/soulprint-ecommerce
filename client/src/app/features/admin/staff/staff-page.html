@@ -1,0 +1,264 @@
+<header class="sp-aph">
+  <div>
+    <h1>Nhân viên và phân quyền</h1>
+    <p>{{ staff().length }} nhân viên | {{ roles().length }} vai trò | chỉ Quản trị thấy trang này</p>
+  </div>
+  @if (tab() === 'staff') {
+    <button class="btn btn-primary d-inline-flex align-items-center gap-2" type="button" (click)="editing.set('new')">
+      <app-icon name="plus" [size]="20" /> Thêm nhân viên
+    </button>
+  } @else {
+    <a class="btn btn-primary d-inline-flex align-items-center gap-2" routerLink="/quan-tri/nhan-vien/vai-tro/moi">
+      <app-icon name="plus" [size]="20" /> Tạo vai trò
+    </a>
+  }
+</header>
+
+<nav class="sp-tabs2" role="tablist" aria-label="Nhân viên và phân quyền">
+  <button role="tab" type="button" [class.is-on]="tab() === 'staff'" [attr.aria-selected]="tab() === 'staff'" (click)="setTab('staff')">
+    Nhân viên <span class="sp-count">{{ staff().length }}</span>
+  </button>
+  <button role="tab" type="button" [class.is-on]="tab() === 'roles'" [attr.aria-selected]="tab() === 'roles'" (click)="setTab('roles')">
+    Vai trò và quyền <span class="sp-count">{{ roles().length }}</span>
+  </button>
+</nav>
+
+@if (devLink()) {
+  <div class="sp-alert sp-alert--info" role="status">
+    <app-icon name="info" [size]="20" />
+    <p>Chế độ demo (không gửi email thật): liên kết đặt mật khẩu của nhân viên là <a [routerLink]="devLink()" target="_blank">{{ devLink() }}</a>, hiệu lực 24 giờ.</p>
+  </div>
+}
+
+@if (loading()) {
+  <span class="sp-skel" style="height: 320px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (tab() === 'staff') {
+  <!-- Tab Nhân viên -->
+  <div class="sp-subtabs" role="group" aria-label="Lọc theo trạng thái">
+    @for (s of ['', 'HOAT_DONG', 'CHO_KICH_HOAT', 'BI_KHOA']; track s) {
+      <button type="button" [class.is-on]="status() === s" (click)="status.set($any(s))">
+        {{ statusText(s) }} <span class="sp-count">{{ counts()[s] }}</span>
+      </button>
+    }
+  </div>
+  <div class="sp-atools">
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm tên, email, số điện thoại" aria-label="Tìm nhân viên" (input)="onSearch($any($event.target).value)" />
+    </div>
+    <select class="form-select sp-atools__sel" aria-label="Lọc theo vai trò" [value]="roleFilter()" (change)="roleFilter.set($any($event.target).value)">
+      <option value="">Mọi vai trò</option>
+      @for (r of roles(); track r._id) {
+        <option [value]="r.code">{{ r.name }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="sp-table-wrap">
+    <table class="table sp-atable align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Nhân viên</th>
+          <th scope="col">Email và số điện thoại</th>
+          <th scope="col">Vai trò và quyền</th>
+          <th scope="col">Trạng thái</th>
+          <th scope="col">Đăng nhập cuối</th>
+          <th scope="col"><span class="visually-hidden">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (s of filtered(); track s._id) {
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span class="sp-avatar">{{ initials(s.fullName) }}</span>
+                <div>
+                  <strong>{{ s.fullName }}</strong>
+                  @if (isSelf(s)) {
+                    <small class="d-block text-body-secondary">Bạn</small>
+                  }
+                </div>
+              </div>
+            </td>
+            <td>
+              <div>{{ s.email }}</div>
+              <small class="text-body-secondary">{{ s.phone }}</small>
+            </td>
+            <td>
+              <div class="d-flex flex-wrap gap-1">
+                @for (r of s.staffRoles; track r.code) {
+                  <span class="sp-badge sp-badge--neutral">{{ r.name }}</span>
+                }
+                @if (s.extraCount) {
+                  <span class="sp-badge sp-badge--perso" [title]="overrideTitle(s)" tabindex="0">+{{ s.extraCount }} quyền khác</span>
+                }
+                @if (s.revokedCount) {
+                  <span class="sp-badge sp-badge--hot" [title]="overrideTitle(s)" tabindex="0">-{{ s.revokedCount }} quyền</span>
+                }
+              </div>
+            </td>
+            <td>
+              <span class="sp-status" [class]="'sp-status--' + s.status">{{ statusLabel[s.status] }}</span>
+              @if (s.status === 'BI_KHOA' && s.lockReason) {
+                <small class="d-block text-body-secondary">{{ s.lockReason }}</small>
+              }
+            </td>
+            <td>
+              @if (s.lastLoginAt) {
+                {{ s.lastLoginAt | date: 'HH:mm dd/MM/yyyy' }}
+              } @else {
+                <span class="text-body-secondary">Chưa đăng nhập</span>
+              }
+            </td>
+            <td class="text-end">
+              <div class="sp-rowmenu">
+                <button class="btn sp-rowmenu__btn" type="button" (click)="toggleMenu(s._id)" [attr.aria-expanded]="openMenu() === s._id" [attr.aria-label]="'Thao tác với ' + s.fullName">
+                  <app-icon name="more" [size]="20" />
+                </button>
+                @if (openMenu() === s._id) {
+                  <div class="sp-rowmenu__list" role="menu">
+                    <button role="menuitem" type="button" (click)="openMenu.set(null); editing.set(s)"><app-icon name="edit" [size]="18" /> Sửa</button>
+                    @if (s.status === 'CHO_KICH_HOAT') {
+                      <button role="menuitem" type="button" (click)="resend(s)"><app-icon name="send" [size]="18" /> Gửi lại liên kết</button>
+                    }
+                    @if (!isSelf(s)) {
+                      @if (s.status === 'BI_KHOA') {
+                        <button role="menuitem" type="button" (click)="unlock(s)"><app-icon name="key" [size]="18" /> Mở khóa</button>
+                      } @else {
+                        <button role="menuitem" type="button" class="text-danger" (click)="startLock(s)"><app-icon name="lock" [size]="18" /> Khóa tài khoản</button>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="text-center text-body-secondary py-4">Không có nhân viên phù hợp</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+} @else {
+  <!-- Tab Vai trò và quyền (nhánh 1e) -->
+  <div class="sp-alert sp-alert--info">
+    <app-icon name="info" [size]="20" />
+    <p>Vai trò Quản trị luôn có toàn quyền nên không sửa hay xóa được, chỉ nhân bản để tạo vai trò mới.</p>
+  </div>
+  <div class="sp-table-wrap">
+    <table class="table sp-atable align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Vai trò</th>
+          <th scope="col">Loại</th>
+          <th scope="col">Nhân viên</th>
+          <th scope="col">Quyền</th>
+          <th scope="col">Cập nhật</th>
+          <th scope="col"><span class="visually-hidden">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of roles(); track r._id) {
+          <tr>
+            <td>
+              <a class="fw-bold" [routerLink]="['/quan-tri/nhan-vien/vai-tro', r._id]">{{ r.name }}</a>
+              <small class="d-block text-body-secondary">{{ r.description }}</small>
+            </td>
+            <td>
+              <span class="sp-badge" [class]="r.type === 'MAC_DINH' ? 'sp-badge--neutral' : 'sp-badge--primary'">{{ r.type === 'MAC_DINH' ? 'Mặc định' : 'Tùy chỉnh' }}</span>
+            </td>
+            <td>{{ r.staffCount }}</td>
+            <td>{{ r.isFullAccess ? 'Toàn quyền' : r.permissionCount + ' quyền' }}</td>
+            <td>
+              {{ r.updatedAt | date: 'dd/MM/yyyy' }}
+              @if (r.updatedBy) {
+                <small class="d-block text-body-secondary">bởi {{ r.updatedBy }}</small>
+              }
+            </td>
+            <td class="text-end">
+              <div class="sp-rowmenu">
+                <button class="btn sp-rowmenu__btn" type="button" (click)="toggleMenu(r._id)" [attr.aria-expanded]="openMenu() === r._id" [attr.aria-label]="'Thao tác với vai trò ' + r.name">
+                  <app-icon name="more" [size]="20" />
+                </button>
+                @if (openMenu() === r._id) {
+                  <div class="sp-rowmenu__list" role="menu">
+                    <a role="menuitem" [routerLink]="['/quan-tri/nhan-vien/vai-tro', r._id]"><app-icon name="edit" [size]="18" /> {{ r.isFullAccess ? 'Xem' : 'Sửa' }}</a>
+                    <button role="menuitem" type="button" (click)="cloneRole(r)"><app-icon name="copy" [size]="18" /> Nhân bản</button>
+                    @if (r.type === 'TUY_CHINH') {
+                      <button role="menuitem" type="button" class="text-danger" (click)="startDelete(r)"><app-icon name="trash" [size]="18" /> Xóa</button>
+                    }
+                  </div>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (editing(); as current) {
+  <app-staff-dialog
+    [staff]="current === 'new' ? null : current"
+    [roles]="roles()"
+    [catalog]="catalog()"
+    [isSelf]="current !== 'new' && isSelf(current)"
+    (closed)="editing.set(null)"
+    (saved)="onSaved($event)"
+  />
+}
+
+@if (locking(); as s) {
+  <app-dialog title="Khóa tài khoản" [subtitle]="s.fullName + ' sẽ bị đăng xuất khỏi mọi thiết bị ngay lập tức'" size="sm" (closed)="locking.set(null)">
+    <div class="sp-field">
+      <label for="lockReason">Lý do khóa <span class="req">*</span></label>
+      <textarea id="lockReason" class="form-control" rows="3" maxlength="500" [(ngModel)]="lockReason" placeholder="VD Nghỉ việc từ 15/10/2026"></textarea>
+      <span class="sp-field__hint">Tối thiểu 3 ký tự. Lý do được ghi vào nhật ký quản trị.</span>
+    </div>
+    <div dialog-footer>
+      <button class="btn btn-link" type="button" (click)="locking.set(null)">Hủy</button>
+      <button class="btn btn-danger" type="button" [disabled]="lockReason.trim().length < 3" (click)="confirmLock()">Khóa tài khoản</button>
+    </div>
+  </app-dialog>
+}
+
+@if (deleting(); as r) {
+  <app-dialog [title]="'Xóa vai trò ' + r.name" size="sm" (closed)="deleting.set(null)">
+    @if (r.staffCount) {
+      <p>Vai trò này đang được dùng bởi:</p>
+      <ul>
+        @for (s of staffOfRole(r.code); track s._id) {
+          <li>{{ s.fullName }}</li>
+        }
+      </ul>
+      <div class="sp-field">
+        <label for="replacement">Chuyển nhân viên sang vai trò <span class="req">*</span></label>
+        <select id="replacement" class="form-select" [(ngModel)]="replacementRoleId">
+          <option value="">Chọn vai trò</option>
+          @for (x of roles(); track x._id) {
+            @if (x._id !== r._id) {
+              <option [value]="x._id">{{ x.name }}</option>
+            }
+          }
+        </select>
+      </div>
+      <p class="sp-field__hint">Quyền riêng của từng nhân viên vẫn giữ nguyên. Thao tác này không hoàn tác được.</p>
+    } @else {
+      <p>Không còn nhân viên nào dùng vai trò này. Bạn chắc chắn muốn xóa?</p>
+    }
+    <div dialog-footer>
+      <button class="btn btn-link" type="button" (click)="deleting.set(null)">Hủy</button>
+      <button class="btn btn-danger" type="button" [disabled]="!!r.staffCount && !replacementRoleId" (click)="confirmDelete()">
+        {{ r.staffCount ? 'Chuyển và xóa vai trò' : 'Xóa vai trò' }}
+      </button>
+    </div>
+  </app-dialog>
+}

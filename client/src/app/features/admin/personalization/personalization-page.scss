@@ -1,0 +1,225 @@
+// SCR-56: nhóm thu gọn (AccordionGroup), bảng trong nhóm, ngăn bên chi tiết vật liệu
+.sp-pp__all {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.sp-pp__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-space-3);
+  margin-bottom: var(--sp-space-3);
+  padding: var(--sp-space-3);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface);
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 180px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+.sp-accg {
+  margin-bottom: var(--sp-space-3);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface);
+  overflow: hidden;
+
+  &.is-dragover {
+    border-color: var(--sp-color-primary);
+    box-shadow: 0 0 0 2px var(--sp-color-primary-subtle);
+  }
+
+  .sp-table-wrap {
+    border-top: 1px solid var(--sp-color-border);
+    border-radius: 0;
+  }
+}
+
+.sp-accg__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+  padding: var(--sp-space-2) var(--sp-space-3);
+  min-height: 56px;
+
+  .form-check-input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+  }
+}
+
+.sp-accg__tg {
+  display: inline-flex;
+  padding: 6px;
+  border-radius: var(--sp-radius-sm);
+}
+
+.sp-pp__scope {
+  padding: 2px 8px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-surface-alt);
+  color: var(--sp-color-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sp-accg__name {
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.sp-accg__meta {
+  font-size: 13px;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-accg__right {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  margin-left: auto;
+}
+
+tr.is-dragover td {
+  box-shadow: inset 0 2px 0 var(--sp-color-primary);
+}
+
+.sp-grip {
+  color: var(--sp-color-text-subtle);
+  cursor: grab;
+
+  &.is-off {
+    opacity: 0.3;
+    cursor: default;
+  }
+}
+
+.sp-pp__thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--sp-radius-sm);
+  object-fit: contain;
+  background: var(--sp-color-surface-alt);
+}
+
+.sp-pp__mono {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+// Tab không gãy chữ, cuộn ngang ở Mobile
+.sp-tabs2 {
+  overflow-x: auto;
+
+  button {
+    white-space: nowrap;
+  }
+}
+
+.sp-pp__foot {
+  margin: var(--sp-space-3) 0 0;
+  font-size: 13px;
+  color: var(--sp-color-text-muted);
+}
+
+// Ngăn bên
+.sp-pp__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  background: color-mix(in srgb, var(--sp-primary-900) 40%, transparent);
+}
+
+.sp-pp__drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1045;
+  display: flex;
+  flex-direction: column;
+  width: min(440px, 100vw);
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-lg);
+}
+
+.sp-pp__dhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-4) var(--sp-space-5);
+  border-bottom: 1px solid var(--sp-color-border);
+}
+
+.sp-pp__dbody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-4) var(--sp-space-5);
+  overflow-y: auto;
+}
+
+.sp-pp__dfoot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-space-2);
+  padding: var(--sp-space-3) var(--sp-space-5);
+  border-top: 1px solid var(--sp-color-border);
+}
+
+.sp-pp__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-space-2);
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--sp-space-3);
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-color-surface-alt);
+  }
+
+  span {
+    font-size: 12px;
+    color: var(--sp-color-text-muted);
+  }
+
+  strong {
+    font-size: 16px;
+  }
+}
+
+.sp-pp__hist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-space-2);
+    padding-bottom: var(--sp-space-2);
+    border-bottom: 1px solid var(--sp-color-border);
+    font-size: 14px;
+  }
+}

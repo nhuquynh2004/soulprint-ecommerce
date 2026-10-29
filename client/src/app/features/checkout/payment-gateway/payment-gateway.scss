@@ -1,0 +1,303 @@
+// SCR-08 Cổng thanh toán giả lập (theo bản thiết kế SCR-08-Desktop/Tablet/Mobile)
+:host {
+  display: block;
+}
+
+.sp-gw {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--sp-color-bg);
+}
+
+.sp-gw__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 72px;
+  padding: 0 32px;
+  background: var(--sp-color-surface-alt);
+  border-bottom: 1px solid var(--sp-color-border);
+
+  @media (max-width: 575.98px) {
+    height: 64px;
+    gap: 8px;
+    padding: 0 12px;
+  }
+}
+
+.sp-gw__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 700 20px/26px var(--sp-font-display);
+
+  img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--sp-color-on-ocean);
+    box-shadow: var(--sp-shadow-sm);
+  }
+
+  @media (max-width: 575.98px) {
+    font-size: 15px;
+    line-height: 20px;
+
+    img {
+      width: 36px;
+      height: 36px;
+    }
+  }
+}
+
+.sp-gw__sep {
+  width: 1px;
+  height: 28px;
+  background: var(--sp-color-border);
+}
+
+// Mobile: bỏ tiêu đề "Cổng thanh toán", nhãn ngắn "Thử nghiệm" (SCR-08-Mobile)
+.sp-gw__sep,
+.sp-gw__ttl {
+  @media (max-width: 575.98px) {
+    display: none;
+  }
+}
+
+.sp-gw__ttl {
+  font: 600 15px/22px var(--sp-font-body);
+  color: var(--sp-color-text-muted);
+}
+
+.sp-gw__env {
+  margin-left: auto;
+  background: var(--sp-color-warning-subtle);
+  color: var(--sp-color-warning);
+
+  @media (max-width: 575.98px) {
+    padding: 0 8px;
+    font-size: 11px;
+  }
+}
+
+.sp-gw__main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 16px;
+
+  @media (max-width: 575.98px) {
+    padding: 20px 16px;
+  }
+}
+
+.sp-gw__card {
+  width: 520px;
+  max-width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-sm);
+}
+
+.sp-gw__skel {
+  height: 640px;
+}
+
+.sp-gw__amount {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 24px;
+  text-align: center;
+  background: var(--sp-color-primary-subtle);
+  border-bottom: 1px solid var(--sp-color-border);
+
+  span {
+    font: 500 14px/20px var(--sp-font-body);
+    color: var(--sp-color-text-muted);
+  }
+
+  strong {
+    font: 700 40px/48px var(--sp-font-body);
+    color: var(--sp-color-primary);
+  }
+
+  // Bong bóng trang trí theo chủ đề đại dương
+  i {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid var(--sp-primary-300);
+    background: var(--sp-color-surface);
+    opacity: 0.7;
+  }
+}
+
+.sp-gw__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px 24px;
+
+  @media (max-width: 575.98px) {
+    padding: 16px;
+  }
+}
+
+.sp-gwqr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-gwqr__box {
+  width: 200px;
+  height: 200px;
+  padding: 10px;
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface);
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  rect {
+    fill: var(--sp-color-text);
+  }
+}
+
+.sp-gwqr__cap {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--sp-color-text-muted);
+  text-align: center;
+}
+
+.sp-gw__timer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--sp-color-text-muted);
+
+  strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 700 28px/36px var(--sp-font-body);
+    font-variant-numeric: tabular-nums;
+    color: var(--sp-color-text);
+  }
+
+  &.is-over {
+    border-color: var(--sp-color-danger);
+    background: var(--sp-color-danger-subtle);
+
+    strong {
+      color: var(--sp-color-danger);
+    }
+  }
+}
+
+.sp-gw__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sp-gw__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14px;
+  line-height: 20px;
+
+  span {
+    flex: none;
+    color: var(--sp-color-text-muted);
+  }
+
+  strong {
+    text-align: right;
+  }
+}
+
+.sp-gw__note {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-info-subtle);
+  color: var(--sp-color-text);
+  font-size: 14px;
+  line-height: 20px;
+
+  app-icon {
+    flex: none;
+    color: var(--sp-color-info);
+  }
+}
+
+.sp-gw__busy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 0;
+  text-align: center;
+
+  strong {
+    font: 700 18px/26px var(--sp-font-body);
+  }
+
+  span:not(.spinner-border) {
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-gw__acts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+  }
+}
+
+.sp-gw__cancel {
+  justify-content: center;
+  border: 0;
+  background: none;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.sp-gw__foot {
+  padding: 0 16px 24px;
+  text-align: center;
+  font: 500 12px/16px var(--sp-font-body);
+  color: var(--sp-color-text-subtle);
+}

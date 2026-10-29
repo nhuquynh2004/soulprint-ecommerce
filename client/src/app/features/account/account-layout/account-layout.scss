@@ -1,0 +1,161 @@
+// Khung Tài khoản - bám SCR-15-Desktop (menu trái); Mobile, Tablet theo SCR-15-Mobile-Menu: /tai-khoan là trang menu
+// dạng danh sách, trang con ẩn menu và có liên kết "Tài khoản" để quay lại (SCR-15-Mobile)
+.sp-acct {
+  padding-bottom: var(--sp-space-7);
+}
+
+.sp-acct__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-space-5);
+
+  @media (min-width: 992px) {
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: var(--sp-space-6);
+  }
+}
+
+.sp-acct__side {
+  align-self: start;
+  padding: var(--sp-space-3);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-surface-alt);
+
+  @media (min-width: 992px) {
+    position: sticky;
+    top: 88px;
+  }
+}
+
+.sp-acct__me {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-3);
+  margin-bottom: var(--sp-space-2);
+  border-bottom: 1px solid var(--sp-color-border);
+
+  strong {
+    display: block;
+  }
+
+  span:not(.sp-avatar) {
+    font-size: 13px;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-acct__menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  a,
+  button {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-3);
+    min-height: var(--sp-tap-min);
+    padding: 0 var(--sp-space-3);
+    border: 0;
+    font-size: 14px; // Theo SCR-15 - 14px đậm 500
+    border-radius: var(--sp-radius-md);
+    background: none;
+    color: var(--sp-color-text);
+    text-decoration: none;
+    font-weight: 500;
+    text-align: left;
+
+    &:hover {
+      background: var(--sp-color-primary-subtle);
+    }
+  }
+
+  a.is-on {
+    background: var(--sp-color-primary);
+    color: var(--sp-color-on-primary);
+    font-weight: 600;
+  }
+
+  .sp-acct__logout {
+    color: var(--sp-color-danger);
+  }
+
+  .sp-acct__chev {
+    margin-left: auto;
+    color: var(--sp-color-text-muted);
+  }
+
+  .sp-acct__count + .sp-acct__chev {
+    margin-left: var(--sp-space-2);
+  }
+}
+
+.sp-acct__back,
+.sp-acct__title {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .sp-acct__chev {
+    display: none;
+  }
+}
+
+// Mobile, Tablet: trang menu ở /tai-khoan, trang con chỉ có nội dung
+@media (max-width: 991.98px) {
+  .sp-acct__crumbs {
+    display: none;
+  }
+
+  .sp-acct__back {
+    display: inline-flex;
+    margin: var(--sp-space-3) 0 var(--sp-space-2);
+  }
+
+  .sp-acct__title {
+    display: block;
+    margin: var(--sp-space-4) 0 var(--sp-space-3);
+    font-size: 24px;
+  }
+
+  .sp-acct:not(.is-root) .sp-acct__side,
+  .sp-acct.is-root .sp-acct__main {
+    display: none;
+  }
+
+  .sp-acct__side {
+    padding: 0;
+    background: var(--sp-color-surface);
+    overflow: hidden;
+  }
+
+  .sp-acct__me {
+    margin: 0;
+    padding: var(--sp-space-4);
+  }
+
+  .sp-acct__menu {
+    gap: 0;
+
+    a,
+    button {
+      min-height: 52px;
+      padding: 0 var(--sp-space-4);
+      border-radius: 0;
+      border-bottom: 1px solid var(--sp-color-border);
+    }
+
+    > :last-child {
+      border-bottom: 0;
+    }
+
+    // Trang menu không có mục đang chọn
+    a.is-on {
+      background: none;
+      color: var(--sp-color-text);
+      font-weight: 500;
+    }
+  }
+}

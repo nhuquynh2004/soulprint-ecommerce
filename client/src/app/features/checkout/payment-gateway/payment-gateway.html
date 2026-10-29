@@ -1,0 +1,115 @@
+<div class="sp-gw">
+  <header class="sp-gw__bar">
+    <span class="sp-gw__logo"><img src="/assets/brand/soulprint-mark.png" alt="" width="44" height="44" />Soulprint</span>
+    <span class="sp-gw__sep" aria-hidden="true"></span>
+    <span class="sp-gw__ttl">Cổng thanh toán</span>
+    <span class="sp-badge sp-gw__env"><app-icon name="alert" [size]="14" /><span class="d-none d-sm-inline">Môi trường thử nghiệm</span><span class="d-sm-none">Thử nghiệm</span></span>
+  </header>
+
+  <main class="sp-gw__main">
+    @if (error()) {
+      <div class="sp-gw__card sp-gw__body text-center" role="alert">
+        <strong class="fs-5">{{ error() }}</strong>
+        <a class="btn btn-primary" routerLink="/gio-hang">Về giỏ hàng</a>
+      </div>
+    } @else if (!payment()) {
+      <div class="sp-gw__card sp-skel sp-gw__skel"></div>
+    } @else {
+      @let p = payment()!;
+      <section class="sp-gw__card" [attr.aria-label]="'Thanh toán giao dịch ' + p.code">
+        <div class="sp-gw__amount">
+          <i aria-hidden="true" style="width: 18px; height: 18px; right: 28px; top: 18px"></i>
+          <i aria-hidden="true" style="width: 10px; height: 10px; right: 52px; top: 44px"></i>
+          <i aria-hidden="true" style="width: 12px; height: 12px; left: 30px; bottom: 22px"></i>
+          <span>Số tiền thanh toán</span>
+          <strong>{{ p.amount | vnd }}</strong>
+          @if (p.remainingAmount) {
+            <span>Tổng đơn {{ p.total | vnd }} | còn lại {{ p.remainingAmount | vnd }} trả khi nhận hàng</span>
+          } @else if (p.total) {
+            <span>Thanh toán toàn bộ đơn hàng</span>
+          }
+        </div>
+
+        <div class="sp-gw__body">
+          @if (!expired() && !busy()) {
+            <div class="sp-gwqr">
+              <div class="sp-gwqr__box" tabindex="0" role="img" aria-label="Mã QR minh họa, không dùng để thanh toán thật">
+                <svg viewBox="0 0 25 25" shape-rendering="crispEdges" aria-hidden="true">
+                  @for (c of qrCells(); track $index) {
+                    <rect [attr.x]="c.x" [attr.y]="c.y" width="1" height="1" />
+                  }
+                </svg>
+              </div>
+              <span class="sp-gwqr__cap">Quét bằng ứng dụng ngân hàng (giả lập)</span>
+            </div>
+          }
+
+          <div class="sp-gw__timer" [class.is-over]="expired()">
+            <span>{{ expired() ? 'Phiên thanh toán đã hết hạn' : busy() ? 'Phiên thanh toán còn' : 'Phiên thanh toán hết hạn sau' }}</span>
+            <strong role="timer" [attr.aria-label]="expired() ? 'Đã hết hạn' : 'Còn ' + clock()"><app-icon name="clock" [size]="22" />{{ expired() ? '00:00' : clock() }}</strong>
+          </div>
+
+          <div class="sp-gw__rows">
+            <div class="sp-gw__row"><span>Mã giao dịch</span><strong>{{ p.code }}</strong></div>
+            @if (p.purpose === 'ORDER_CHANGE') {
+              <div class="sp-gw__row"><span>Đơn hàng</span><strong>{{ p.orderCode }} | thanh toán phần chênh</strong></div>
+            } @else if (p.purpose === 'REDELIVERY') {
+              <div class="sp-gw__row"><span>Đơn hàng</span><strong>{{ p.orderCode }} | nhận lại hàng cá nhân hóa</strong></div>
+            } @else {
+              <div class="sp-gw__row"><span>Đơn hàng</span><strong>{{ p.itemCount }} sản phẩm | tạo sau khi thanh toán</strong></div>
+            }
+            <div class="sp-gw__row"><span>Nội dung</span><strong>{{ p.description }}</strong></div>
+            @if (p.payerName) {
+              <div class="sp-gw__row"><span>Người thanh toán</span><strong>{{ p.payerName }}</strong></div>
+            }
+          </div>
+
+          @if (expired()) {
+            <div class="sp-gw__busy" role="status">
+              <strong>Phiên thanh toán đã hết hạn.</strong>
+              <span>Giao dịch chưa được ghi nhận, bạn chưa bị trừ tiền.{{ p.purpose === 'ORDER' && !p.draftCode ? ' Giỏ hàng và thông tin bạn đã nhập vẫn được giữ nguyên.' : '' }}</span>
+            </div>
+            @if (p.purpose === 'ORDER_CHANGE' || p.purpose === 'REDELIVERY') {
+              @if (p.purpose === 'ORDER_CHANGE' && p.linkShared) {
+                <p class="small text-body-secondary mt-2">Đơn {{ p.orderCode }} giữ nguyên như trước. Bạn liên hệ Soulprint qua kênh đang trao đổi để nhận liên kết mới nếu vẫn muốn đổi.</p>
+              }
+              <div class="sp-gw__acts"><a class="btn btn-primary" [routerLink]="['/tai-khoan/don-hang', p.orderCode]">{{ p.purpose === 'REDELIVERY' ? 'Về đơn hàng để thử lại' : 'Về đơn hàng' }}</a></div>
+            } @else if (p.draftCode) {
+              <p class="small text-body-secondary mt-2">Liên kết này đã hết hạn. Vui lòng liên hệ Soulprint qua kênh bạn đang trao đổi để nhận liên kết mới.</p>
+            } @else {
+              <div class="sp-gw__acts">
+                <button class="btn btn-primary" type="button" [disabled]="busy()" (click)="retry()">
+                  <app-icon name="refresh" [size]="18" /> {{ busy() === 'retry' ? 'Đang tạo phiên mới...' : 'Tạo phiên thanh toán mới' }}
+                </button>
+                <a class="btn btn-outline-primary" routerLink="/thanh-toan" [queryParams]="{ gd: p._id }">Quay lại trang thanh toán</a>
+              </div>
+            }
+          } @else if (busy() === 'success' || busy() === 'fail') {
+            <div class="sp-gw__busy" role="status" aria-live="polite">
+              <span class="spinner-border text-primary" aria-hidden="true"></span>
+              <strong>Đang xác nhận giao dịch...</strong>
+              <span>Bạn đừng đóng hay tải lại trang nhé. Thường mất vài giây.</span>
+            </div>
+          } @else {
+            <div class="sp-gw__note" role="note">
+              <app-icon name="info" [size]="20" />
+              <span>Đây là cổng thanh toán giả lập để thử luồng đặt hàng. <strong>Không trừ tiền thật.</strong> Bạn chọn một kết quả bên dưới để mô phỏng.</span>
+            </div>
+            <div class="sp-gw__acts">
+              <button class="btn btn-primary" type="button" [disabled]="busy()" (click)="simulate('success')"><app-icon name="check-circle" [size]="18" /> Thanh toán thành công</button>
+              <button class="btn btn-outline-primary" type="button" [disabled]="busy()" (click)="simulate('fail')"><app-icon name="x-circle" [size]="18" /> Thanh toán thất bại</button>
+            </div>
+          }
+
+          @if (!expired()) {
+            <button class="sp-more sp-gw__cancel" type="button" [disabled]="busy()" (click)="simulate('cancel')">
+              <app-icon name="arrow-left" [size]="18" /> Hủy và quay lại Soulprint
+            </button>
+          }
+        </div>
+      </section>
+    }
+  </main>
+
+  <p class="sp-gw__foot">Cổng thanh toán Soulprint (môi trường thử nghiệm) | Phiên bản dùng cho đồ án, không kết nối ngân hàng thật</p>
+</div>

@@ -1,0 +1,105 @@
+<header class="sp-ph sp-ph--row">
+  <div>
+    <h1>Sổ địa chỉ</h1>
+    <p>Chọn nhanh khi đặt hàng cho mình hoặc giao cho người nhận</p>
+  </div>
+  <button class="btn btn-primary d-inline-flex align-items-center gap-2" type="button" (click)="open(null)">
+    <app-icon name="plus" [size]="20" /> Thêm địa chỉ
+  </button>
+</header>
+
+@if (loading()) {
+  <div class="sp-addrs">
+    <span class="sp-skel" style="height: 140px"></span>
+    <span class="sp-skel" style="height: 140px"></span>
+  </div>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!addresses().length) {
+  <div class="sp-state">
+    <span class="sp-state__ic"><app-icon name="map-pin" [size]="32" /></span>
+    <h2 class="h4">Bạn chưa lưu địa chỉ nào</h2>
+    <p>Thêm địa chỉ để thanh toán nhanh hơn ở lần mua sau.</p>
+    <button class="btn btn-primary" type="button" (click)="open(null)">Thêm địa chỉ</button>
+  </div>
+} @else {
+  <div class="sp-addrs">
+    @for (a of addresses(); track a._id) {
+      <article class="sp-addr" [class.is-default]="a.isDefault">
+        <div class="sp-addr__head">
+          <strong>{{ a.recipientName }}</strong>
+          <span class="text-body-secondary">{{ a.phone }}</span>
+          @if (a.isDefault) {
+            <span class="sp-badge sp-badge--primary">Địa chỉ của tôi</span>
+          }
+        </div>
+        <p>{{ a.street }}, {{ a.ward }}, {{ a.province }}</p>
+        <div class="sp-addr__acts">
+          <button class="btn btn-sm btn-outline-primary" type="button" (click)="open(a)">Sửa</button>
+          @if (!a.isDefault) {
+            <button class="btn btn-sm btn-link" type="button" (click)="setDefault(a)">Đặt làm địa chỉ của tôi</button>
+          }
+          <button class="btn btn-sm btn-link text-danger ms-auto" type="button" (click)="remove(a)">Xóa</button>
+        </div>
+      </article>
+    }
+  </div>
+}
+
+@if (editing(); as current) {
+  <app-dialog [title]="current === 'new' ? 'Thêm địa chỉ mới' : 'Sửa địa chỉ'" subtitle="Địa giới hành chính mới: Tỉnh/Thành phố và Phường/Xã" (closed)="editing.set(null)">
+    <form id="addr-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      @if (dvhc.usingFallback()) {
+        <p class="sp-field__hint">Đang dùng danh sách địa chỉ dự phòng</p>
+      }
+      <div class="sp-grid2">
+        <div class="sp-field">
+          <label for="recipientName">Tên người nhận <span class="req">*</span></label>
+          <input id="recipientName" class="form-control" formControlName="recipientName" [class.is-invalid]="error('recipientName')" />
+          @if (error('recipientName')) {
+            <span class="sp-field__error">{{ error('recipientName') }}</span>
+          }
+        </div>
+        <div class="sp-field">
+          <label for="aphone">Số điện thoại <span class="req">*</span></label>
+          <input id="aphone" type="tel" inputmode="numeric" class="form-control" formControlName="phone" [class.is-invalid]="error('phone')" />
+          @if (error('phone')) {
+            <span class="sp-field__error">{{ error('phone') }}</span>
+          }
+        </div>
+        <div class="sp-field">
+          <label for="province">Tỉnh/Thành phố <span class="req">*</span></label>
+          <app-search-select inputId="province" formControlName="provinceCode" placeholder="Chọn hoặc gõ Tỉnh/Thành phố" [emptyValue]="0" [options]="provinces() | searchOptions: 'code' : 'name'" [invalid]="!!error('provinceCode')" />
+          @if (error('provinceCode')) {
+            <span class="sp-field__error">{{ error('provinceCode') }}</span>
+          }
+        </div>
+        <div class="sp-field">
+          <label for="ward">Phường/Xã <span class="req">*</span></label>
+          <app-search-select inputId="ward" formControlName="ward" placeholder="Chọn hoặc gõ Phường/Xã" [loading]="loadingWards()" [options]="wards() | searchOptions: 'name' : 'name'" [invalid]="!!error('ward')" />
+          @if (error('ward')) {
+            <span class="sp-field__error">{{ error('ward') }}</span>
+          }
+        </div>
+      </div>
+      <div class="sp-field">
+        <label for="street">Số nhà, tên đường <span class="req">*</span></label>
+        <input id="street" class="form-control" formControlName="street" placeholder="VD 669 Đỗ Mười, Khu phố 3" [class.is-invalid]="error('street')" />
+        @if (error('street')) {
+          <span class="sp-field__error">{{ error('street') }}</span>
+        }
+      </div>
+      <label class="form-check d-flex align-items-center gap-2 p-0">
+        <input class="form-check-input m-0" type="checkbox" formControlName="isDefault" />
+        <span class="form-check-label">Đặt làm địa chỉ của tôi</span>
+      </label>
+    </form>
+    <div dialog-footer>
+      <button class="btn btn-link" type="button" (click)="editing.set(null)">Hủy</button>
+      <button class="btn btn-primary" type="submit" form="addr-form" [disabled]="saving()">Lưu địa chỉ</button>
+    </div>
+  </app-dialog>
+}

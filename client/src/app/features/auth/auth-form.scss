@@ -1,0 +1,227 @@
+// Kiểu chung cho form của SCR-11 đến SCR-14 và SCR-60 (đăng nhập quản trị dùng chung để 2 form giống nhau)
+.sp-af__title {
+  margin: 0 0 4px;
+  font-family: var(--sp-font-body); // Theo SCR-12, 13 - Montserrat 28px
+  font-size: 28px;
+  line-height: 36px;
+}
+
+.sp-af__lead {
+  margin: 0 0 var(--sp-space-5);
+  color: var(--sp-color-text-muted);
+}
+
+// Dùng chung cho SCR-11 và SCR-60: màn hẹp thì "Quên mật khẩu?" xuống dòng, chữ "Ghi nhớ đăng nhập" không bị cắt
+.sp-af__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-space-2) var(--sp-space-3);
+  margin-bottom: var(--sp-space-5);
+
+  .form-check-label,
+  a {
+    white-space: nowrap;
+  }
+
+  .form-check {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-2);
+    padding: 0;
+  }
+
+  .form-check-input {
+    float: none;
+    margin: 0;
+    width: 20px;
+    height: 20px;
+  }
+
+  a {
+    font-weight: 600;
+  }
+}
+
+.sp-af__or {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+  margin: var(--sp-space-5) 0;
+  color: var(--sp-color-text-subtle);
+  font-size: 13px;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--sp-color-border);
+  }
+}
+
+.sp-af__alt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-space-2);
+  min-height: var(--sp-tap-min);
+}
+
+.sp-af__note {
+  margin: var(--sp-space-2) 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-af__switch {
+  margin: var(--sp-space-4) 0 0;
+  text-align: center;
+  font-size: 14px;
+
+  a {
+    font-weight: 700;
+  }
+}
+
+.sp-af__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--sp-space-4);
+
+  @media (min-width: 576px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sp-af__terms {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-space-2);
+  padding: 0;
+  margin-bottom: var(--sp-space-4);
+
+  .form-check-input {
+    float: none;
+    margin: 2px 0 0;
+    width: 20px;
+    height: 20px;
+    flex: none;
+  }
+}
+
+// Bước 1-2-3 của quên mật khẩu (SCR-13, SCR-14)
+.sp-auth-steps {
+  display: flex;
+  gap: var(--sp-space-2);
+  margin: 0 0 var(--sp-space-5);
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--sp-color-text-subtle);
+    font-weight: 600;
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+    }
+
+    &.is-on {
+      color: var(--sp-color-primary);
+    }
+
+    &.is-done span {
+      background: var(--sp-color-primary);
+      border-color: var(--sp-color-primary);
+      color: var(--sp-color-on-primary);
+    }
+
+    & + li::before {
+      content: "";
+      width: 16px;
+      height: 1.5px;
+      background: var(--sp-color-border-strong);
+    }
+  }
+
+  // Màn hẹp: chỉ bước đang làm hiện chữ, các bước khác còn số (giống thanh bước SCR-07)
+  @media (max-width: 575.98px) {
+    li {
+      white-space: nowrap;
+
+      span {
+        flex: none;
+        font-size: 13px;
+      }
+    }
+
+    li:not(.is-on) {
+      font-size: 0;
+    }
+  }
+}
+
+.sp-otp {
+  font-size: 28px !important;
+  letter-spacing: 0.6em;
+  text-align: center;
+  font-weight: 700;
+}
+
+.sp-demo {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  padding: var(--sp-space-2) var(--sp-space-3);
+  margin-bottom: var(--sp-space-4);
+  border-radius: var(--sp-radius-md);
+  border: 1px dashed var(--sp-color-info);
+  background: var(--sp-color-info-subtle);
+  color: var(--sp-color-info);
+  font-size: 14px;
+
+  strong {
+    letter-spacing: 0.15em;
+  }
+}
+
+.sp-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-space-3);
+  text-align: center;
+  padding: var(--sp-space-5) 0;
+
+  .sp-done__ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--sp-color-success-subtle);
+    color: var(--sp-color-success);
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    color: var(--sp-color-text-muted);
+  }
+}

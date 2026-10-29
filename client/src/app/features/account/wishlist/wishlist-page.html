@@ -1,0 +1,69 @@
+<header class="sp-ph">
+  <h1>Yêu thích</h1>
+  <p>{{ items().length }} sản phẩm đã lưu{{ outCount() ? ' | ' + outCount() + ' tạm hết hoặc ngừng bán' : '' }}</p>
+</header>
+
+@if (loading()) {
+  <div class="sp-wgrid">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <span class="sp-skel" style="height: 320px"></span>
+    }
+  </div>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!items().length) {
+  <!-- 4Ea -->
+  <div class="sp-state">
+    <span class="sp-state__ic"><app-icon name="heart" [size]="32" /></span>
+    <h2 class="h4">Chưa có sản phẩm yêu thích</h2>
+    <p>Bấm biểu tượng trái tim trên sản phẩm để lưu lại và so sánh sau.</p>
+    <div class="d-flex flex-wrap gap-2 justify-content-center">
+      <a class="btn btn-primary" routerLink="/san-pham">Khám phá sản phẩm</a>
+      <a class="btn btn-outline-primary" routerLink="/tu-van-qua">Tìm quà cùng AI</a>
+    </div>
+  </div>
+} @else {
+  <div class="sp-wgrid">
+    @for (it of items(); track it._id) {
+      <article class="sp-witem" [class.is-off]="it.status !== 'DANG_BAN'">
+        <a class="sp-witem__media" [routerLink]="it.slug && it.status !== 'NGUNG_KINH_DOANH' ? ['/san-pham', it.slug] : null" tabindex="-1" aria-hidden="true">
+          <img [src]="it.image || '/assets/brand/soulprint-mark.png'" alt="" loading="lazy" />
+        </a>
+        <div class="sp-witem__badges">
+          @if (it.status === 'NGUNG_KINH_DOANH') {
+            <span class="sp-badge sp-badge--out">Ngừng kinh doanh</span>
+          } @else if (it.status === 'TAM_HET') {
+            <span class="sp-badge sp-badge--out">Tạm hết hàng</span>
+          } @else if (it.onSale) {
+            <span class="sp-badge sp-badge--sale">-{{ it.discountPercent }}%</span>
+          }
+          @if (it.labels?.personalization?.length && it.status === 'DANG_BAN') {
+            <span class="sp-badge sp-badge--perso"><app-icon name="wand" [size]="14" />Cá nhân hóa</span>
+          }
+        </div>
+        <button class="btn sp-witem__fav" type="button" [attr.aria-label]="'Bỏ yêu thích ' + it.name" (click)="unfavorite(it)">
+          <app-icon name="heart-fill" [size]="20" />
+        </button>
+        @if (it.slug && it.status !== 'NGUNG_KINH_DOANH') {
+          <a class="sp-witem__name" [routerLink]="['/san-pham', it.slug]">{{ it.name }}</a>
+        } @else {
+          <span class="sp-witem__name">{{ it.name }}</span>
+        }
+        <div class="sp-witem__foot">
+          <div class="sp-price">
+            <span class="sp-price__now">{{ it.finalPrice | vnd }}</span>
+            @if (it.onSale) {
+              <span class="sp-price__was">{{ it.price | vnd }}</span>
+            }
+          </div>
+          <button class="btn btn-primary btn-sm" type="button" [disabled]="it.status !== 'DANG_BAN' || adding() === it._id" (click)="addToCart(it)">
+            {{ it.needsOptions ? 'Chọn mua' : 'Thêm vào giỏ' }}
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+}

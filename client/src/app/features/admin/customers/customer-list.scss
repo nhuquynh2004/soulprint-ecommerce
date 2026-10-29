@@ -1,0 +1,95 @@
+// SCR-58 - bám SCR-58-Desktop, DanhGia, DanhGia-ChonNhieu, AnDanhGia
+.sp-tabs2 a {
+  text-decoration: none;
+}
+
+.sp-ctable,
+.sp-rtable {
+  min-width: 760px;
+}
+
+.sp-crow {
+  cursor: pointer;
+
+  &:hover td {
+    background: var(--sp-color-surface-alt);
+  }
+}
+
+.sp-stars {
+  display: inline-flex;
+  color: var(--sp-color-rating);
+}
+
+.sp-rtext {
+  max-width: 320px;
+}
+
+// Hồ sơ khách - bám SCR-58-Desktop-ChiTiet
+.sp-odgrid2 {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: var(--sp-space-4);
+  align-items: start;
+}
+
+@media (max-width: 991.98px) {
+  .sp-odgrid2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sp-cdrev {
+  padding: var(--sp-space-3) 0;
+  border-bottom: 1px solid var(--sp-color-border);
+}
+
+.sp-cdkv {
+  margin: 0;
+
+  > div {
+    padding: 6px 0;
+  }
+
+  dt {
+    color: var(--sp-color-text-muted);
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  button {
+    margin-left: 6px;
+    padding: 0 6px;
+    border: 1px solid var(--sp-color-border);
+    border-radius: var(--sp-radius-sm);
+    background: none;
+    color: var(--sp-color-primary);
+    font-size: 12px;
+  }
+}
+
+.sp-tabs2 {
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  > * {
+    flex: none;
+    white-space: nowrap;
+  }
+}
+
+.sp-odgrid2 > * {
+  min-width: 0;
+}
+
+// Đánh giá gốc trong hộp thoại trả lời
+.sp-reply-src {
+  padding: 12px;
+  border-radius: var(--sp-radius-md);
+  background: var(--bs-tertiary-bg);
+}

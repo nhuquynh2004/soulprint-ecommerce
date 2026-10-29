@@ -1,0 +1,477 @@
+<header class="sp-aph db-head">
+  <div>
+    <h1>Tổng quan</h1>
+    @if (data(); as d) {
+      <p>{{ dmy(d.range.from) }} - {{ dmy(d.range.to) }} | so với {{ dmy(d.range.prevFrom) }} - {{ dmy(d.range.prevTo) }}</p>
+    }
+  </div>
+</header>
+
+<div class="db-range" role="group" aria-label="Khoảng thời gian">
+  <div class="sp-seg">
+    @for (p of presets; track p.key) {
+      <button type="button" [class.is-on]="preset() === p.key" [attr.aria-pressed]="preset() === p.key" (click)="pick(p.key)">{{ p.label }}</button>
+    }
+    <button type="button" [class.is-on]="preset() === 'tuy-chon'" [attr.aria-pressed]="preset() === 'tuy-chon'" (click)="openCustom()">
+      <app-icon name="calendar" [size]="16" /> Tùy chọn
+    </button>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="sp-alert sp-alert--danger mb-3" role="alert">{{ error() }} <button type="button" class="btn btn-link btn-sm p-0" (click)="load()">Thử lại</button></div>
+}
+
+@if (loading()) {
+  <div class="db-tiles">
+    @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+      <span class="sp-skel d-block" style="height: 118px"></span>
+    }
+  </div>
+  <span class="sp-skel d-block mt-3" style="height: 320px"></span>
+} @else if (data(); as d) {
+  <!-- Gợi ý hành động (3g) -->
+  <section class="sp-panel db-ins" aria-labelledby="db-ins-h">
+    <div class="db-ph">
+      <h2 id="db-ins-h">Gợi ý hành động</h2>
+      <span class="sp-muted small">Cập nhật {{ loadedAt() | date: 'HH:mm' }}</span>
+    </div>
+    @for (i of insights(); track insightKey(i)) {
+      <div class="db-insrow">
+        <span class="db-sev" [class]="'db-sev db-sev--' + i.severity">
+          <app-icon [name]="i.severity === 'BINH_THUONG' ? 'clock' : 'alert-circle'" [size]="14" />{{ i.severityLabel }}@if (i.due) {<span class="db-sev__due">{{ i.due }}</span>}
+        </span>
+        <div class="db-insrow__b">
+          <strong>{{ i.message }}</strong>
+          @if (i.detail) {
+            <span class="sp-muted">{{ i.detail }}</span>
+          }
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm db-insrow__go" (click)="open(i.link)">{{ actionLabel(i) }}</button>
+        <button type="button" class="btn btn-link btn-sm p-1 db-insrow__x" [attr.aria-label]="'Ẩn gợi ý: ' + i.message" (click)="dismiss(i)"><app-icon name="close" [size]="16" /></button>
+      </div>
+    } @empty {
+      <div class="db-ok"><app-icon name="check-circle" [size]="20" /> Mọi thứ đang ổn</div>
+    }
+  </section>
+
+  <!-- Thiết lập cửa hàng (chỉ Quản trị) -->
+  @if (d.setup; as s) {
+    <section class="sp-panel" aria-labelledby="db-setup-h">
+      <div class="db-ph">
+        <h2 id="db-setup-h">Thiết lập cửa hàng</h2>
+        <span class="ms-auto sp-muted small">{{ s.doneCount }}/{{ s.total }} đã xong</span>
+        <button type="button" class="btn btn-link btn-sm p-0" (click)="toggleSetup()" [attr.aria-expanded]="!setupHidden()">
+          <app-icon [name]="setupHidden() ? 'eye' : 'eye-off'" [size]="16" /> {{ setupHidden() ? 'Hiện khối' : 'Ẩn khối' }}
+        </button>
+      </div>
+      @if (!setupHidden()) {
+        <div class="db-setup">
+          @for (c of s.cards; track c.key) {
+            <div class="db-setup__c">
+              <span class="db-setup__ic" [class.is-done]="c.done"><app-icon [name]="c.done ? 'check' : 'settings'" [size]="18" /></span>
+              <div class="db-setup__b">
+                <strong>{{ c.title }}</strong>
+                <span class="sp-muted">{{ c.done ? 'Đã xong | ' : '' }}{{ c.description }}</span>
+              </div>
+              <a class="btn btn-outline-secondary btn-sm" [routerLink]="c.link"><app-icon name="chevron-right" [size]="14" /> Mở</a>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+
+  @if (noOrders()) {
+    <!-- 5Ea: không có dữ liệu -->
+    <div class="sp-panel db-empty">
+      <div class="sp-state sp-state--sm">
+        <app-icon name="chart" [size]="40" />
+        <strong>Chưa có dữ liệu trong khoảng thời gian này</strong>
+        @if (d.firstOrderAt) {
+          <p>Cửa hàng bắt đầu nhận đơn từ {{ firstOrderText() }}. Chọn khoảng thời gian khác.</p>
+          <button type="button" class="btn btn-primary btn-sm" (click)="pick('thang-nay')">Xem tháng này</button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Chỉ số chính, so với kỳ trước (bước 3, 4) -->
+  <div class="db-tiles" [class.is-4]="tiles().length === 4">
+    @for (t of tiles(); track t.key) {
+      <div class="db-tile">
+        <div class="db-tile__h">
+          <span class="db-tile__ic"><app-icon [name]="t.icon" [size]="18" /></span>
+          {{ t.label }}
+          @if (t.info) {
+            <span class="db-info" tabindex="0" [attr.aria-label]="t.info" [attr.data-tip]="t.info"><app-icon name="info" [size]="14" /></span>
+          }
+        </div>
+        <div class="db-tile__v">
+          @switch (t.kind) {
+            @case ('money') { {{ t.metric?.value | vnd }} }
+            @case ('rate') { {{ fmtRate(t.metric?.value) }} }
+            @default { {{ t.sub ?? fmtNumber(t.metric?.value) }} }
+          }
+        </div>
+        @if (t.key === 'packing') {
+          <a class="db-tile__c small" routerLink="/quan-tri/don-hang" [queryParams]="{ view: 'to-pack' }">Đơn đã xác nhận, chờ giao vận chuyển</a>
+        } @else if (changeText(t.metric)) {
+          <span class="db-tile__c" [class]="'db-tile__c is-' + changeTone(t)">
+            <app-icon [name]="t.metric!.change! >= 0 ? 'chevron-up' : 'chevron-down'" [size]="14" /><strong>{{ changeText(t.metric) }}</strong> so với kỳ trước
+          </span>
+        } @else {
+          <span class="db-tile__c sp-muted small">Kỳ trước chưa có số liệu để so sánh</span>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="db-row">
+    <!-- Doanh thu theo ngày/tuần/tháng (Quản trị) -->
+    @if (fin()) {
+      <section class="sp-panel db-chart" aria-labelledby="db-rev-h">
+        <div class="db-ph">
+          <div>
+            <h2 id="db-rev-h">Doanh thu theo {{ groupLabel[d.groupBy] }}</h2>
+            <span class="sp-muted small">Tổng {{ totalRevenue() | vnd }} | TB {{ avgRevenue() | vnd }}/{{ groupLabel[d.groupBy] }}</span>
+          </div>
+          <div class="ms-auto d-flex gap-2 position-relative">
+            <button type="button" class="btn btn-outline-secondary btn-sm" aria-label="Đổi cách nhóm" [attr.aria-expanded]="groupMenu()" (click)="groupMenu.set(!groupMenu())"><app-icon name="grid" [size]="16" /></button>
+            @if (groupMenu()) {
+              <div class="db-menu" role="menu">
+                @for (g of groups; track g) {
+                  <button type="button" role="menuitemradio" [attr.aria-checked]="d.groupBy === g" [class.is-on]="d.groupBy === g" (click)="setGroup(g)">Theo {{ groupLabel[g] }}</button>
+                }
+              </div>
+            }
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="openCsv('revenue')"><app-icon name="upload" [size]="16" /> Xuất CSV</button>
+          </div>
+        </div>
+        @if (totalRevenue() || d.series.length > 1) {
+          <app-revenue-chart [data]="d.series" />
+        }
+        @if (!totalRevenue()) {
+          <p class="sp-muted text-center mb-0 small">Không có doanh thu trong khoảng thời gian này</p>
+        }
+      </section>
+    }
+
+    <!-- Đơn theo trạng thái, thứ tự quy trình -->
+    <section class="sp-panel db-status" aria-labelledby="db-st-h">
+      <div class="db-ph">
+        <div>
+          <h2 id="db-st-h">Đơn theo trạng thái</h2>
+          <span class="sp-muted small">{{ fmtNumber(d.kpis.orders.value) }} đơn</span>
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm ms-auto" (click)="openCsv('orders')"><app-icon name="upload" [size]="16" /> Xuất CSV</button>
+      </div>
+      <ul class="db-bars">
+        @for (s of d.statuses; track s.status) {
+          <li>
+            <a [routerLink]="'/quan-tri/don-hang'" [queryParams]="statusLink(s.status)" [attr.aria-label]="s.label + ': ' + s.count + ' đơn, xem danh sách'">
+              <span class="db-bars__l">{{ s.label }}</span>
+              <span class="db-bars__t"><span class="db-bars__f" [class.is-cancel]="s.status === 'DA_HUY'" [style.width.%]="pctWidth(s.count, statusMax())"></span></span>
+              <span class="db-bars__n">{{ s.count }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+
+  <div class="db-row">
+    <!-- Sản phẩm bán chạy -->
+    <section class="sp-panel db-top" aria-labelledby="db-top-h">
+      <div class="db-ph">
+        <h2 id="db-top-h">Sản phẩm bán chạy</h2>
+        <div class="ms-auto d-flex align-items-center gap-3">
+          @if (d.topProducts.length > 5) {
+            <button type="button" class="btn btn-link btn-sm p-0" (click)="topOpen.set(true)">Xem tất cả</button>
+          }
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="openCsv('top-products')"><app-icon name="upload" [size]="16" /> Xuất CSV</button>
+        </div>
+      </div>
+      <ng-container *ngTemplateOutlet="topTable; context: { $implicit: d.topProducts.slice(0, 5) }" />
+    </section>
+
+    <!-- Doanh thu theo 3 trục (Quản trị) -->
+    @if (d.axes; as axes) {
+      <section class="sp-panel db-axes" aria-labelledby="db-ax-h">
+        <div class="db-ph">
+          <div>
+            <h2 id="db-ax-h">Doanh thu theo 3 trục</h2>
+            <span class="sp-muted small">Tỷ trọng % theo giá trị sản phẩm của đơn đã giao</span>
+          </div>
+        </div>
+        <ul class="db-share">
+          @for (a of axes; track a.key) {
+            <li>
+              <span class="db-share__l"><app-icon [name]="a.key === 'THE_THAO' ? 'ball' : a.key === 'ANIME' ? 'shuriken' : 'gamepad'" [size]="16" /> {{ a.label }}</span>
+              <span class="db-share__t"><span class="db-share__f" [class]="'db-share__f db-share__f--' + a.key" [style.width.%]="a.pct"></span></span>
+              <span class="db-share__n"><strong>{{ a.pct }}%</strong><small>{{ a.revenue | vnd }}</small></span>
+            </li>
+          }
+        </ul>
+      </section>
+    } @else if (d.kpis.packingCount !== null) {
+      <section class="sp-panel db-axes" aria-labelledby="db-low-h">
+        <div class="db-ph"><h2 id="db-low-h">Tồn kho bán chạy</h2></div>
+        <p class="sp-muted small mb-2">Sản phẩm bán chạy đang dưới ngưỡng tồn của biến thể</p>
+        @for (p of d.topProducts; track p.productId) {
+          @if (p.lowStock) {
+            <a class="db-lowrow" [routerLink]="['/quan-tri/san-pham', p.productId]"><span>{{ p.name }}</span><span class="sp-badge-low">Còn {{ p.stock }}</span></a>
+          }
+        }
+      </section>
+    }
+  </div>
+
+  <!-- Các nhóm phân tích của BA (3a-3f) -->
+  <h2 class="db-sec-h">Phân tích chi tiết</h2>
+  <div class="db-grid">
+    @if (d.categories; as cats) {
+      <section class="sp-panel" aria-labelledby="db-cat-h">
+        <div class="db-ph">
+          <div>
+            <h2 id="db-cat-h">Doanh thu theo danh mục</h2>
+            <span class="sp-muted small">Theo giá trị sản phẩm của đơn đã giao, chưa trừ giảm giá và phí</span>
+          </div>
+        </div>
+        <ul class="db-share db-share--plain">
+          @for (c of cats; track c.key) {
+            <li>
+              <span class="db-share__l">{{ c.label }}</span>
+              <span class="db-share__t"><span class="db-share__f" [style.width.%]="c.pct"></span></span>
+              <span class="db-share__n"><strong>{{ c.pct }}%</strong><small>{{ c.revenue | vnd }}</small></span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- 3c Khách hàng: phễu, giỏ bỏ quên -->
+    <section class="sp-panel" aria-labelledby="db-cus-h">
+      <div class="db-ph"><h2 id="db-cus-h">Khách hàng</h2><span class="ms-auto sp-muted small">{{ fmtNumber(d.kpis.customers.value) }} khách mua</span></div>
+      @if (sections().customers; as c) {
+        <div class="db-funnel">
+          @for (f of [{ l: 'Lượt xem', v: c.funnel.views }, { l: 'Yêu thích', v: c.funnel.wishlists }, { l: 'Thêm giỏ', v: c.funnel.addToCarts }, { l: 'Đơn hàng', v: c.funnel.orders }]; track f.l) {
+            <div><strong>{{ fmtNumber(f.v) }}</strong><span>{{ f.l }}</span></div>
+          }
+        </div>
+        <p class="sp-muted small">Lượt xem, yêu thích, thêm giỏ được ghi từ ngày 16/10/2026.</p>
+        <h3 class="db-h3">Giỏ bỏ quên (quá {{ c.abandoned.days }} ngày)</h3>
+        <p class="mb-1">{{ c.abandoned.carts }} giỏ | {{ c.abandoned.lines }} dòng sản phẩm@if (c.abandoned.value !== null) { | {{ c.abandoned.value | vnd }}}</p>
+        @for (p of c.abandoned.topProducts; track p.productId) {
+          <div class="db-kv"><span>{{ p.name }}</span><span>{{ p.count }} giỏ</span></div>
+        }
+      } @else {
+        <span class="sp-skel d-block" style="height: 120px"></span>
+      }
+    </section>
+
+    <!-- 3f Cá nhân hóa và gói quà -->
+    <section class="sp-panel" aria-labelledby="db-pz-h">
+      <div class="db-ph">
+        <h2 id="db-pz-h">Cá nhân hóa và gói quà</h2>
+        <button type="button" class="btn btn-outline-secondary btn-sm ms-auto" (click)="openCsv('personalization')"><app-icon name="upload" [size]="16" /> Xuất CSV</button>
+      </div>
+      @if (sections().personalization; as p) {
+        <div class="db-mini">
+          <div><strong>{{ fmtRate(p.personalizedRate) }}</strong><span>đơn có cá nhân hóa ({{ p.personalizedOrders }}/{{ p.orders }})</span></div>
+          <div><strong>{{ fmtRate(p.giftWrapRate) }}</strong><span>đơn có gói quà</span></div>
+          @if (p.fee !== null) {
+            <div><strong>{{ p.fee | vnd }}</strong><span>phí cá nhân hóa (đơn đã giao)</span></div>
+          }
+        </div>
+        <div class="db-kv"><span>In/Khắc so với Thiết kế</span><span>{{ p.engraveItems }} : {{ p.designItems }} sản phẩm</span></div>
+        <div class="db-kv"><span>Gói quà: Mẫu gợi ý / Mẫu của tôi / Tạo mới</span><span>{{ p.giftWrapSources.GOI_Y }} / {{ p.giftWrapSources.CUA_TOI }} / {{ p.giftWrapSources.TAO_MOI }}</span></div>
+        <div class="db-kv"><span>Sticker dùng: BST/mùa so với thường</span><span>{{ p.stickerKinds.BST_MUA }} : {{ p.stickerKinds.THUONG }}</span></div>
+        <div class="db-kv"><span>Mẫu gói quà: BST/mùa so với thường</span><span>{{ p.templateKinds.BST_MUA }} : {{ p.templateKinds.THUONG }}</span></div>
+        @if (p.topStickers.length) {
+          <h3 class="db-h3">Sticker dùng nhiều</h3>
+          <div class="db-chips">
+            @for (s of p.topStickers; track s.code) {
+              <span class="sp-chip sp-chip--sm">{{ s.name }} | {{ s.uses }}</span>
+            }
+          </div>
+        }
+        @if (p.topStickerSets.length) {
+          <h3 class="db-h3">Bộ sticker dùng nhiều</h3>
+          @for (s of p.topStickerSets; track s.name) {
+            <div class="db-kv"><span>{{ s.name }}@if (s.kind === 'BST_MUA') { <small class="sp-muted">(BST/mùa)</small>}</span><span>{{ s.uses }}</span></div>
+          }
+        }
+        @if (p.topTemplates.length) {
+          <h3 class="db-h3">Mẫu gói quà dùng nhiều</h3>
+          @for (t of p.topTemplates; track t.name) {
+            <div class="db-kv"><span>{{ t.name }}</span><span>{{ t.uses }}</span></div>
+          }
+        }
+      } @else {
+        <span class="sp-skel d-block" style="height: 120px"></span>
+      }
+    </section>
+
+    <!-- 3b Voucher -->
+    <section class="sp-panel" aria-labelledby="db-vc-h">
+      <div class="db-ph">
+        <h2 id="db-vc-h">Voucher</h2>
+        <!-- Xuất lượt dùng voucher trong khoảng đang xem (như SCR-45) -->
+        @if (auth.currentUser()?.can('VOUCHER.XUAT_CSV')) {
+          <button type="button" class="btn btn-outline-secondary btn-sm ms-auto" [disabled]="voucherCsvBusy()" (click)="downloadVoucherCsv()"><app-icon name="upload" [size]="16" /> Xuất CSV</button>
+        }
+      </div>
+      @if (sections().vouchers; as v) {
+        <div class="db-mini">
+          <div><strong>{{ v.totalUses }}</strong><span>lượt dùng</span></div>
+          @if (v.totalDiscount !== null) {
+            <div><strong>{{ v.totalDiscount | vnd }}</strong><span>tổng tiền giảm</span></div>
+          }
+        </div>
+        @for (x of v.items.slice(0, 6); track x.code) {
+          <div class="db-kv"><span class="font-monospace">{{ x.code }}</span><span>{{ x.uses }} lượt@if (x.discount !== null) { | {{ x.discount | vnd }}}</span></div>
+        } @empty {
+          <p class="sp-muted mb-0">Không có voucher được dùng trong khoảng này.</p>
+        }
+      } @else {
+        <span class="sp-skel d-block" style="height: 120px"></span>
+      }
+    </section>
+
+    <!-- 3d Đánh giá -->
+    <section class="sp-panel" aria-labelledby="db-rv-h">
+      <div class="db-ph"><h2 id="db-rv-h">Đánh giá</h2></div>
+      @if (sections().reviews; as rv) {
+        <div class="db-mini">
+          <div><strong>{{ rv.avg !== null ? (rv.avg + '').replace('.', ',') : '-' }}<small>/5</small></strong><span>điểm trung bình</span></div>
+          <div><strong>{{ rv.count }}</strong><span>đánh giá mới</span></div>
+        </div>
+        @if (rv.best.length) {
+          <h3 class="db-h3">Được đánh giá cao</h3>
+          @for (x of rv.best; track x.productId) {
+            <div class="db-kv"><span>{{ x.name }}</span><span><app-icon name="star" [size]="12" /> {{ (x.avg + '').replace('.', ',') }} ({{ x.count }})</span></div>
+          }
+        }
+        @if (rv.worst.length) {
+          <h3 class="db-h3">Điểm thấp nhất</h3>
+          @for (x of rv.worst; track x.productId) {
+            <div class="db-kv"><span>{{ x.name }}</span><span><app-icon name="star" [size]="12" /> {{ (x.avg + '').replace('.', ',') }} ({{ x.count }})</span></div>
+          }
+        }
+      } @else {
+        <span class="sp-skel d-block" style="height: 120px"></span>
+      }
+    </section>
+
+    <!-- 3a Tư vấn AI -->
+    <section class="sp-panel" aria-labelledby="db-ai-h">
+      <div class="db-ph"><h2 id="db-ai-h">Tư vấn AI</h2></div>
+      @if (sections().ai; as a) {
+        <div class="db-mini">
+          <div><strong>{{ a.sessions }}</strong><span>lượt tư vấn</span></div>
+          <div><strong>{{ a.suggested }}</strong><span>sản phẩm được gợi ý</span></div>
+          <div><strong>{{ a.clicks }}</strong><span>lượt bấm</span></div>
+          <div><strong>{{ a.orders }}</strong><span>đơn sau gợi ý</span></div>
+        </div>
+        <div class="db-kv"><span>Tỷ lệ không tìm thấy phù hợp</span><span>{{ fmtRate(a.gapRate) }}</span></div>
+      } @else {
+        <span class="sp-skel d-block" style="height: 80px"></span>
+      }
+    </section>
+  </div>
+}
+
+<ng-template #topTable let-rows>
+  <div class="sp-table-wrap">
+    <table class="table db-table mb-0">
+      <thead>
+        <tr><th scope="col">#</th><th scope="col">Sản phẩm</th><th scope="col" class="text-end">Đã bán</th><th scope="col" class="text-end">{{ fin() ? 'Doanh thu' : 'Tồn kho' }}</th></tr>
+      </thead>
+      <tbody>
+        @for (p of rows; track p.productId; let i = $index) {
+          <tr>
+            <td>{{ i + 1 }}</td>
+            <td><a class="db-prod" [routerLink]="['/quan-tri/san-pham', p.productId]">@if (p.image) {<img [src]="p.image" alt="" width="36" height="36" />}<span>{{ p.name }}</span></a></td>
+            <td class="text-end">{{ p.quantity }}</td>
+            <td class="text-end">
+              @if (fin()) {
+                {{ p.revenue | vnd }}
+              } @else if (p.lowStock) {
+                <span class="sp-badge-low">Sắp hết: Còn {{ p.stock }}</span>
+              } @else {
+                {{ p.stock }}
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4" class="text-center sp-muted">Chưa có sản phẩm được bán trong khoảng này</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</ng-template>
+
+@if (customOpen()) {
+  <app-dialog title="Chọn khoảng thời gian" subtitle="Số liệu so với khoảng liền trước có cùng số ngày." size="sm" (closed)="customOpen.set(false)">
+    <div class="row g-3">
+      <div class="col-6">
+        <label class="sp-field__label" for="db-from">Từ ngày</label>
+        <input id="db-from" type="date" class="form-control" [max]="customTo()" [ngModel]="customFrom()" (ngModelChange)="customFrom.set($event)" />
+      </div>
+      <div class="col-6">
+        <label class="sp-field__label" for="db-to">Đến ngày</label>
+        <input id="db-to" type="date" class="form-control" [class.is-invalid]="customError()" [ngModel]="customTo()" (ngModelChange)="customTo.set($event)" />
+      </div>
+    </div>
+    @if (customError()) {
+      <span class="sp-field__error mt-2 d-block" role="alert">{{ customError() }}</span>
+    }
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="customOpen.set(false)">Hủy</button>
+      <button type="button" class="btn btn-primary" [disabled]="!!customError()" (click)="applyCustom()">Xem số liệu</button>
+    </div>
+  </app-dialog>
+}
+
+@if (topOpen() && data(); as d) {
+  <app-dialog title="Top 10 sản phẩm bán chạy" [subtitle]="dmy(d.range.from) + ' - ' + dmy(d.range.to)" size="lg" (closed)="topOpen.set(false)">
+    <ng-container *ngTemplateOutlet="topTable; context: { $implicit: d.topProducts }" />
+  </app-dialog>
+}
+
+@if (csvOpen(); as ds) {
+  <app-dialog [title]="'Xuất CSV - ' + csvTitle(ds)" subtitle="Tệp CSV mã hóa UTF-8, mở được bằng Excel và Google Sheets." size="sm" (closed)="csvOpen.set(null)">
+    @if (ds === 'revenue') {
+      <fieldset class="mb-3">
+        <legend class="sp-field__label">Loại dữ liệu</legend>
+        @for (k of [{ v: 'day', t: 'Doanh thu theo ngày', d: 'Ngày, số đơn, doanh thu, tiền đã thu, tiền đã hoàn' }, { v: 'product', t: 'Doanh thu theo sản phẩm', d: 'Sản phẩm, SKU, số lượng bán, doanh thu' }, { v: 'axis', t: 'Doanh thu theo 3 trục', d: 'Thể thao, Anime, Game - số đơn và doanh thu' }]; track k.v) {
+          <label class="db-opt" [class.is-on]="csvKind() === k.v">
+            <input type="radio" class="form-check-input" name="csvKind" [checked]="csvKind() === k.v" (change)="csvKind.set($any(k.v))" />
+            <span><strong>{{ k.t }}</strong><small>{{ k.d }}</small></span>
+          </label>
+        }
+      </fieldset>
+    }
+    <div class="row g-3">
+      <div class="col-6">
+        <label class="sp-field__label" for="csv-from">Từ ngày</label>
+        <input id="csv-from" type="date" class="form-control" [ngModel]="csvFrom()" (ngModelChange)="csvFrom.set($event)" />
+      </div>
+      <div class="col-6">
+        <label class="sp-field__label" for="csv-to">Đến ngày</label>
+        <input id="csv-to" type="date" class="form-control" [class.is-invalid]="csvError()" [ngModel]="csvTo()" (ngModelChange)="csvTo.set($event)" />
+      </div>
+    </div>
+    @if (csvError()) {
+      <span class="sp-field__error mt-2 d-block" role="alert">{{ csvError() }}</span>
+    }
+    @if (ds === 'revenue') {
+      <p class="sp-muted small mt-2 mb-0">Doanh thu chỉ tính đơn Đã giao và Hoàn thành.</p>
+    }
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="csvOpen.set(null)">Hủy</button>
+      <button type="button" class="btn btn-primary" [disabled]="!!csvError() || csvBusy()" (click)="downloadCsv()"><app-icon name="upload" [size]="16" /> Xuất CSV</button>
+    </div>
+  </app-dialog>
+}

@@ -1,0 +1,104 @@
+// SCR-23 Thông báo
+.sp-ntabs {
+  overflow-x: auto;
+
+  button {
+    flex: none;
+    white-space: nowrap;
+  }
+}
+
+.sp-nday {
+  margin: var(--sp-space-4) 0 var(--sp-space-2);
+  font-family: var(--sp-font-body); // Theo SCR-23 - 12px/600 màu text-subtle
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sp-color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sp-nlist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sp-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-space-3);
+  width: 100%;
+  padding: var(--sp-space-3) var(--sp-space-4);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface);
+  color: inherit;
+  text-align: left;
+
+  &.is-unread {
+    border-color: var(--sp-primary-200);
+    background: var(--sp-color-primary-subtle);
+  }
+
+  &:hover {
+    border-color: var(--sp-color-primary);
+  }
+}
+
+.sp-notice__ic {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--sp-color-surface-alt);
+  color: var(--sp-color-primary);
+}
+
+.sp-notice__b {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 14px;
+
+  span {
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-notice__meta {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-notice__dot {
+  padding: 1px 8px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-primary);
+  color: var(--sp-color-on-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 575.98px) {
+  .sp-notice {
+    flex-wrap: wrap;
+  }
+
+  .sp-notice__meta {
+    flex-direction: row;
+    width: 100%;
+    padding-left: 52px;
+  }
+}

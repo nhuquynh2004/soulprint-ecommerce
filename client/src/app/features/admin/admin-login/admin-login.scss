@@ -1,0 +1,82 @@
+// SCR-60 - bám SCR-60-Desktop: thẻ giữa màn hình trên nền surface-alt, nút Sáng/Tối góc phải
+.sp-alogin {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--sp-space-5) var(--sp-space-4);
+  background: var(--sp-color-surface-alt);
+}
+
+.sp-alogin__theme {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sp-tap-min);
+  height: var(--sp-tap-min);
+  padding: 0;
+  border-radius: 50%;
+  background: var(--sp-color-surface);
+  border: 1px solid var(--sp-color-border);
+}
+
+.sp-alogin__card {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--sp-space-5);
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-surface);
+  border: 1px solid var(--sp-color-border);
+  box-shadow: var(--sp-shadow-md);
+
+  @media (min-width: 576px) {
+    padding: var(--sp-space-6);
+  }
+
+  .sp-af__title {
+    margin-top: var(--sp-space-5);
+  }
+}
+
+.sp-alogin__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+
+  img {
+    border-radius: 50%;
+  }
+
+  strong {
+    display: block;
+    font-family: var(--sp-font-display);
+    font-size: 20px;
+  }
+
+  span {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sp-color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+.sp-alogin__foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--sp-space-4);
+  font-size: 13px;
+  color: var(--sp-color-text-muted);
+  text-align: center;
+
+  a {
+    font-weight: 600;
+  }
+}

@@ -1,0 +1,59 @@
+<article class="sp-pcard" [class.sp-pcard--compact]="compact" [class.is-oos]="!model.inStock">
+  <a class="sp-pcard__media" [routerLink]="['/san-pham', model.slug]" tabindex="-1" aria-hidden="true">
+    <img [src]="model.getImageUrl()" alt="" loading="lazy" />
+  </a>
+
+  <!-- Nhãn mỗi loại một màu; thẻ hẹp chỉ còn icon (title giữ tên nhãn), riêng -% giữ chữ -->
+  <div class="sp-pcard__badges">
+    @if (model.onSale) {
+      <span class="sp-badge sp-pcard__b sp-pcard__b--sale">-{{ model.discountPercent }}%</span>
+    }
+    @if (model.labels.isNew) {
+      <span class="sp-badge sp-pcard__b sp-pcard__b--new" title="Mới"><app-icon name="sparkle" [size]="14" /><span class="sp-pcard__bt">Mới</span></span>
+    }
+    @if (model.labels.isBestSeller) {
+      <span class="sp-badge sp-pcard__b sp-pcard__b--hot" title="Bán chạy"><app-icon name="medal" [size]="14" /><span class="sp-pcard__bt">Bán chạy</span></span>
+    }
+    @if (model.labels.personalization.length) {
+      <span class="sp-badge sp-pcard__b sp-pcard__b--perso" title="Cá nhân hóa"><app-icon name="wand" [size]="14" /><span class="sp-pcard__bt">Cá nhân hóa</span></span>
+    }
+    @if (!model.inStock) {
+      <span class="sp-badge sp-pcard__b sp-pcard__b--out" title="Tạm hết hàng"><app-icon name="x-circle" [size]="14" /><span class="sp-pcard__bt">Tạm hết hàng</span></span>
+    }
+  </div>
+
+  <button
+    class="btn sp-pcard__fav"
+    type="button"
+    [class.is-on]="wishlist.has(model._id)"
+    [attr.aria-pressed]="wishlist.has(model._id)"
+    [attr.aria-label]="wishlist.has(model._id) ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'"
+    (click)="toggleFavorite()"
+  >
+    <app-icon [name]="wishlist.has(model._id) ? 'heart-fill' : 'heart'" [size]="20" />
+  </button>
+
+  <div class="sp-pcard__meta">
+    <span class="sp-pcard__axis" [class]="'is-' + axes[model.axis].css">{{ axes[model.axis].name }}</span>
+    @if (model.ratingCount) {
+      <app-rating [value]="model.ratingAvg" [size]="14" />
+    }
+  </div>
+
+  <a class="sp-pcard__name" [routerLink]="['/san-pham', model.slug]">{{ model.name }}</a>
+
+  <div class="sp-pcard__foot">
+    <div class="sp-price">
+      <span class="sp-price__now">{{ model.finalPrice | vnd }}</span>
+      @if (model.onSale) {
+        <span class="sp-price__was">{{ model.price | vnd }}</span>
+      }
+    </div>
+    <!-- Sản phẩm cần chọn biến thể/cá nhân hóa ở trang chi tiết trước khi vào giỏ (UC-CRT-01, S4) -->
+    @if (!compact) {
+      <a class="btn btn-primary btn-sm sp-pcard__cta" [routerLink]="['/san-pham', model.slug]" [attr.aria-label]="'Chọn mua ' + model.name">
+        <app-icon name="cart" [size]="20" />
+      </a>
+    }
+  </div>
+</article>

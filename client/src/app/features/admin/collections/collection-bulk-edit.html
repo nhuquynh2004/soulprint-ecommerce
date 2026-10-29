@@ -1,0 +1,85 @@
+<header class="sp-pf-head">
+  <button class="btn sp-pf-back" type="button" aria-label="Về danh sách bộ sưu tập" (click)="cancel()"><app-icon name="arrow-left" [size]="20" /></button>
+  <div class="sp-pf-title">
+    <h1>Đang chỉnh sửa {{ rows().length }} bộ sưu tập</h1>
+    @if (changedCount()) {
+      <span class="sp-badge sp-badge--warning">Chưa lưu {{ changedCount() }} thay đổi</span>
+    }
+  </div>
+  <div class="sp-pf-actions">
+    <button class="btn btn-outline-secondary" type="button" (click)="cancel()">Hủy</button>
+    <button class="btn btn-primary" type="button" [disabled]="saving() || !changedCount()" (click)="save()">Lưu</button>
+  </div>
+</header>
+
+<p class="small text-body-secondary">Sửa trực tiếp trong bảng. Dòng có thay đổi chưa lưu được đánh dấu bằng vạch màu ở đầu dòng.</p>
+
+@if (loading()) {
+  <span class="sp-skel" style="height: 240px"></span>
+} @else if (!rows().length) {
+  <div class="sp-state">
+    <p>Chưa chọn bộ sưu tập nào.</p>
+    <a class="btn btn-primary" routerLink="/quan-tri/bo-suu-tap">Về danh sách bộ sưu tập</a>
+  </div>
+} @else {
+  <div class="sp-table-wrap">
+    <table class="table sp-atable sp-be align-middle">
+      <thead>
+        <tr>
+          <th scope="col" colspan="2">Tên bộ sưu tập</th>
+          <th scope="col">Thứ tự sắp xếp</th>
+          <th scope="col">Nơi hiển thị</th>
+          <th scope="col">Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of rows(); track r.original._id; let i = $index) {
+          <tr [class.is-changed]="isChanged(r)">
+            <td class="sp-be__ic">
+              @if (r.original.coverImage) {
+                <img [src]="r.original.coverImage" alt="" />
+              } @else {
+                <span><app-icon name="layers" [size]="18" /></span>
+              }
+            </td>
+            <td>
+              <input class="form-control" maxlength="120" [attr.aria-label]="'Tên bộ sưu tập dòng ' + (i + 1)" [value]="r.name" [class.is-invalid]="!!r.error" (input)="patch(i, { name: $any($event.target).value })" />
+              @if (r.error) {
+                <div class="invalid-feedback d-block">{{ r.error }}</div>
+              }
+              <small class="text-body-secondary">{{ r.original.type === 'THU_CONG' ? 'Chọn tay' : 'Tự động' }}</small>
+            </td>
+            <td>
+              <select class="form-select" [attr.aria-label]="'Thứ tự sắp xếp dòng ' + (i + 1)" [value]="r.sortBy" (change)="patch(i, { sortBy: $any($event.target).value })">
+                @for (s of sortsFor(r); track s) {
+                  <option [value]="s">{{ sortLabel[s] }}</option>
+                }
+              </select>
+            </td>
+            <td>
+              <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="sp-be__chip" [class.is-on]="r.status === 'HIEN_THI'" [attr.aria-pressed]="r.status === 'HIEN_THI'" (click)="toggleWebsite(i)">
+                  @if (r.status === 'HIEN_THI') { <app-icon name="check" [size]="14" /> } Website
+                </button>
+                <button type="button" class="sp-be__chip" [class.is-on]="r.showOnHome" [attr.aria-pressed]="r.showOnHome" (click)="patch(i, { showOnHome: !r.showOnHome })">
+                  @if (r.showOnHome) { <app-icon name="check" [size]="14" /> } Trang chủ
+                </button>
+              </div>
+            </td>
+            <td>
+              <select class="form-select" [attr.aria-label]="'Trạng thái dòng ' + (i + 1)" [value]="r.status" (change)="patch(i, { status: $any($event.target).value })">
+                <option value="HIEN_THI">Đang hiện</option>
+                <option value="BAN_NHAP">Bản nháp</option>
+                <option value="AN">Ẩn</option>
+              </select>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (leaveDialog()) {
+  <app-confirm-dialog title="Rời trang khi chưa lưu?" message="Các thay đổi trong bảng chưa được lưu sẽ mất." confirmLabel="Rời trang" cancelLabel="Ở lại" [danger]="true" (confirm)="answerLeave(true)" (cancel)="answerLeave(false)" />
+}

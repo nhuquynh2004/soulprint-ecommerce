@@ -1,0 +1,68 @@
+<article class="sp-ai-result" [class.is-top]="top">
+  <div class="sp-aicard-p">
+    <a class="sp-aicard-p__media" [routerLink]="['/san-pham', item.product.slug]" [queryParams]="{ ai: sessionId }" tabindex="-1" aria-hidden="true">
+      <img [src]="item.product.image || placeholder" alt="" loading="lazy" />
+    </a>
+    <div class="sp-aicard-p__badges">
+      @if (item.product.onSale) {
+        <span class="sp-badge sp-badge--sale">-{{ item.product.discountPercent }}%</span>
+      }
+      @if (item.product.labels.isBestSeller) {
+        <span class="sp-badge sp-badge--hot">Bán chạy</span>
+      }
+      @if (item.product.labels.personalization.length) {
+        <span class="sp-badge sp-badge--perso"><app-icon name="wand" [size]="14" />Cá nhân hóa</span>
+      }
+    </div>
+    <button
+      type="button"
+      class="btn sp-aicard-p__fav"
+      [class.is-on]="wishlist.has(item.product._id)"
+      [attr.aria-pressed]="wishlist.has(item.product._id)"
+      [attr.aria-label]="wishlist.has(item.product._id) ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'"
+      (click)="wishlist.toggle(item.product._id)"
+    >
+      <app-icon [name]="wishlist.has(item.product._id) ? 'heart-fill' : 'heart'" [size]="20" />
+    </button>
+    @if (item.product.ratingCount) {
+      <app-rating [value]="item.product.ratingAvg" [size]="14" />
+    }
+    <a class="sp-aicard-p__name" [routerLink]="['/san-pham', item.product.slug]" [queryParams]="{ ai: sessionId }">{{ item.product.name }}</a>
+    <div class="sp-aicard-p__foot">
+      <div class="sp-price">
+        <span class="sp-price__now">{{ item.product.finalPrice | vnd }}</span>
+        @if (item.product.onSale) {
+          <span class="sp-price__was">{{ item.product.price | vnd }}</span>
+        }
+      </div>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm sp-aicard-p__cta"
+        [disabled]="adding || !item.product.inStock"
+        [attr.aria-label]="(item.product.needsOptions ? 'Chọn phân loại ' : 'Thêm ') + item.product.name + ' vào giỏ'"
+        (click)="add.emit(item.product)"
+      >
+        <app-icon name="cart" [size]="20" />
+      </button>
+    </div>
+  </div>
+  <div class="sp-ai-result__why">
+    <div class="sp-match">
+      <span class="sp-match__ring" [style.--p]="pct(item.score)"><span>{{ pct(item.score) }}%</span></span>
+      <div>
+        <div class="fw-bold">Phù hợp {{ pct(item.score) }}%</div>
+        @if (top) {
+          <span class="sp-badge sp-badge--new">Sâu chọn nhất</span>
+        } @else {
+          <span class="sp-muted small">{{ index === 0 ? 'Gợi ý số 1' : 'Gợi ý số ' + (index + 1) }}</span>
+        }
+      </div>
+    </div>
+    <span class="sp-label">Vì sao Sâu chọn món này?</span>
+    <ul class="sp-why">
+      @for (why of item.reasons; track why) {
+        <li [class.warn]="isWarn(why)"><app-icon [name]="isWarn(why) ? 'alert-circle' : 'check-circle'" [size]="20" />{{ why }}</li>
+      }
+    </ul>
+  </div>
+</article>

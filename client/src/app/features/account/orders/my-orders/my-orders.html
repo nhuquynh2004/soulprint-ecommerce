@@ -1,0 +1,228 @@
+<header class="sp-ph">
+  <h1>Đơn hàng của tôi</h1>
+  @if (data(); as d) {
+    <p>
+      {{ d.counts['tat-ca'] }} đơn {{ range() === 'all' ? 'từ trước tới nay' : 'trong ' + rangeLabel() }}
+      @if (d.needAction) {
+        <br class="d-sm-none" /><strong class="text-danger ms-sm-2">{{ d.needAction }} đơn cần bạn xử lý</strong>
+      }
+    </p>
+  }
+</header>
+
+<nav class="sp-tabs2 sp-otabs" role="tablist" aria-label="Lọc đơn hàng">
+  @for (t of tabs; track t.key) {
+    <button type="button" role="tab" [class.is-on]="tab() === t.key" [attr.aria-selected]="tab() === t.key" (click)="go(t.key)">
+      {{ t.label }} ({{ data()?.counts?.[t.key] ?? 0 }})
+    </button>
+  }
+</nav>
+
+<div class="sp-otools">
+  <label class="visually-hidden" for="o-range">Khoảng thời gian</label>
+  <select id="o-range" class="form-select" [value]="range()" (change)="go(tab(), $any($event.target).value)">
+    @for (r of ranges; track r.key) {
+      <option [value]="r.key" [selected]="r.key === range()">{{ r.label }}</option>
+    }
+  </select>
+</div>
+
+@if (error()) {
+  <div class="sp-state" role="alert">
+    <p>{{ error() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!data()) {
+  <div class="sp-olist">
+    @for (i of [1, 2, 3]; track i) {
+      <span class="sp-skel" style="height: 168px"></span>
+    }
+  </div>
+} @else if (tab() === 'doi-tra-bao-hanh' && data()!.requests?.length) {
+  <!-- Tab yêu cầu đổi trả, bảo hành (UC-TRK-02 2a, 05 Mục 2.5): mỗi yêu cầu có tiến độ riêng -->
+  <div class="sp-olist">
+    @for (r of data()!.requests!; track r._id) {
+      <app-request-card [request]="r" [compact]="true" />
+    }
+  </div>
+  @if (data()!.page < data()!.totalPages) {
+    <div class="text-center mt-3">
+      <button class="btn btn-outline-primary" type="button" (click)="load(data()!.page + 1)">Xem thêm yêu cầu</button>
+    </div>
+  }
+} @else if (tab() === 'doi-tra-bao-hanh') {
+  <div class="sp-state">
+    <span class="sp-state__ic"><app-icon name="rotate" [size]="32" /></span>
+    <h2 class="h4">Bạn chưa có yêu cầu đổi trả hay bảo hành nào</h2>
+    <p>Khi món quà có lỗi in, hư hỏng hoặc cần bảo hành, bạn gửi yêu cầu ở thẻ đơn đã giao. Yêu cầu sẽ hiện ở đây kèm tiến độ xử lý.</p>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+      <button class="btn btn-primary" type="button" (click)="go('da-giao')">Xem đơn đã giao</button>
+      <a class="btn btn-outline-primary" routerLink="/chinh-sach/doi-tra">Xem chính sách đổi trả</a>
+    </div>
+  </div>
+} @else if (!data()!.items.length && !data()!.urgentRequests?.length) {
+  @if (!data()!.everOrdered) {
+    <div class="sp-state">
+      <span class="sp-state__ic"><app-icon name="package" [size]="32" /></span>
+      <h2 class="h4">Bạn chưa có đơn hàng nào</h2>
+      <p>Món quà đầu tiên đang chờ bạn. Thử để Sâu Béo gợi ý quà hợp ý nhé.</p>
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        <a class="btn btn-primary" routerLink="/tu-van-qua">Tìm quà cùng AI</a>
+        <a class="btn btn-outline-primary" routerLink="/san-pham">Khám phá sản phẩm ngay</a>
+      </div>
+    </div>
+  } @else {
+    <div class="sp-state">
+      <span class="sp-state__ic"><app-icon name="package" [size]="32" /></span>
+      @switch (tab()) {
+        @case ('da-huy') { <h2 class="h4">Bạn chưa có đơn hàng nào bị hủy</h2> }
+        @case ('dang-giao') { <h2 class="h4">Bạn chưa có đơn hàng nào đang giao</h2> }
+        @case ('da-giao') { <h2 class="h4">Chưa có đơn hoàn thành {{ range() === 'all' ? '' : 'trong ' + rangeLabel() }}</h2> }
+        @default { <h2 class="h4">Không có đơn nào ở mục này</h2> }
+      }
+      <p>Thử chọn khoảng thời gian dài hơn hoặc xem tab Tất cả.</p>
+      <button class="btn btn-outline-primary" type="button" (click)="go('tat-ca', 'all')">Xem tất cả đơn</button>
+    </div>
+  }
+} @else {
+  <div class="sp-olist">
+    <!-- Yêu cầu đặt gấp chưa thành đơn: bấm mở trang yêu cầu để theo dõi, thanh toán khi shop đã chốt -->
+    @for (u of data()!.urgentRequests || []; track u.code) {
+      <article class="sp-order sp-order--urgent">
+        <div class="sp-order__top">
+          <div>
+            <a class="sp-order__code" [routerLink]="u.url">Yêu cầu #{{ u.code }}</a>
+            <span class="sp-order__date">Gửi {{ u.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <span class="d-inline-flex flex-wrap justify-content-end gap-1">
+            <span class="sp-urgent-tag"><app-icon name="clock" [size]="12" /> Đơn gấp</span>
+            <span [class]="'sp-status sp-status--URG_' + u.status">{{ u.statusLabel }}</span>
+          </span>
+        </div>
+        <div class="sp-order__mid">
+          <span class="sp-order__thumb">
+            @if (u.firstItem.image) {
+              <img [src]="u.firstItem.image" alt="" loading="lazy" />
+            } @else {
+              <app-icon name="gift" [size]="24" />
+            }
+          </span>
+          <div class="sp-order__info">
+            <strong>{{ u.firstItem.name }}</strong>
+            <span>{{ u.firstItem.variantName || 'Mặc định' }}, x{{ u.firstItem.quantity }}</span>
+            @if (u.firstItem.personalizationText) {
+              <span>Cá nhân hóa: {{ u.firstItem.personalizationText }}</span>
+            }
+            @if (u.itemCount > 1) {
+              <span class="text-body-secondary small">và {{ u.itemCount - 1 }} sản phẩm khác</span>
+            }
+          </div>
+        </div>
+        @if (u.status === 'TU_CHOI' && u.rejectReason) {
+          <div class="sp-alert sp-alert--warning mb-0"><app-icon name="alert" [size]="20" /><span><strong class="sp-alert__title">Shop chưa nhận yêu cầu này</strong> {{ u.rejectReason }}</span></div>
+        }
+        <div class="sp-order__foot">
+          <span class="sp-order__total">
+            {{ u.status === 'DA_CHOT' ? 'Tổng' : 'Tạm tính' }} <strong>{{ u.total !== null ? (u.total | vnd) : '-' }}</strong>
+            <small>Cần nhận {{ u.deliveryDate | date: 'dd/MM/yyyy' }}</small>
+          </span>
+          <div class="sp-order__acts">
+            <a class="btn btn-sm" [class.btn-primary]="u.status === 'DA_CHOT'" [class.btn-outline-primary]="u.status !== 'DA_CHOT'" [routerLink]="u.url">{{ u.status === 'DA_CHOT' ? 'Thanh toán' : 'Xem yêu cầu' }}</a>
+          </div>
+        </div>
+      </article>
+    }
+    @for (o of data()!.items; track o.code) {
+      @let b = badge(o);
+      <article class="sp-order">
+        <div class="sp-order__top">
+          <div>
+            <a class="sp-order__code" [routerLink]="[o.code]">{{ o.code }}</a>
+            <span class="sp-order__date">Đặt {{ o.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <span class="d-inline-flex flex-wrap justify-content-end gap-1">
+            @if (o.urgent) {
+              <span class="sp-urgent-tag"><app-icon name="clock" [size]="12" /> Đơn gấp</span>
+            }
+            <span class="sp-status" [class]="'sp-status--' + b.key">{{ b.label }}</span>
+          </span>
+        </div>
+        <div class="sp-order__mid">
+          <span class="sp-order__thumb">
+            @if (o.firstItem.image) {
+              <img [src]="o.firstItem.image" alt="" loading="lazy" />
+            } @else {
+              <app-icon name="gift" [size]="24" />
+            }
+          </span>
+          <div class="sp-order__info">
+            <strong>{{ o.firstItem.name }}</strong>
+            <span>{{ o.firstItem.variantName || 'Mặc định' }}, x{{ o.firstItem.quantity }}, {{ o.firstItem.unitPrice | vnd }}</span>
+            @if (o.firstItem.personalizationText) {
+              <span>Cá nhân hóa: {{ o.firstItem.personalizationText }}</span>
+            }
+            @if (o.itemCount > 1) {
+              <span class="text-body-secondary small">và {{ o.itemCount - 1 }} sản phẩm khác</span>
+            }
+          </div>
+        </div>
+
+        @if (o.orderStatus === 'DA_HUY' && o.refund) {
+          <div class="sp-alert sp-alert--info mb-0" [class.sp-alert--success]="o.refund.status === 'DA_HOAN'">
+            <app-icon [name]="o.refund.status === 'DA_HOAN' ? 'check-circle' : 'clock'" [size]="20" />
+            <span>
+              <strong class="sp-alert__title">{{ o.refund.status === 'DA_HOAN' ? 'Đã hoàn ' : 'Đang hoàn ' }}{{ o.refund.amount | vnd }}</strong>
+              {{ o.refund.status === 'DA_HOAN' ? 'Đã chuyển vào' : 'Về' }} tài khoản {{ o.refund.bankName }} {{ o.refund.account }}{{ o.refund.status === 'DA_HOAN' ? '.' : ', tiền về trong 1 - 3 ngày làm việc.' }}
+            </span>
+          </div>
+        } @else if (o.orderStatus === 'DA_HUY' && o.cancelCase === 'TH3' && o.storageStatus === 'DANG_LUU_KHO') {
+          <div class="sp-alert sp-alert--warning mb-0">
+            <app-icon name="alert" [size]="20" />
+            <span>
+              <strong class="sp-alert__title">{{ o.cancelBy === 'REFUSED' ? 'Bạn đã từ chối nhận đơn cá nhân hóa' : 'Đơn cá nhân hóa đã hủy' }}</strong>
+              Soulprint giữ hàng giúp bạn. Nhận lại hàng trong 14 ngày (đến {{ o.storageDeadline | date: 'dd/MM/yyyy' }}), quá hạn hàng cá nhân hóa sẽ được xử lý và không hoàn tiền phần này.
+            </span>
+          </div>
+        }
+
+        <div class="sp-order__foot">
+          <span class="sp-order__total">Tổng <strong>{{ o.total | vnd }}</strong><small>{{ moneyNote(o) }}</small></span>
+          <div class="sp-order__acts">
+            @if (o.actions.cancel) {
+              <button class="btn btn-outline-danger btn-sm" type="button" (click)="cancelCode.set(o.code)">Hủy đơn</button>
+            }
+            @if (o.actions.return) {
+              <a class="btn btn-outline-primary btn-sm" [routerLink]="[o.code, 'doi-tra']">Đổi/trả</a>
+            }
+            @if (o.actions.review) {
+              <button class="btn btn-outline-primary btn-sm" type="button" (click)="reviewCode.set(o.code)">Đánh giá</button>
+            }
+            @if (o.actions.redelivery) {
+              <a class="btn btn-outline-primary btn-sm" [routerLink]="[o.code]">Nhận lại hàng</a>
+            }
+            @if (o.actions.refund || o.actions.refundAccount) {
+              <a class="btn btn-outline-primary btn-sm" [routerLink]="[o.code]">{{ o.actions.refundAccount ? (o.refund?.status === 'THAT_BAI' ? 'Nhập lại tài khoản' : 'Nhập tài khoản nhận tiền') : 'Nhận tiền hoàn' }}</a>
+            }
+            @if (o.actions.reorder) {
+              <button class="btn btn-outline-primary btn-sm" type="button" [disabled]="busyCode() === o.code" (click)="reorder(o)">Mua lại</button>
+            }
+            <a class="btn btn-primary btn-sm" [routerLink]="[o.code]">Xem chi tiết</a>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+  @if (data()!.page < data()!.totalPages) {
+    <div class="text-center mt-3">
+      <button class="btn btn-outline-primary" type="button" (click)="load(data()!.page + 1)">Xem thêm đơn hàng</button>
+    </div>
+  }
+}
+
+@if (reviewCode()) {
+  <app-review-dialog [code]="reviewCode()" (closed)="reviewCode.set('')" (saved)="onReviewed($event)" />
+}
+
+@if (cancelCode()) {
+  <app-cancel-dialog [code]="cancelCode()" (closed)="cancelCode.set('')" (cancelled)="onCancelled(cancelCode())" (stale)="onStale()" (edit)="editInstead(cancelCode(), $event)" />
+}

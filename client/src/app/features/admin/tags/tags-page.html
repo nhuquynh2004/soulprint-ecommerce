@@ -1,0 +1,175 @@
+<header class="sp-aph">
+  <div>
+    <h1>Tags và dữ liệu gợi ý</h1>
+    <p>Tags dùng cho bộ lọc, Tư vấn AI và gợi ý sản phẩm</p>
+  </div>
+  @if (auth.can('TAGS.TAO')) {
+    <button class="btn btn-primary d-inline-flex align-items-center gap-2" type="button" (click)="editingGroup.set('new')">
+      <app-icon name="plus" [size]="20" /> Thêm nhóm tag
+    </button>
+  }
+</header>
+
+<nav class="sp-tabs2" role="tablist" aria-label="Tags và dữ liệu gợi ý">
+  <button role="tab" type="button" [class.is-on]="tab() === 'groups'" [attr.aria-selected]="tab() === 'groups'" (click)="setTab('groups')">
+    Tags theo nhóm <span class="sp-count">{{ tags().length }}</span>
+  </button>
+  @if (auth.can('TAGS.SUA')) {
+    <button role="tab" type="button" [class.is-on]="tab() === 'bulk'" [attr.aria-selected]="tab() === 'bulk'" (click)="setTab('bulk')">Gắn tag hàng loạt</button>
+  }
+  <button role="tab" type="button" [class.is-on]="tab() === 'gaps'" [attr.aria-selected]="tab() === 'gaps'" (click)="setTab('gaps')">
+    Nhu cầu chưa đáp ứng <span class="sp-count">{{ openGaps() }}</span>
+  </button>
+</nav>
+
+@if (loading()) {
+  <span class="sp-skel" style="height: 420px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (tab() === 'groups') {
+  <div class="sp-atools">
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm tag" aria-label="Tìm tag" [value]="q()" (input)="q.set($any($event.target).value.trim())" />
+    </div>
+  </div>
+  <p class="small text-body-secondary">Số bên cạnh tag là số sản phẩm đang gắn; với nhóm khoảng là số sản phẩm khách thấy khớp khoảng. Bấm vào tag để sửa.</p>
+
+  <div class="sp-tgrid">
+    @for (g of visibleGroups(); track g.code) {
+      <section class="sp-tcard" [class.is-hidden]="!g.isFilter" [attr.aria-label]="'Nhóm ' + g.name">
+        <div class="sp-tcard__head">
+          <div class="flex-grow-1">
+            <h2>{{ g.name }} <small>{{ tagsOf(g).length }} tags</small></h2>
+            <p>
+              {{ groupNote(g) }}
+              @if (!g.isFilter) {
+                <span class="sp-badge sp-badge--neutral ms-1">Ẩn khỏi bộ lọc khách</span>
+              }
+              @if (!g.isSystem) {
+                <span class="sp-badge sp-badge--primary ms-1">Tự tạo</span>
+              }
+            </p>
+          </div>
+          @if (auth.can('TAGS.TAO')) {
+            <button class="btn btn-sm btn-link text-nowrap" type="button" (click)="editingTag.set({ tag: null, group: g })"><app-icon name="plus" [size]="16" /> Thêm tag</button>
+          }
+          @if (groupMenu(g).length) {
+            <app-row-menu [items]="groupMenu(g)" [label]="'Thao tác với nhóm ' + g.name" (picked)="onGroupMenu(g, $event)" />
+          }
+        </div>
+        <div class="sp-tcard__tags">
+          @for (t of tagsOf(g); track t._id) {
+            <button type="button" class="sp-tchip" [class.is-off]="!t.isFilter" [title]="(t.synonyms.length ? 'Đồng nghĩa: ' + t.synonyms.join(', ') : '') + (g.kind === 'RANGE' ? ' ' + rangeText(g, t) : '')" (click)="auth.can('TAGS.SUA') && editingTag.set({ tag: t, group: g })">
+              {{ t.name }} <b>{{ t.productCount }}</b>
+            </button>
+          } @empty {
+            <span class="small text-body-secondary">Chưa có tag</span>
+          }
+        </div>
+      </section>
+    }
+  </div>
+} @else if (tab() === 'bulk') {
+  <div class="sp-atools">
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm sản phẩm theo tên hoặc SKU" aria-label="Tìm sản phẩm" (input)="onProductSearch($any($event.target).value)" />
+    </div>
+    <button class="btn btn-primary" type="button" [disabled]="!sel.count()" (click)="tagDialog.set(true)">
+      <app-icon name="tag" [size]="18" /> Chọn tag cho {{ sel.count() }} sản phẩm
+    </button>
+  </div>
+  @if (productsLoading()) {
+    <span class="sp-skel" style="height: 320px"></span>
+  } @else {
+    <div class="sp-table-wrap">
+      <table class="table sp-atable align-middle">
+        <thead>
+          <tr>
+            <th scope="col" class="sp-cb">
+              <input class="form-check-input" type="checkbox" aria-label="Chọn tất cả" [checked]="sel.allOf(pageIds())" [indeterminate]="sel.someOf(pageIds())" (change)="sel.togglePage(pageIds())" />
+            </th>
+            <th scope="col">Sản phẩm</th>
+            <th scope="col">Danh mục</th>
+            <th scope="col">Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of products(); track p._id) {
+            <tr [class.is-selected]="sel.has(p._id)">
+              <td class="sp-cb"><input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn ' + p.name" [checked]="sel.has(p._id)" (change)="sel.toggle(p._id)" /></td>
+              <td><strong>{{ p.name }}</strong><small class="d-block text-body-secondary">SKU {{ p.sku || '-' }}</small></td>
+              <td>{{ p.category || '-' }}</td>
+              <td><span class="sp-status" [class]="'sp-status sp-status--' + p.status">{{ p.status === 'DANG_HIEN_THI' ? 'Đang bán' : p.status === 'BAN_NHAP' ? 'Bản nháp' : p.status === 'DA_AN' ? 'Ẩn' : 'Lưu trữ' }}</span></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="4" class="text-center text-body-secondary py-4">Không có sản phẩm khớp</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="small text-body-secondary mt-2">Hiện 20 sản phẩm cập nhật gần nhất; tìm theo tên hoặc SKU để chọn sản phẩm khác. Sản phẩm đã chọn được giữ khi tìm.</p>
+  }
+} @else {
+  <div class="sp-atools">
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm theo tiêu chí hoặc mô tả, VD: bóng đá, sinh nhật" aria-label="Tìm nhu cầu" [value]="gapQ()" (input)="onGapSearch($any($event.target).value)" />
+    </div>
+    <div class="sp-chips" role="group" aria-label="Lọc trạng thái nhu cầu">
+      <button type="button" class="sp-chip sp-chip--sm" [class.is-on]="gapStatus() === 'MOI'" [attr.aria-pressed]="gapStatus() === 'MOI'" (click)="setGapStatus('MOI')">Mới ({{ gapCounts().MOI }})</button>
+      <button type="button" class="sp-chip sp-chip--sm" [class.is-on]="gapStatus() === 'DA_XU_LY'" [attr.aria-pressed]="gapStatus() === 'DA_XU_LY'" (click)="setGapStatus('DA_XU_LY')">Đã xử lý ({{ gapCounts().DA_XU_LY }})</button>
+      <button type="button" class="sp-chip sp-chip--sm" [class.is-on]="gapStatus() === ''" [attr.aria-pressed]="gapStatus() === ''" (click)="setGapStatus('')">Tất cả ({{ gapCounts().MOI + gapCounts().DA_XU_LY }})</button>
+    </div>
+  </div>
+  <p class="small text-body-secondary">Số trên tab là số nhu cầu Mới. Bấm "Đã xử lý" khi đã bổ sung sản phẩm phù hợp; nếu khách lại tìm đúng tiêu chí đó, nhu cầu tự trở về Mới. Hiện tối đa 200 dòng, nhiều lần nhất trước.</p>
+  @if (!gaps().length) {
+    <div class="sp-state">
+      <app-icon name="sparkle" [size]="40" />
+      <p>{{ gapQ() ? 'Không có nhu cầu khớp "' + gapQ() + '".' : 'Chưa có nhu cầu nào. Khi Tư vấn AI không tìm được sản phẩm khớp đủ tiêu chí, tiêu chí đó sẽ hiện ở đây.' }}</p>
+    </div>
+  } @else {
+    <div class="sp-table-wrap">
+      <table class="table sp-atable align-middle">
+        <thead>
+          <tr><th scope="col">Tiêu chí khách tìm</th><th scope="col" class="text-end">Số lần</th><th scope="col">Lần gần nhất</th><th scope="col">Trạng thái</th><th scope="col"></th></tr>
+        </thead>
+        <tbody>
+          @for (g of gaps(); track g._id) {
+            <tr>
+              <td><strong>{{ g.criteriaKey }}</strong>@if (g.sampleInput) {<small class="d-block text-body-secondary">{{ g.sampleInput }}</small>}</td>
+              <td class="text-end">{{ g.count }}</td>
+              <td>{{ g.lastSeenAt | date: 'HH:mm dd/MM/yyyy' }}</td>
+              <td><span class="sp-status" [class.sp-status--DANG_HIEN]="g.status === 'DA_XU_LY'">{{ g.status === 'DA_XU_LY' ? 'Đã xử lý' : 'Mới' }}</span></td>
+              <td class="text-end">
+                @if (g.status !== 'DA_XU_LY' && auth.can('TAGS.SUA')) {
+                  <button class="btn btn-sm btn-outline-secondary" type="button" (click)="resolveGap(g)">Đã xử lý</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+}
+
+@if (editingGroup(); as g) {
+  <app-tag-group-dialog [group]="g === 'new' ? null : g" (done)="onDialogDone($event)" />
+}
+
+@if (editingTag(); as e) {
+  <app-tag-dialog [tag]="e.tag" [group]="e.group" (done)="onDialogDone($event)" />
+}
+
+@if (deletingGroup(); as g) {
+  <app-confirm-dialog [title]="'Xóa nhóm ' + g.name + '?'" [message]="'Xóa ' + g.tagCount + ' tag của nhóm và gỡ các tag này khỏi mọi sản phẩm. Không hoàn tác được.'" confirmLabel="Xóa nhóm" [danger]="true" (confirm)="doDeleteGroup()" (cancel)="deletingGroup.set(null)" />
+}
+
+@if (tagDialog()) {
+  <app-bulk-tag-dialog [productIds]="sel.ids()" (done)="onBulkDone($event)" />
+}

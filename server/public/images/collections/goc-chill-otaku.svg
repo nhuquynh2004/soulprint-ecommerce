@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" role="img" aria-label="Góc chill của otaku">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0F7D4"/><stop offset="1" stop-color="#D2E77E"/></linearGradient></defs>
+<rect width="1200" height="600" fill="url(#g)"/>
+<g transform="translate(525 180.925) scale(6.25)" fill="none" stroke="#485610" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></g>
+<g fill="#485610" text-anchor="middle" font-family="Montserrat, Arial, sans-serif"><text x="600" y="408.325" font-size="43" font-weight="700">Góc chill của otaku</text></g>
+<text x="1184" y="584" text-anchor="end" font-family="Montserrat, Arial, sans-serif" font-size="15" fill="#485610" opacity=".7">Ảnh minh họa</text>
+</svg>

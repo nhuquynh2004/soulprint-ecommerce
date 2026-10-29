@@ -1,0 +1,121 @@
+[
+  {
+    "keywords": [
+      "phi ship",
+      "van chuyen",
+      "giao hang",
+      "bao lau"
+    ],
+    "question": "Phí vận chuyển và thời gian giao?",
+    "answer": "Soulprint giao toàn quốc, phí đồng giá 30.000đ/đơn. Giao trong TP.HCM 2 ngày, tỉnh khác 4 ngày; đơn cá nhân hóa cần thêm 3 ngày để in/khắc; đặt sau 12:00 tính từ ngày hôm sau. Cần nhận sớm hơn, bạn chọn Đặt gấp ở trang Thanh toán nhé.",
+    "category": "VAN_CHUYEN",
+    "isActive": true
+  },
+  {
+    "keywords": [
+      "thanh toan",
+      "cod",
+      "chuyen khoan",
+      "online"
+    ],
+    "question": "Có những cách thanh toán nào?",
+    "answer": "Bạn có thể thanh toán khi nhận hàng (COD) hoặc thanh toán online. Đơn giao thẳng cho người nhận cần thanh toán online 100%.",
+    "category": "THANH_TOAN",
+    "isActive": true
+  },
+  {
+    "keywords": [
+      "coc",
+      "dat coc",
+      "ca nhan hoa"
+    ],
+    "question": "Vì sao đơn cá nhân hóa phải đặt cọc?",
+    "answer": "Món cá nhân hóa được làm riêng cho bạn nên cần cọc 50% giá trị món đó; phần còn lại trả khi nhận hàng hoặc trả trước.",
+    "category": "THANH_TOAN",
+    "isActive": true
+  },
+  {
+    "keywords": [
+      "doi tra",
+      "tra hang",
+      "hoan tien"
+    ],
+    "question": "Chính sách đổi trả?",
+    "answer": "Bạn gửi yêu cầu đổi/trả trong 7 ngày kể từ khi nhận hàng. Sản phẩm thường đổi/trả được nếu còn tem nhãn; sản phẩm cá nhân hóa chỉ đổi khi lỗi sản xuất kèm ảnh.",
+    "category": "DOI_TRA",
+    "isActive": true
+  },
+  {
+    "keywords": [
+      "huy don",
+      "huy"
+    ],
+    "question": "Tôi có hủy đơn được không?",
+    "answer": "Đơn thường hủy được trước khi giao cho vận chuyển; đơn cá nhân hóa hủy được trước khi bắt đầu in/khắc. Vào Đơn hàng của tôi và chọn Hủy đơn.",
+    "category": "KHAC",
+    "isActive": true
+  },
+  {
+    "keywords": [
+      "khac chu",
+      "in ten",
+      "bao nhieu ky tu"
+    ],
+    "question": "In/khắc được bao nhiêu chữ?",
+    "answer": "Nội dung in/khắc tối đa 20 ký tự, hỗ trợ tiếng Việt có dấu, miễn phí.",
+    "category": "CA_NHAN_HOA",
+    "isActive": true
+  },
+  {
+    "keywords": [
+      "sticker",
+      "thiet ke",
+      "loi nhan"
+    ],
+    "question": "Thêm sticker có tốn phí không?",
+    "answer": "Mỗi sticker hoặc lời nhắn thêm vào thiết kế là 5.000đ.",
+    "category": "CA_NHAN_HOA",
+    "isActive": true
+  },
+  {
+    "keywords": [
+      "goi qua",
+      "thiep"
+    ],
+    "question": "Có gói quà không?",
+    "answer": "Có, gói quà (giấy gói, ruy băng, thiệp) hoàn toàn miễn phí. Bạn chọn mẫu có sẵn hoặc tự tạo ở giỏ hàng.",
+    "category": "KHAC",
+    "isActive": true
+  },
+  {
+    "keywords": [
+      "bao hanh"
+    ],
+    "question": "Sản phẩm được bảo hành bao lâu?",
+    "answer": "Phụ kiện thời trang bảo hành 6 tháng, đồng hồ và thiết bị công nghệ 12 tháng, cho lỗi nhà sản xuất.",
+    "category": "DOI_TRA",
+    "isActive": true
+  },
+  {
+    "keywords": [
+      "tra cuu",
+      "don hang",
+      "o dau"
+    ],
+    "question": "Làm sao xem đơn hàng?",
+    "answer": "Nếu có tài khoản, vào Đơn hàng của tôi. Nếu mua không cần tài khoản, dùng Tra cứu đơn hàng với số điện thoại và mã OTP.",
+    "category": "KHAC",
+    "isActive": true
+  },
+  {
+    "keywords": [
+      "ai",
+      "tu van",
+      "chon qua"
+    ],
+    "question": "Không biết chọn quà gì?",
+    "answer": "Bạn thử Tìm quà cùng AI: chọn người nhận, dịp tặng, sở thích và ngân sách, Sâu sẽ gợi ý 3-5 món phù hợp.",
+    "category": "KHAC",
+    "isActive": true
+  }
+]

@@ -1,0 +1,79 @@
+<div class="sp-adm-narrow">
+  <header class="sp-ph">
+    <h1>Hồ sơ</h1>
+    <p>Thông tin tài khoản quản trị của bạn</p>
+  </header>
+
+  @if (auth.currentUser(); as u) {
+    <form class="sp-panel" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <h2>Thông tin</h2>
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <span class="sp-avatar sp-avatar--lg">{{ u.initials }}</span>
+        <div>
+          <strong>{{ u.fullName }}</strong>
+          <div class="d-flex flex-wrap gap-1 mt-1">
+            @for (r of u.staffRoles; track r.code) {
+              <span class="sp-badge sp-badge--neutral">{{ r.name }}</span>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="sp-grid2">
+        <div class="sp-field">
+          <label for="fullName">Họ và tên</label>
+          <input id="fullName" class="form-control" formControlName="fullName" [class.is-invalid]="error('fullName')" />
+          @if (error('fullName')) {
+            <span class="sp-field__error">{{ error('fullName') }}</span>
+          }
+        </div>
+        <div class="sp-field">
+          <label for="phone">Số điện thoại</label>
+          <input id="phone" type="tel" class="form-control" formControlName="phone" [class.is-invalid]="error('phone')" />
+          @if (error('phone')) {
+            <span class="sp-field__error">{{ error('phone') }}</span>
+          }
+        </div>
+        <div class="sp-field">
+          <label for="email">Email</label>
+          <input id="email" class="form-control" [value]="u.email" readonly />
+          <span class="sp-field__hint">Dùng để đăng nhập, liên hệ Quản trị để đổi</span>
+        </div>
+      </div>
+      <div class="sp-btn-row">
+        <button class="btn btn-primary" type="submit" [disabled]="form.invalid || form.pristine || saving()">Lưu thông tin</button>
+      </div>
+    </form>
+  }
+
+  <app-change-password [embedded]="true" />
+
+  <section class="sp-panel">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <h2 class="sp-panel__title m-0">Phiên đăng nhập</h2>
+      @if (sessions().length > 1) {
+        <button class="btn btn-outline-primary d-inline-flex align-items-center gap-2" type="button" (click)="signOut('others')">
+          <app-icon name="logout" [size]="18" /> Đăng xuất tất cả thiết bị khác
+        </button>
+      }
+    </div>
+    <div class="sp-sessions">
+      @for (s of sessions(); track s.id) {
+        <div class="sp-session">
+          <span class="sp-session__ic"><app-icon [name]="deviceIcon(s.device)" /></span>
+          <div class="sp-session__info">
+            <strong>{{ s.device }}</strong>
+            <span>
+              IP {{ s.ipMasked }} | Hoạt động {{ s.lastSeenAt | date: 'HH:mm dd/MM/yyyy' }}
+              @if (s.current) {
+                <span class="sp-badge sp-badge--primary ms-1">Thiết bị này</span>
+              }
+            </span>
+          </div>
+          @if (!s.current) {
+            <button class="btn btn-sm btn-outline-secondary" type="button" (click)="signOut(s)">Đăng xuất</button>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</div>

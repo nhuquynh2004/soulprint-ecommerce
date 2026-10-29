@@ -1,0 +1,132 @@
+[
+  {
+    "code": "GQ-MUA-01",
+    "name": "Đêm Halloween",
+    "description": "Cam đen ma mị đêm hội",
+    "image": "/images/giftwrap/dem-halloween.svg",
+    "paper": {
+      "code": "CAM-BINGO",
+      "name": "Giấy cam bí ngô"
+    },
+    "ribbon": {
+      "code": "RUY-DEN",
+      "name": "Ruy băng đen"
+    },
+    "card": {
+      "code": "THIEP-HALLOWEEN",
+      "name": "Thiệp Halloween"
+    },
+    "kind": "BST_MUA",
+    "seasonLabel": "Halloween 2026",
+    "collectionSlug": null,
+    "badge": "HOT",
+    "startAt": "2026-10-01T00:00:00+07:00",
+    "endAt": "2026-11-02T23:59:59+07:00",
+    "sortOrder": 1,
+    "isActive": true
+  },
+  {
+    "code": "GQ-TH-01",
+    "name": "Hộp kraft mộc",
+    "description": "Mộc mạc, hợp mọi dịp",
+    "image": "/images/giftwrap/kraft.svg",
+    "paper": {
+      "code": "KRAFT",
+      "name": "Giấy kraft nâu"
+    },
+    "ribbon": {
+      "code": "DAY-GAI",
+      "name": "Dây gai tự nhiên"
+    },
+    "card": {
+      "code": "THIEP-TRON",
+      "name": "Thiệp trơn"
+    },
+    "kind": "THUONG",
+    "seasonLabel": null,
+    "collectionSlug": null,
+    "badge": null,
+    "startAt": null,
+    "endAt": null,
+    "sortOrder": 2,
+    "isActive": true
+  },
+  {
+    "code": "GQ-TH-02",
+    "name": "Sân cỏ xanh",
+    "description": "Cho chàng mê thể thao",
+    "image": "/images/giftwrap/san-co.svg",
+    "paper": {
+      "code": "XANH-CO",
+      "name": "Giấy xanh sân cỏ"
+    },
+    "ribbon": {
+      "code": "RUY-TRANG",
+      "name": "Ruy băng trắng"
+    },
+    "card": {
+      "code": "THIEP-BONG",
+      "name": "Thiệp quả bóng"
+    },
+    "kind": "THUONG",
+    "seasonLabel": null,
+    "collectionSlug": null,
+    "badge": null,
+    "startAt": null,
+    "endAt": null,
+    "sortOrder": 3,
+    "isActive": true
+  },
+  {
+    "code": "GQ-TH-03",
+    "name": "Đêm anime",
+    "description": "Tím đêm, sao lấp lánh",
+    "image": "/images/giftwrap/dem-anime.svg",
+    "paper": {
+      "code": "TIM-SAO",
+      "name": "Giấy tím họa tiết sao"
+    },
+    "ribbon": {
+      "code": "RUY-VANG",
+      "name": "Ruy băng vàng"
+    },
+    "card": {
+      "code": "THIEP-CHIBI",
+      "name": "Thiệp chibi"
+    },
+    "kind": "THUONG",
+    "seasonLabel": null,
+    "collectionSlug": null,
+    "badge": null,
+    "startAt": null,
+    "endAt": null,
+    "sortOrder": 4,
+    "isActive": true
+  },
+  {
+    "code": "GQ-TH-04",
+    "name": "Neon game thủ",
+    "description": "Viền neon cho game thủ",
+    "image": "/images/giftwrap/neon.svg",
+    "paper": {
+      "code": "DEN-NEON",
+      "name": "Giấy đen viền neon"
+    },
+    "ribbon": {
+      "code": "RUY-XANH-NEON",
+      "name": "Ruy băng xanh neon"
+    },
+    "card": {
+      "code": "THIEP-PIXEL",
+      "name": "Thiệp pixel"
+    },
+    "kind": "THUONG",
+    "seasonLabel": null,
+    "collectionSlug": null,
+    "badge": null,
+    "startAt": null,
+    "endAt": null,
+    "sortOrder": 5,
+    "isActive": true
+  }
+]

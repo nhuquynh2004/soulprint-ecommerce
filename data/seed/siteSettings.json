@@ -1,0 +1,198 @@
+[
+  {
+    "key": "home",
+    "draft": {
+      "sections": [
+        {
+          "id": "banners",
+          "visible": true,
+          "type": "banners",
+          "settings": {}
+        },
+        {
+          "id": "categories",
+          "visible": true,
+          "type": "categories",
+          "settings": {
+            "title": "Mua theo nhu cầu"
+          }
+        },
+        {
+          "id": "axes",
+          "visible": true,
+          "type": "axes",
+          "settings": {
+            "title": "Mua theo đam mê"
+          }
+        },
+        {
+          "id": "recipientGroups",
+          "visible": true,
+          "type": "recipientGroups",
+          "settings": {
+            "title": "Mua theo người nhận"
+          }
+        },
+        {
+          "id": "featured",
+          "visible": true,
+          "type": "featured",
+          "settings": {
+            "title": "Sản phẩm nổi bật",
+            "limit": 8
+          }
+        },
+        {
+          "id": "collection-qua-sinh-nhat-me-bong-da",
+          "type": "collection",
+          "visible": true,
+          "settings": {
+            "collectionSlug": "qua-sinh-nhat-me-bong-da",
+            "limit": 8
+          }
+        },
+        {
+          "id": "collection-goc-chill-cua-otaku",
+          "type": "collection",
+          "visible": true,
+          "settings": {
+            "collectionSlug": "goc-chill-cua-otaku",
+            "limit": 8
+          }
+        },
+        {
+          "id": "newArrivals",
+          "visible": true,
+          "type": "productList",
+          "settings": {
+            "title": "Hàng mới về",
+            "source": {
+              "kind": "NEW"
+            },
+            "limit": 8
+          }
+        },
+        {
+          "id": "featuredReviews",
+          "visible": true,
+          "type": "featuredReviews",
+          "settings": {
+            "title": "Khách hàng nói gì"
+          }
+        }
+      ]
+    },
+    "published": {
+      "sections": [
+        {
+          "id": "banners",
+          "visible": true,
+          "type": "banners",
+          "settings": {}
+        },
+        {
+          "id": "categories",
+          "visible": true,
+          "type": "categories",
+          "settings": {
+            "title": "Mua theo nhu cầu"
+          }
+        },
+        {
+          "id": "axes",
+          "visible": true,
+          "type": "axes",
+          "settings": {
+            "title": "Mua theo đam mê"
+          }
+        },
+        {
+          "id": "recipientGroups",
+          "visible": true,
+          "type": "recipientGroups",
+          "settings": {
+            "title": "Mua theo người nhận"
+          }
+        },
+        {
+          "id": "featured",
+          "visible": true,
+          "type": "featured",
+          "settings": {
+            "title": "Sản phẩm nổi bật",
+            "limit": 8
+          }
+        },
+        {
+          "id": "collection-qua-sinh-nhat-me-bong-da",
+          "type": "collection",
+          "visible": true,
+          "settings": {
+            "collectionSlug": "qua-sinh-nhat-me-bong-da",
+            "limit": 8
+          }
+        },
+        {
+          "id": "collection-goc-chill-cua-otaku",
+          "type": "collection",
+          "visible": true,
+          "settings": {
+            "collectionSlug": "goc-chill-cua-otaku",
+            "limit": 8
+          }
+        },
+        {
+          "id": "newArrivals",
+          "visible": true,
+          "type": "productList",
+          "settings": {
+            "title": "Hàng mới về",
+            "source": {
+              "kind": "NEW"
+            },
+            "limit": 8
+          }
+        },
+        {
+          "id": "featuredReviews",
+          "visible": true,
+          "type": "featuredReviews",
+          "settings": {
+            "title": "Khách hàng nói gì"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "key": "store",
+    "fees": {
+      "shippingFee": 30000,
+      "depositRate": 0.5,
+      "stickerFee": 5000
+    },
+    "payments": {
+      "onlineFull": true,
+      "depositCod": true,
+      "codFull": true
+    },
+    "insights": {
+      "stockoutDays": 7,
+      "expiryDays": 7,
+      "abandonedCartDays": 7
+    },
+    "info": {
+      "storeName": "Soulprint",
+      "hotline": "1900 1234",
+      "email": "hotro@soulprint.vn",
+      "returnAddress": "Kho Soulprint, 12 Đường số 7, Phường Linh Xuân, Thành phố Hồ Chí Minh",
+      "workingHours": "8:00 - 21:00 hằng ngày",
+      "social": {
+        "facebook": "",
+        "zalo": "",
+        "instagram": "",
+        "tiktok": ""
+      }
+    }
+  }
+]

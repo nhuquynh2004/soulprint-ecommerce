@@ -1,0 +1,158 @@
+.sp-filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-1);
+  padding: var(--sp-space-4);
+  background: var(--sp-color-surface-alt);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+}
+
+.sp-filter__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--sp-space-2);
+
+  .btn-link {
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+.sp-fgroup {
+  border-top: 1px solid var(--sp-color-border);
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-2);
+    min-height: var(--sp-tap-min);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    // Mũi tên mở/đóng nhóm
+    &::after {
+      content: "";
+      margin-left: auto;
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+      transition: transform var(--sp-dur-fast);
+    }
+  }
+
+  &[open] summary::after {
+    transform: rotate(-135deg);
+  }
+}
+
+.sp-fgroup__body {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--sp-space-3);
+
+  .form-check {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-2);
+    min-height: 40px;
+    margin: 0;
+    padding-left: 0;
+    cursor: pointer;
+  }
+
+  .form-check-input {
+    float: none;
+    margin: 0;
+    width: 20px;
+    height: 20px;
+    flex: none;
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-space-2);
+  }
+}
+
+.sp-fbadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-primary);
+  color: var(--sp-color-on-primary);
+  font-size: 12px;
+}
+
+.sp-fcount {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--sp-color-text-subtle);
+}
+
+.sp-flink {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--sp-space-2);
+  border-radius: var(--sp-radius-md);
+  color: var(--sp-color-text);
+  text-decoration: none;
+
+  span {
+    font-size: 13px;
+    color: var(--sp-color-text-subtle);
+  }
+
+  &:hover {
+    background: var(--sp-color-primary-subtle);
+  }
+
+  &.is-on {
+    background: var(--sp-color-primary-subtle);
+    color: var(--sp-color-primary);
+    font-weight: 600;
+  }
+}
+
+// Mục con "Theo đam mê" trong nhóm Danh mục
+.sp-fsub {
+  margin-top: var(--sp-space-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sp-color-text-muted);
+}
+
+// Dòng mời Tư vấn quà AI cuối thanh lọc
+.sp-filter__ai {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  margin: 0;
+  padding-top: var(--sp-space-3);
+  border-top: 1px solid var(--sp-color-border);
+  font-size: 14px;
+
+  app-icon {
+    flex: none;
+    color: var(--sp-color-primary);
+  }
+
+  a {
+    font-weight: 600;
+  }
+}

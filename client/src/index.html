@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="vi" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <title>Soulprint - Quà tặng cá nhân hóa</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Soulprint - quà tặng cá nhân hóa cho chàng: in khắc, thiết kế riêng, tư vấn chọn quà cùng AI.">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    // Đặt chế độ Sáng/Tối trước khi Angular khởi động để không nháy màu (ThemeService đọc cùng cookie "theme").
+    (function () {
+      var m = document.cookie.match(/(?:^|; )theme=(light|dark)/);
+      var mode = m ? m[1] : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-bs-theme', mode);
+    })();
+  </script>
+</head>
+<body>
+  <a class="visually-hidden-focusable position-absolute m-2 btn btn-primary" href="#noi-dung">Bỏ qua đến nội dung chính</a>
+  <app-root></app-root>
+</body>
+</html>

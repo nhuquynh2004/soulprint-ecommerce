@@ -1,0 +1,269 @@
+<header class="sp-aph">
+  <div>
+    <h1>Trang chủ</h1>
+    <p class="d-flex align-items-center gap-1">
+      <app-icon name="clock" [size]="16" />
+      @if (dirty() || featuredDirty()) {
+        Có thay đổi chưa lưu
+      } @else if (unpublished()) {
+        Có thay đổi chưa xuất bản
+      } @else if (publishedAt()) {
+        Đã xuất bản lúc {{ publishedAt() | date: 'HH:mm dd/MM/yyyy' }}
+      }
+    </p>
+  </div>
+  @if (canEdit) {
+    <div class="d-flex flex-wrap gap-2">
+      <button class="btn btn-link d-inline-flex align-items-center gap-1" type="button" (click)="confirmReset.set(true)"><app-icon name="rotate" [size]="18" /> Khôi phục bố cục gợi ý</button>
+      <button class="btn btn-outline-secondary d-inline-flex align-items-center gap-1" type="button" (click)="openPreview()"><app-icon name="eye" [size]="18" /> Xem trước</button>
+      <button class="btn btn-outline-secondary" type="button" [disabled]="saving() || (!dirty() && !featuredDirty())" (click)="saveDraft()">Lưu nháp</button>
+      @if (canPublish) {
+        <button class="btn btn-primary" type="button" [disabled]="saving() || (!unpublished() && !dirty() && !featuredDirty())" (click)="publish()">Xuất bản</button>
+      }
+    </div>
+  }
+</header>
+
+@if (error()) {
+  <div class="sp-alert sp-alert--danger" role="alert"><app-icon name="alert-circle" [size]="20" /><p>{{ error() }}</p></div>
+}
+
+@if (loading()) {
+  <span class="sp-skel" style="height: 520px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else {
+  <div class="sp-he">
+    <!-- Trái: danh sách khối -->
+    <section class="sp-acard sp-he__list" [class.has-error]="!!error()">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="sp-he__title">Các khối trang chủ</h2>
+        <small class="text-body-secondary">{{ sections().length }} khối</small>
+      </div>
+      @for (s of sections(); track s.id; let i = $index) {
+        <div class="sp-blk" [class.is-open]="open() === s.id" [class.is-off]="!s.visible" [attr.draggable]="canEdit" (dragstart)="onDragStart(i)" (dragover)="$event.preventDefault()" (drop)="onDrop(i, $event)">
+          <div class="sp-blk__row">
+            <app-icon name="grip" [size]="16" class="sp-blk__grip" />
+            <button type="button" class="sp-blk__name" [attr.aria-expanded]="open() === s.id" (click)="open.set(open() === s.id ? null : s.id)">
+              <strong>{{ s.settings.title && s.type !== 'banners' ? s.settings.title : label(s) }}</strong>
+              <small>{{ s.settings.title && s.type !== 'banners' ? label(s) + ' | ' : '' }}{{ summary(s) }}</small>
+            </button>
+            @if (canEdit) {
+              <button type="button" class="btn sp-blk__btn" [attr.aria-label]="(s.visible ? 'Ẩn khối ' : 'Hiện khối ') + label(s)" [title]="s.visible ? 'Đang hiện - bấm để ẩn' : 'Đang ẩn - bấm để hiện'" (click)="toggleVisible(s)">
+                <app-icon [name]="s.visible ? 'eye' : 'eye-off'" [size]="18" />
+              </button>
+            }
+            <button type="button" class="btn sp-blk__btn" [attr.aria-label]="'Cài đặt khối ' + label(s)" (click)="open.set(open() === s.id ? null : s.id)">
+              <app-icon [name]="open() === s.id ? 'chevron-down' : 'chevron-right'" [size]="18" />
+            </button>
+          </div>
+
+          @if (open() === s.id) {
+            <div class="sp-blk__set">
+              @switch (s.type) {
+                @case ('banners') {
+                  @for (b of banners(); track b._id; let bi = $index) {
+                    <div class="sp-bnr" [class.is-off]="!b.isActive">
+                      <img [src]="b.imageDesktop" alt="" />
+                      <div class="flex-grow-1 min-w-0">
+                        <strong class="d-block text-truncate">{{ b.title }}</strong>
+                        <small class="text-body-secondary">{{ b.isActive ? 'Đang bật' : 'Đang tắt' }}@if (b.endAt) { | đến {{ b.endAt | date: 'dd/MM' }} }</small>
+                      </div>
+                      @if (canEdit) {
+                        <button type="button" class="btn btn-sm" aria-label="Lên" [disabled]="bi === 0" (click)="moveBanner(bi, -1)"><app-icon name="chevron-up" [size]="16" /></button>
+                        <button type="button" class="btn btn-sm" aria-label="Xuống" [disabled]="bi === banners().length - 1" (click)="moveBanner(bi, 1)"><app-icon name="chevron-down" [size]="16" /></button>
+                        <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" [checked]="b.isActive" [attr.aria-label]="'Bật banner ' + b.title" (change)="toggleBanner(b)" /></div>
+                        <button type="button" class="btn btn-sm" aria-label="Sửa banner" (click)="editingBanner.set(b)"><app-icon name="edit" [size]="16" /></button>
+                        <button type="button" class="btn btn-sm" aria-label="Xóa banner" (click)="deletingBanner.set(b)"><app-icon name="trash" [size]="16" /></button>
+                      }
+                    </div>
+                  } @empty {
+                    <p class="small text-body-secondary">Chưa có banner. Trang chủ hiện banner mặc định.</p>
+                  }
+                  @if (canEdit) {
+                    <button type="button" class="btn btn-link px-0" (click)="editingBanner.set('new')"><app-icon name="plus" [size]="16" /> Thêm banner</button>
+                  }
+                  <small class="d-block text-body-secondary">Banner lưu ngay, xoay vòng tự động ở đầu trang chủ.</small>
+                }
+                @case ('collection') {
+                  <label class="form-label" [for]="'col-' + s.id">Bộ sưu tập</label>
+                  <select class="form-select mb-2" [id]="'col-' + s.id" [value]="s.settings.collectionId || ''" [disabled]="!canEdit" (change)="update(s, { collectionId: $any($event.target).value })">
+                    <option value="">Chọn bộ sưu tập</option>
+                    @for (c of collections(); track c._id) {
+                      <option [value]="c._id">{{ c.name }}{{ c.displayStatus !== 'DANG_HIEN' ? ' (chưa hiện)' : '' }}</option>
+                    }
+                  </select>
+                  <label class="form-label" [for]="'cl-' + s.id">Số sản phẩm</label>
+                  <input class="form-control" type="number" min="1" max="24" [id]="'cl-' + s.id" [value]="s.settings.limit || 8" [disabled]="!canEdit" (change)="update(s, { limit: +$any($event.target).value })" />
+                  <small class="d-block text-body-secondary mb-2">Tên khối lấy theo tên bộ sưu tập.</small>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" [id]="'va-' + s.id" [checked]="s.settings.showViewAll !== false" [disabled]="!canEdit" (change)="update(s, { showViewAll: $any($event.target).checked })" />
+                    <label class="form-check-label" [for]="'va-' + s.id">Nút "Xem bộ sưu tập"</label>
+                  </div>
+                }
+                @default {
+                  <label class="form-label" [for]="'t-' + s.id">Tiêu đề khối</label>
+                  <input class="form-control mb-2" [id]="'t-' + s.id" maxlength="80" [value]="s.settings.title || ''" [disabled]="!canEdit" (input)="update(s, { title: $any($event.target).value })" />
+                  @if (s.type !== 'richText' && s.type !== 'video') {
+                    <label class="form-label" [for]="'d-' + s.id">Mô tả</label>
+                    <input class="form-control mb-2" [id]="'d-' + s.id" maxlength="200" [value]="s.settings.description || ''" [disabled]="!canEdit" (input)="update(s, { description: $any($event.target).value })" />
+                  }
+                  @if (s.type === 'productList') {
+                    <label class="form-label" [for]="'src-' + s.id">Nguồn dữ liệu</label>
+                    <select class="form-select mb-2" [id]="'src-' + s.id" [value]="s.settings.source?.kind || 'NEW'" [disabled]="!canEdit" (change)="setSource(s, $any($event.target).value)">
+                      @for (k of ['NEW', 'BEST_SELLING', 'CATEGORY', 'AXIS', 'TAG']; track k) {
+                        <option [value]="k">{{ sourceLabel[k] }}</option>
+                      }
+                    </select>
+                    @if (s.settings.source?.kind === 'CATEGORY') {
+                      <select class="form-select mb-2" aria-label="Danh mục" [value]="s.settings.source?.id || ''" (change)="update(s, { source: { kind: 'CATEGORY', id: $any($event.target).value } })">
+                        <option value="">Chọn danh mục</option>
+                        @for (c of categories(); track c._id) {
+                          <option [value]="c._id">{{ c.name }}</option>
+                        }
+                      </select>
+                    } @else if (s.settings.source?.kind === 'AXIS') {
+                      <select class="form-select mb-2" aria-label="Trục đam mê" [value]="s.settings.source?.id || ''" (change)="update(s, { source: { kind: 'AXIS', id: $any($event.target).value } })">
+                        <option value="">Chọn trục</option>
+                        <option value="THE_THAO">Thể thao</option>
+                        <option value="ANIME">Anime</option>
+                        <option value="GAME">Game</option>
+                      </select>
+                    } @else if (s.settings.source?.kind === 'TAG') {
+                      <select class="form-select mb-2" aria-label="Tag" [value]="s.settings.source?.id || ''" (change)="update(s, { source: { kind: 'TAG', id: $any($event.target).value } })">
+                        <option value="">Chọn tag</option>
+                        @for (t of tags(); track t._id) {
+                          <option [value]="t._id">{{ t.name }}</option>
+                        }
+                      </select>
+                    }
+                  }
+                  @if (s.type === 'productList' || s.type === 'featured') {
+                    <label class="form-label" [for]="'l-' + s.id">Số sản phẩm</label>
+                    <input class="form-control mb-1" type="number" min="1" [max]="s.type === 'featured' ? 8 : 24" [id]="'l-' + s.id" [value]="s.settings.limit || 8" [disabled]="!canEdit" (change)="update(s, { limit: +$any($event.target).value })" />
+                    <small class="d-block text-body-secondary mb-2">Hiện 4 trên một hàng ở Desktop{{ s.type === 'featured' ? ', tối đa 8 sản phẩm đang bán' : '' }}</small>
+                    <div class="form-check form-switch mb-2">
+                      <input class="form-check-input" type="checkbox" role="switch" [id]="'va-' + s.id" [checked]="s.settings.showViewAll !== false" [disabled]="!canEdit" (change)="update(s, { showViewAll: $any($event.target).checked })" />
+                      <label class="form-check-label" [for]="'va-' + s.id">Nút "Xem tất cả"</label>
+                    </div>
+                  }
+                  @if (s.type === 'featured') {
+                    <p class="fw-semibold mb-1 mt-2">Sản phẩm nổi bật ({{ featured().length }}/8)</p>
+                    @for (p of featured(); track p._id; let fi = $index) {
+                      <div class="sp-feat">
+                        <span class="sp-feat__no">{{ fi + 1 }}</span>
+                        <span class="flex-grow-1 text-truncate">{{ p.name }}</span>
+                        @if (canEdit) {
+                          <button type="button" class="btn btn-sm" aria-label="Lên" [disabled]="fi === 0" (click)="moveFeatured(fi, -1)"><app-icon name="chevron-up" [size]="14" /></button>
+                          <button type="button" class="btn btn-sm" aria-label="Xuống" [disabled]="fi === featured().length - 1" (click)="moveFeatured(fi, 1)"><app-icon name="chevron-down" [size]="14" /></button>
+                          <button type="button" class="btn btn-sm" [attr.aria-label]="'Gỡ ' + p.name" (click)="removeFeatured(p._id)"><app-icon name="close" [size]="14" /></button>
+                        }
+                      </div>
+                    } @empty {
+                      <p class="small text-body-secondary">Chưa đánh dấu sản phẩm nào: khối hiện sản phẩm bán chạy 30 ngày.</p>
+                    }
+                    @if (canEdit) {
+                      <div class="position-relative mt-2">
+                        <input class="form-control form-control-sm" type="search" placeholder="Tìm sản phẩm đang bán để thêm" aria-label="Tìm sản phẩm nổi bật" [value]="featuredQ()" (input)="onFeaturedSearch($any($event.target).value)" />
+                        @if (featuredResults().length && featuredQ()) {
+                          <div class="sp-he-pick">
+                            @for (p of featuredResults(); track p._id) {
+                              <button type="button" (click)="addFeatured(p)">{{ p.name }} <small class="text-body-secondary">SKU {{ p.sku }}</small></button>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  }
+                  @if (s.type === 'video') {
+                    <label class="form-label" [for]="'yt-' + s.id">Đường dẫn YouTube</label>
+                    <input class="form-control mb-2" [id]="'yt-' + s.id" placeholder="https://www.youtube.com/watch?v=..." [value]="s.settings.youtubeUrl ?? (s.settings.youtubeId ? 'https://youtu.be/' + s.settings.youtubeId : '')" [disabled]="!canEdit" (input)="update(s, { youtubeUrl: $any($event.target).value, youtubeId: null })" />
+                    <label class="form-label" [for]="'cap-' + s.id">Chú thích</label>
+                    <input class="form-control" [id]="'cap-' + s.id" maxlength="200" [value]="s.settings.caption || ''" [disabled]="!canEdit" (input)="update(s, { caption: $any($event.target).value })" />
+                    <small class="text-body-secondary">Hỗ trợ link youtube.com/watch, youtu.be, shorts. Video phát ngay trên trang chủ.</small>
+                  }
+                  @if (s.type === 'richText') {
+                    <label class="form-label">Nội dung</label>
+                    <app-rich-editor label="Nội dung khối chữ" [maxLength]="2000" [minHeight]="100" [value]="s.settings.body || ''" [disabled]="!canEdit" (valueChange)="update(s, { body: $event })" />
+                    <div class="row g-2 mt-1">
+                      <div class="col-6">
+                        <label class="form-label" [for]="'cta-' + s.id">Chữ nút</label>
+                        <input class="form-control" [id]="'cta-' + s.id" maxlength="40" [value]="s.settings.ctaLabel || ''" [disabled]="!canEdit" (input)="update(s, { ctaLabel: $any($event.target).value })" />
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label" [for]="'ctl-' + s.id">Đường dẫn nút</label>
+                        <input class="form-control" [id]="'ctl-' + s.id" placeholder="/chinh-sach/doi-tra" [value]="s.settings.ctaLink || ''" [disabled]="!canEdit" (input)="update(s, { ctaLink: $any($event.target).value })" />
+                      </div>
+                    </div>
+                  }
+                }
+              }
+              @if (canEdit && s.type !== 'banners') {
+                <button type="button" class="btn btn-link text-danger px-0 mt-2" (click)="remove(s)"><app-icon name="trash" [size]="16" /> Xóa khối</button>
+              }
+            </div>
+          }
+        </div>
+      }
+      @if (canEdit) {
+        <div class="position-relative mt-2">
+          <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1" [attr.aria-expanded]="addMenu()" (click)="addMenu.set(!addMenu())"><app-icon name="plus" [size]="18" /> Thêm khối</button>
+          @if (addMenu()) {
+            <div class="sp-rowmenu__list sp-he__add" role="menu">
+              <small class="px-2 pt-1 text-body-secondary fw-semibold">CHỌN LOẠI KHỐI</small>
+              @for (b of addable(); track b.type) {
+                <button type="button" role="menuitem" (click)="add(b.type)"><app-icon [name]="b.icon" [size]="18" /> {{ b.label }}</button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Phải: xem trước bản nháp -->
+    <section class="sp-acard sp-he__preview">
+      <div class="sp-he__bar">
+        <span class="sp-badge sp-badge--warning">Bản nháp</span>
+        <small class="text-body-secondary">Xem trước theo bản nháp đã lưu</small>
+        <button type="button" class="btn btn-sm" aria-label="Tải lại xem trước" (click)="reloadFrame()"><app-icon name="refresh" [size]="16" /></button>
+        <div class="sp-seg ms-auto" role="group" aria-label="Thiết bị">
+          <button type="button" [class.is-on]="device() === 'desktop'" (click)="device.set('desktop')"><app-icon name="monitor" [size]="16" /> Desktop</button>
+          <button type="button" [class.is-on]="device() === 'mobile'" (click)="device.set('mobile')"><app-icon name="smartphone" [size]="16" /> Mobile</button>
+        </div>
+      </div>
+      @if (dirty() || featuredDirty()) {
+        <p class="small text-body-secondary mb-2">Bấm "Lưu nháp" để xem trước thay đổi mới.</p>
+      }
+      <!-- Desktop: iframe rộng 1280px thu nhỏ cho vừa khung để thấy đúng bố cục Desktop; Mobile: rộng thật 390px -->
+      <div #box class="sp-he__frame" [class.is-mobile]="device() === 'mobile'">
+        <iframe
+          #frame
+          [src]="frameSrc() | safeUrl"
+          title="Xem trước trang chủ"
+          [style.width.px]="device() === 'desktop' ? 1280 : 390"
+          [style.height.px]="device() === 'desktop' ? boxHeight() / scale() : boxHeight()"
+          [style.transform]="device() === 'desktop' ? 'scale(' + scale() + ')' : 'none'"
+        ></iframe>
+      </div>
+    </section>
+  </div>
+}
+
+@if (editingBanner(); as b) {
+  <app-banner-dialog [banner]="b === 'new' ? null : b" (done)="onBannerSaved($event)" />
+}
+
+@if (deletingBanner(); as b) {
+  <app-confirm-dialog title="Xóa banner?" [message]="'Xóa banner ' + b.title + '. Không hoàn tác được.'" confirmLabel="Xóa" [danger]="true" (confirm)="doDeleteBanner()" (cancel)="deletingBanner.set(null)" />
+}
+
+@if (confirmReset()) {
+  <app-confirm-dialog title="Khôi phục bố cục gợi ý?" message="Danh sách khối sẽ thay bằng: Banner, Danh mục, Sản phẩm nổi bật, Bộ sưu tập, Đánh giá khách hàng, Khối chữ cam kết đổi trả. Thay đổi chỉ là bản nháp cho tới khi Lưu nháp và Xuất bản." confirmLabel="Khôi phục" (confirm)="resetLayout()" (cancel)="confirmReset.set(false)" />
+}
+
+@if (leaveDialog()) {
+  <app-confirm-dialog title="Rời trang khi chưa lưu?" message="Bạn có thay đổi chưa lưu nháp. Rời trang thì các thay đổi này sẽ mất." confirmLabel="Rời trang" cancelLabel="Ở lại" [danger]="true" (confirm)="answerLeave(true)" (cancel)="answerLeave(false)" />
+}

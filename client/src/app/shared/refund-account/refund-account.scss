@@ -1,0 +1,36 @@
+// Tài khoản nhận tiền hoàn (SCR-25, SCR-28)
+:host {
+  display: block;
+}
+
+.sp-ra__saved {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-3);
+  padding: var(--sp-space-3);
+  border: 1.5px solid var(--sp-color-primary);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-primary-subtle);
+
+  > app-icon {
+    flex: none;
+    color: var(--sp-color-primary);
+  }
+
+  small {
+    display: block;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-ra__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-3);
+}
+
+.sp-ra__hint {
+  margin: var(--sp-space-2) 0;
+  color: var(--sp-color-text-muted);
+  font-size: 13px;
+}

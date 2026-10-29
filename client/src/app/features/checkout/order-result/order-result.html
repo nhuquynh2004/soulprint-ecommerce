@@ -1,0 +1,214 @@
+<div class="container sp-res">
+  @if (payment()) {
+    @let p = payment()!;
+    @if (p.status === 'SUCCESS') {
+      <!-- Trả thêm khi đổi đơn, nhận lại hàng thành công: không thanh bước Giỏ hàng, không câu email xác nhận đơn -->
+      <section class="sp-res__card">
+        <span class="sp-res__ok"><app-icon name="check" [size]="40" /></span>
+        <h1>Thanh toán thành công</h1>
+        @if (p.purpose === 'REDELIVERY') {
+          <p class="sp-res__lead">Đã thanh toán <strong>{{ p.amount | vnd }}</strong>. Soulprint ghi nhận yêu cầu nhận lại hàng và sẽ giao lại đơn {{ p.orderCode }} cho bạn.</p>
+        } @else {
+          <p class="sp-res__lead">Đã thanh toán thêm <strong>{{ p.amount | vnd }}</strong>, đơn {{ p.orderCode }} đã cập nhật.</p>
+        }
+        <div class="sp-res__code">
+          <span>Mã giao dịch</span>
+          <strong>{{ p.code }}</strong>
+        </div>
+        <div class="sp-res__acts">
+          <a class="btn btn-primary" [routerLink]="orderLink(p.orderCode)">Xem đơn hàng</a>
+          <a class="btn btn-outline-primary" routerLink="/san-pham">Tiếp tục mua sắm</a>
+        </div>
+      </section>
+    } @else {
+      <!-- Thanh toán online không thành công / đã hoàn tiền (UC-PAY-04 5bEa, 5bEc) -->
+      @if (p.purpose === 'ORDER' && !p.draftCode) {
+        <ol class="sp-res__steps" aria-label="Các bước đặt hàng">
+          <li class="is-done"><app-icon name="check-circle" [size]="20" /> Giỏ hàng</li>
+          <li class="is-current" aria-current="step"><span class="sp-res__num">2</span> Thông tin và thanh toán</li>
+          <li class="is-todo"><span class="sp-res__num">3</span> Hoàn tất</li>
+        </ol>
+      }
+      <section class="sp-res__card">
+        <span class="sp-res__ok is-fail"><app-icon name="x-circle" [size]="40" /></span>
+        @if (p.status === 'REFUNDED' && p.purpose !== 'ORDER') {
+          <h1>Chưa cập nhật được đơn hàng</h1>
+          <p class="sp-res__lead">{{ p.failMessage || 'Không cập nhật được đơn. Số tiền đã được hoàn lại' }} ({{ p.amount | vnd }} về tài khoản thanh toán). Đơn {{ p.orderCode }} giữ nguyên như trước.</p>
+        } @else if (p.status === 'REFUNDED') {
+          <h1>Chưa tạo được đơn hàng</h1>
+          <p class="sp-res__lead">{{ p.failMessage || 'Sản phẩm vừa hết hàng. Số tiền đã được hoàn lại' }} ({{ p.amount | vnd }} về tài khoản thanh toán). Bạn vui lòng cập nhật giỏ hàng rồi đặt lại nhé.</p>
+        } @else {
+          <h1>{{ p.expired ? 'Phiên thanh toán đã hết hạn' : 'Thanh toán không thành công' }}</h1>
+          <!-- Câu theo loại giao dịch: trả thêm khi đổi đơn, nhận lại hàng, đặt đơn -->
+          @switch (p.purpose) {
+            @case ('ORDER_CHANGE') {
+              <p class="sp-res__lead">Giao dịch thanh toán thêm <strong>{{ p.amount | vnd }}</strong> chưa hoàn tất nên đơn {{ p.orderCode }} chưa thay đổi. Bạn chưa bị trừ tiền.</p>
+            }
+            @case ('REDELIVERY') {
+              <p class="sp-res__lead">Giao dịch <strong>{{ p.amount | vnd }}</strong> chưa hoàn tất nên yêu cầu nhận lại hàng của đơn {{ p.orderCode }} chưa được ghi nhận. Bạn chưa bị trừ tiền.</p>
+            }
+            @default {
+              <p class="sp-res__lead">
+                Giao dịch {{ p.remainingAmount ? 'cọc ' : '' }}<strong>{{ p.amount | vnd }}</strong> chưa hoàn tất nên Soulprint chưa tạo đơn hàng. Bạn chưa bị trừ tiền{{ p.draftCode ? '' : ', giỏ hàng và thông tin đã nhập vẫn được giữ nguyên' }}.
+              </p>
+            }
+          }
+        }
+        <div class="sp-res__code is-muted">
+          <span>Mã giao dịch</span>
+          <strong>{{ p.code }}</strong>
+        </div>
+        <div class="sp-res__acts">
+          @if (p.status === 'REFUNDED' && p.purpose !== 'ORDER') {
+            <a class="btn btn-primary" [routerLink]="['/tai-khoan/don-hang', p.orderCode]">Về đơn hàng</a>
+          } @else if (p.status === 'REFUNDED') {
+            <a class="btn btn-primary" routerLink="/gio-hang">Về giỏ hàng</a>
+            <a class="btn btn-outline-primary" routerLink="/san-pham">Tiếp tục mua sắm</a>
+          } @else if (p.purpose === 'ORDER_CHANGE' || p.purpose === 'REDELIVERY') {
+            @if (p.canRetry) {
+              <button class="btn btn-primary" type="button" [disabled]="retrying()" (click)="retry()">
+                <app-icon name="refresh" [size]="18" /> {{ retrying() ? 'Đang tạo phiên mới...' : 'Thử lại' }}
+              </button>
+            } @else if (p.linkShared) {
+              <p class="m-0 w-100">Yêu cầu thanh toán thêm đã hết hạn hoặc đã được hủy. Bạn liên hệ Soulprint để nhận liên kết mới nếu vẫn muốn đổi.</p>
+            }
+            <a class="btn btn-outline-primary" [routerLink]="['/tai-khoan/don-hang', p.orderCode]">Về đơn hàng</a>
+          } @else if (p.draftCode) {
+            <!-- Liên kết từ đơn nháp (UC-OPS-02 6a): còn hạn liên kết thì Thử lại, hết hạn thì cửa hàng gửi liên kết mới -->
+            @if (p.canRetry) {
+              <button class="btn btn-primary" type="button" [disabled]="retrying()" (click)="retry()">
+                <app-icon name="refresh" [size]="18" /> {{ retrying() ? 'Đang tạo phiên mới...' : 'Thử lại' }}
+              </button>
+              @if (p.linkExpiresAt) {
+                <p class="m-0 w-100">Liên kết còn dùng được tới {{ p.linkExpiresAt | date: 'HH:mm dd/MM' }}.</p>
+              }
+            } @else {
+              <p class="m-0">Vui lòng liên hệ Soulprint qua kênh bạn đang trao đổi để nhận liên kết thanh toán mới.</p>
+            }
+          } @else {
+            <button class="btn btn-primary" type="button" [disabled]="retrying()" (click)="retry()">
+              <app-icon name="refresh" [size]="18" /> {{ retrying() ? 'Đang tạo phiên mới...' : 'Thử lại' }}
+            </button>
+            <a class="btn btn-outline-primary" routerLink="/thanh-toan" [queryParams]="{ gd: p._id }">Đổi phương thức thanh toán</a>
+          }
+        </div>
+        <p class="sp-res__help">Cần hỗ trợ? Gọi 1900 1234 hoặc nhắn Sâu Béo ở góc màn hình.</p>
+      </section>
+    }
+  } @else {
+    <ol class="sp-res__steps" aria-label="Các bước đặt hàng">
+      <li class="is-done"><app-icon name="check-circle" [size]="20" /> Giỏ hàng</li>
+      <li class="is-done"><app-icon name="check-circle" [size]="20" /> Thông tin và thanh toán</li>
+      <li class="is-done" aria-current="step"><app-icon name="check-circle" [size]="20" /> Hoàn tất</li>
+    </ol>
+
+    @if (error()) {
+      <div class="sp-state" role="alert">
+        <h1 class="h3">{{ error() }}</h1>
+        <a class="btn btn-primary" routerLink="/">Về trang chủ</a>
+      </div>
+    } @else if (!order()) {
+      <div class="sp-skel sp-res__skel"></div>
+    } @else {
+      @let o = order()!;
+      <section class="sp-res__card">
+        <span class="sp-res__ok"><app-icon name="check" [size]="40" /></span>
+        <h1>Đặt hàng thành công!</h1>
+        @if (o.paymentStatus === 'CHUA_THANH_TOAN') {
+          <p class="sp-res__lead">Đơn hàng đã được ghi nhận. Bạn chuẩn bị <strong>{{ o.total | vnd }}</strong> tiền mặt khi shipper giao tới nhé.</p>
+        } @else if (o.paymentStatus === 'DA_COC') {
+          <p class="sp-res__lead">Đặt cọc thành công, phần còn lại <strong>{{ o.remainingAmount | vnd }}</strong> thanh toán khi nhận hàng.</p>
+        } @else {
+          <p class="sp-res__lead">Soulprint đã nhận thanh toán. Bạn sẽ nhận thông báo ở mỗi bước xử lý.</p>
+        }
+
+        <div class="sp-res__code">
+          <span>Mã đơn hàng</span>
+          <strong>{{ o.code }}</strong>
+        </div>
+        <ul class="sp-res__facts">
+          <li><app-icon name="truck" [size]="18" /> {{ o.recipientType === 'OTHER' ? 'Giao cho người nhận' : 'Dự kiến giao' }} {{ eta() }}</li>
+          <li>
+            <app-icon name="send" [size]="18" />
+            Đã gửi xác nhận{{ o.customer.email ? ' Email tới ' + o.customer.email + ' và' : '' }} SMS tới {{ o.customer.phone }}
+          </li>
+        </ul>
+
+        <div class="sp-res__money">
+          @for (it of o.items; track $index) {
+            <div class="sp-res__row"><span>{{ it.name }} × {{ it.quantity }}</span><span>{{ it.lineValue | vnd }}</span></div>
+          }
+          <div class="sp-res__row"><span>Phí vận chuyển</span><span>{{ o.shippingFee | vnd }}</span></div>
+          @if (o.urgentFee) {
+            <div class="sp-res__row"><span>Phụ phí giao gấp</span><span>{{ o.urgentFee | vnd }}</span></div>
+          }
+          @for (v of o.vouchers; track v.code) {
+            <div class="sp-res__row is-minus"><span>{{ v.type === 'FREESHIP' ? 'Miễn phí vận chuyển' : 'Giảm giá' }} {{ v.code }}</span><span>-{{ v.discount | vnd }}</span></div>
+          }
+          @if (o.paymentStatus === 'CHUA_THANH_TOAN') {
+            <div class="sp-res__row is-total"><span>Thanh toán khi nhận hàng</span><span>{{ o.total | vnd }}</span></div>
+          } @else {
+            <div class="sp-res__row is-total"><span>Tổng đơn ({{ o.items.length }} sản phẩm)</span><span>{{ o.total | vnd }}</span></div>
+            <div class="sp-res__row"><span>{{ o.paymentStatus === 'DA_COC' ? 'Đã cọc online' : 'Đã thanh toán online' }}</span><span>{{ o.paidAmount | vnd }}</span></div>
+            @if (o.remainingAmount) {
+              <div class="sp-res__row"><span>Còn lại trả khi nhận hàng</span><span>{{ o.remainingAmount | vnd }}</span></div>
+            }
+          }
+        </div>
+
+        <div class="sp-res__acts">
+          @if (auth.currentUser()?.role === 'member') {
+            <a class="btn btn-primary" [routerLink]="['/tai-khoan/don-hang', o.code]">Xem chi tiết đơn hàng</a>
+          }
+          <a class="btn btn-outline-primary" routerLink="/san-pham">Tiếp tục mua sắm</a>
+        </div>
+      </section>
+
+      @if (activation && showInvite()) {
+        @if (activation.needed) {
+          <!-- UC-PAY-01 bước 7: lời mời kích hoạt kèm "Để sau" -->
+          <section class="sp-res__invite">
+            <span class="sp-res__invite-ic"><app-icon name="user" [size]="24" /></span>
+            <div class="flex-grow-1">
+              <strong>Kích hoạt tài khoản để theo dõi đơn dễ hơn</strong>
+              <p class="m-0">Chỉ cần đặt mật khẩu, Soulprint dùng sẵn số {{ o.customer.phone }}. Bạn xem trạng thái đơn, lưu địa chỉ và nhận mã SOULPRINT10 cho lần sau. Liên kết kích hoạt đã gửi tới SĐT của bạn, có hiệu lực 24 giờ.</p>
+            </div>
+            <div class="sp-res__invite-acts">
+              @if (activation.devLink) {
+                <button class="btn btn-primary" type="button" (click)="activate()">Kích hoạt ngay</button>
+              }
+              <button class="btn btn-link" type="button" (click)="showInvite.set(false)">Để sau</button>
+            </div>
+          </section>
+        } @else if (activation.hasAccount) {
+          <!-- 6Ea: SĐT đã có tài khoản hoạt động -->
+          <section class="sp-res__invite">
+            <span class="sp-res__invite-ic"><app-icon name="info" [size]="24" /></span>
+            <div class="flex-grow-1">
+              <strong>Số điện thoại này đã có tài khoản</strong>
+              <p class="m-0">Đăng nhập để xem đơn {{ o.code }} trong mục Đơn hàng của tôi.</p>
+            </div>
+            <div class="sp-res__invite-acts">
+              <a class="btn btn-primary" routerLink="/dang-nhap" [queryParams]="{ returnUrl: '/tai-khoan/don-hang' }">Đăng nhập</a>
+              <button class="btn btn-link" type="button" (click)="showInvite.set(false)">Để sau</button>
+            </div>
+          </section>
+        }
+      }
+
+      @if (related().length) {
+        <section class="sp-sec">
+          <div class="sp-sec-head">
+            <h2>Có thể bạn sẽ quan tâm</h2>
+            <a class="sp-more" routerLink="/san-pham">Xem thêm <app-icon name="arrow-right" [size]="18" /></a>
+          </div>
+          <div class="sp-grid">
+            @for (p of related(); track p._id) {
+              <app-product-card [product]="p" />
+            }
+          </div>
+        </section>
+      }
+    }
+  }
+</div>

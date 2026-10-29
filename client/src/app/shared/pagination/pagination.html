@@ -1,0 +1,25 @@
+@if (pageCount > 1) {
+  <nav class="sp-pager" aria-label="Phân trang">
+    <button class="btn sp-pager__btn" type="button" [disabled]="page <= 1" (click)="go(page - 1)" aria-label="Trang trước">
+      <app-icon name="chevron-left" [size]="20" />
+    </button>
+    @for (p of pages; track $index) {
+      @if (p === 0) {
+        <span class="sp-pager__gap" aria-hidden="true">…</span>
+      } @else {
+        <button
+          class="btn sp-pager__btn"
+          type="button"
+          [class.is-on]="p === page"
+          [attr.aria-current]="p === page ? 'page' : null"
+          (click)="go(p)"
+        >
+          {{ p }}
+        </button>
+      }
+    }
+    <button class="btn sp-pager__btn sp-pager__next" type="button" [disabled]="page >= pageCount" (click)="go(page + 1)">
+      Sau <app-icon name="chevron-right" [size]="20" />
+    </button>
+  </nav>
+}

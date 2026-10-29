@@ -1,0 +1,140 @@
+<header class="sp-aph">
+  <div>
+    <h1>Danh mục</h1>
+    <p>{{ total() }} danh mục | kéo thả để đổi thứ tự trên trang chủ và menu</p>
+  </div>
+  @if (auth.can('DANH_MUC.TAO')) {
+    <button class="btn btn-primary d-inline-flex align-items-center gap-2" type="button" (click)="editing.set('new')">
+      <app-icon name="plus" [size]="20" /> Thêm danh mục
+    </button>
+  }
+</header>
+
+@if (sel.count()) {
+  <app-bulk-bar class="d-block mb-3" [count]="sel.count()" unit="danh mục" [actions]="bulkActions()" [busy]="busy()" (action)="onBulk($event)" (cleared)="sel.clear()" />
+} @else {
+  <div class="sp-atools">
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input class="form-control" type="search" placeholder="Tìm danh mục" aria-label="Tìm danh mục" [value]="q()" (input)="q.set($any($event.target).value.trim())" />
+    </div>
+    <select class="form-select sp-atools__sel" aria-label="Lọc theo trạng thái" [value]="status()" (change)="status.set($any($event.target).value)">
+      <option value="">Mọi trạng thái</option>
+      <option value="on">Đang hiện</option>
+      <option value="off">Đang ẩn</option>
+    </select>
+  </div>
+}
+
+@if (loading()) {
+  <span class="sp-skel" style="height: 360px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!rows().length) {
+  <div class="sp-state">
+    <app-icon name="list-ul" [size]="40" />
+    <p>{{ q() || status() ? 'Không có danh mục khớp bộ lọc.' : 'Chưa có danh mục nào.' }}</p>
+  </div>
+} @else {
+  <div class="sp-table-wrap">
+    <table class="table sp-atable align-middle">
+      <thead>
+        <tr>
+          <th scope="col" class="sp-cb">
+            <input class="form-check-input" type="checkbox" aria-label="Chọn tất cả danh mục" [checked]="sel.allOf(pageIds())" [indeterminate]="sel.someOf(pageIds())" (change)="sel.togglePage(pageIds())" />
+          </th>
+          <th scope="col" style="width: 36px"><span class="visually-hidden">Kéo thả</span></th>
+          <th scope="col" style="width: 44px">#</th>
+          <th scope="col" colspan="2">Danh mục</th>
+          <th scope="col" class="text-end">Sản phẩm</th>
+          <th scope="col">Trạng thái</th>
+          <th scope="col"><span class="visually-hidden">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of rows(); track r._id; let i = $index) {
+          <tr
+            [class.is-selected]="sel.has(r._id)"
+            [class.is-dragover]="dragOver() === r._id"
+            [attr.draggable]="canReorder()"
+            (dragstart)="onDragStart(r)"
+            (dragover)="onDragOver($event, r)"
+            (dragleave)="dragOver.set(null)"
+            (drop)="onDrop($event, r)"
+          >
+            <td class="sp-cb">
+              <input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn ' + r.name" [checked]="sel.has(r._id)" (change)="sel.toggle(r._id)" />
+            </td>
+            <td class="sp-grip" [class.is-off]="!canReorder()" [title]="canReorder() ? 'Kéo để đổi thứ tự' : 'Bỏ tìm kiếm, bộ lọc để kéo thả'">
+              <app-icon name="grip" [size]="18" />
+            </td>
+            <td class="text-body-secondary">{{ r.level ? '' : r.sortOrder }}</td>
+            <td class="sp-catimg" [class.is-child]="r.level === 1">
+              @if (r.image) {
+                <img [src]="r.image" alt="" />
+              } @else {
+                <span><app-icon name="image" [size]="18" /></span>
+              }
+            </td>
+            <td [class.ps-4]="r.level === 1">
+              <strong>@if (r.level === 1) { <span class="text-body-secondary">↳ </span> }{{ r.name }}</strong>
+              <!-- Mã danh mục dùng trong SKU -->
+              @if (r.code) {
+                <span class="badge text-bg-light border ms-2" [title]="'Mã trong SKU, VD TT-' + r.code + '-001'">{{ r.code }}</span>
+              } @else {
+                <span class="badge text-bg-warning ms-2">Chưa có mã</span>
+              }
+              <small class="d-block text-body-secondary">{{ r.description || '/danh-muc/' + r.slug }}</small>
+            </td>
+            <td class="text-end">{{ r.productCount }}</td>
+            <td>
+              <span class="sp-status" [class]="'sp-status ' + (r.isActive ? 'sp-status--DANG_HIEN' : '')">{{ r.isActive ? 'Đang hiện' : 'Đang ẩn' }}</span>
+            </td>
+            <td class="text-end">
+              <app-row-menu [items]="rowMenu(r)" [label]="'Thao tác với ' + r.name" (picked)="onRowMenu(r, $event)" />
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (undo(); as u) {
+  <div class="sp-notice" role="status">
+    <span class="sp-notice__ic"><app-icon name="check" [size]="18" /></span>
+    <span>{{ u.text }}</span>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="undoOrder()">Hoàn tác</button>
+  </div>
+}
+
+@if (confirmDelete(); as c) {
+  <app-confirm-dialog [title]="'Xóa ' + c.ids.length + ' danh mục đã chọn?'" [confirmLabel]="c.deletable.length ? 'Xóa danh mục' : 'Đóng'" [danger]="!!c.deletable.length" (confirm)="c.deletable.length ? doDelete() : confirmDelete.set(null)" (cancel)="confirmDelete.set(null)">
+    @if (c.blocked.length) {
+      <p>
+        Danh mục còn sản phẩm hoặc danh mục con sẽ được bỏ qua:
+        @for (b of c.blocked; track b._id; let last = $last) {
+          <strong>{{ b.name }}</strong> ({{ blockReason(b) }}){{ last ? '.' : ', ' }}
+        }
+      </p>
+    }
+    @if (c.deletable.length) {
+      <p class="mb-0">
+        Sẽ xóa vĩnh viễn:
+        @for (d of c.deletable; track d._id; let last = $last) {
+          <strong>{{ d.name }}</strong>{{ last ? '.' : ', ' }}
+        }
+        Không hoàn tác được.
+      </p>
+    } @else {
+      <p class="mb-0">Không có danh mục nào xóa được.</p>
+    }
+  </app-confirm-dialog>
+}
+
+@if (editing(); as e) {
+  <app-category-dialog [category]="e === 'new' ? null : e" [tree]="tree()" (done)="onSaved($event)" />
+}

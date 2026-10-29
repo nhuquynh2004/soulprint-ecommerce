@@ -1,0 +1,28 @@
+// SCR-54 - bám SCR-54-Desktop
+.sp-cthumb {
+  width: 52px;
+
+  img,
+  span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--sp-radius-md);
+    border: 1px solid var(--sp-color-border);
+    background: var(--sp-color-surface-alt);
+    color: var(--sp-color-text-muted);
+    object-fit: cover;
+  }
+}
+
+.sp-cname {
+  color: var(--sp-color-text);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--sp-color-primary);
+  }
+}

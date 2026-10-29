@@ -1,0 +1,77 @@
+// SCR-30 Trang chính sách - bám SCR-30-Desktop, SCR-30-Mobile-MucLuc
+
+.sp-policy {
+  padding-bottom: var(--sp-space-7);
+}
+
+.sp-policy__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-space-5);
+
+  @media (min-width: 992px) {
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: var(--sp-space-7);
+  }
+}
+
+.sp-policy__toc {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-self: start;
+  padding: var(--sp-space-4);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface-alt);
+
+  @media (min-width: 992px) {
+    position: sticky;
+    top: 88px;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    min-height: var(--sp-tap-min);
+    padding: 0 var(--sp-space-3);
+    border-radius: var(--sp-radius-md);
+    color: var(--sp-color-text);
+    font-size: 14px; // Theo SCR-30
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      background: var(--sp-color-primary-subtle);
+    }
+
+    &.is-on {
+      background: var(--sp-color-primary-subtle);
+      color: var(--sp-color-primary);
+      font-weight: 600;
+    }
+  }
+
+  // Mobile: mục lục thành hàng chip cuộn ngang
+  @media (max-width: 991.98px) {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: var(--sp-space-2);
+
+    h2 {
+      display: none;
+    }
+
+    a {
+      flex: none;
+      white-space: nowrap;
+    }
+  }
+}
+
+.sp-policy__content {
+  max-width: 760px;
+
+  h1 {
+    margin-bottom: var(--sp-space-2);
+  }
+}

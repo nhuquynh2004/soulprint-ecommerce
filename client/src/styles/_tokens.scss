@@ -1,0 +1,171 @@
+// Design tokens Soulprint (màu, chữ, khoảng cách, bo góc) dùng chung toàn web.
+// Chế độ Sáng/Tối chỉ bật bằng thuộc tính data-bs-theme trên <html> (ThemeService).
+// Không viết mã màu rời trong SCSS component: luôn dùng var(--sp-...).
+
+:root,
+[data-bs-theme="light"] {
+  --sp-color-bg: #FFFFFF;
+  --sp-color-surface: #FFFFFF;
+  --sp-color-surface-alt: #F4F7FD;
+  --sp-color-primary-subtle: #EAF0FB;
+  --sp-color-border: #E3E8F2;
+  --sp-color-border-strong: #7F899B;
+  --sp-color-text: #101828;
+  --sp-color-text-muted: #4A5565;
+  --sp-color-text-subtle: #6A7282;
+  --sp-color-primary: #2B66D4;
+  --sp-color-primary-hover: #2352A9;
+  --sp-color-on-primary: #FFFFFF;
+  --sp-color-accent: #B4D728;
+  --sp-color-on-accent: #101828;
+  --sp-color-accent-text: #6C8118;
+  --sp-color-success: #0C7A55;
+  --sp-color-success-subtle: #D0FBED;
+  --sp-color-warning: #935F06;
+  --sp-color-warning-subtle: #FDECCE;
+  --sp-color-danger: #BC1010;
+  --sp-color-danger-subtle: #FBD0D0;
+  --sp-color-on-danger: #FFFFFF;
+  --sp-color-info: #520DF2;
+  --sp-color-info-subtle: #DCCFFC;
+  --sp-color-rating: #F59F0A;
+  --sp-axis-sport: #0C7A55;
+  --sp-axis-anime: #6B2FE0;
+  --sp-axis-game: #0E7490;
+  --sp-focus-ring: #BEDBFF;
+  --sp-ocean-top: #0B6E9E;
+  --sp-ocean-deep: #045980;
+  --sp-ocean-mid: #2352A9;
+  --sp-ocean-floor: #0B1B3D;
+  --sp-color-on-ocean: #FFFFFF;
+
+  // Dải gốc: chỉ cho nền nhạt, minh họa, gradient trang trí; không dùng cho chữ.
+  --sp-primary-50: #EAF0FB;
+  --sp-primary-100: #D5E0F6;
+  --sp-primary-200: #AAC2EE;
+  --sp-primary-300: #80A3E5;
+  --sp-primary-500: #2B66D4;
+  --sp-primary-600: #2352A9;
+  --sp-primary-700: #1A3D7F;
+  --sp-primary-800: #112955;
+  --sp-primary-900: #09142A;
+  --sp-accent-50: #F0F7D4;
+  --sp-accent-100: #E1EFA9;
+  --sp-accent-200: #D2E77E;
+  --sp-accent-300: #C3DF53;
+  --sp-accent-500: #B4D728;
+  --sp-accent-600: #90AC20;
+  --sp-accent-700: #6C8118;
+  --sp-accent-800: #485610;
+  --sp-accent-900: #242B08;
+  --sp-info-50: #DCCFFC;
+  --sp-info-100: #BA9EFA;
+  --sp-info-200: #976EF7;
+  --sp-info-300: #743DF5;
+  --sp-info-500: #520DF2;
+  --sp-info-600: #410AC2;
+  --sp-info-700: #310891;
+  --sp-info-800: #210561;
+  --sp-success-50: #D0FBED;
+  --sp-success-100: #A1F7DA;
+  --sp-success-200: #72F3C8;
+  --sp-success-300: #43EFB6;
+  --sp-success-500: #14EBA3;
+  --sp-success-600: #10BC83;
+  --sp-success-700: #0C8D62;
+  --sp-success-800: #085E41;
+  --sp-warning-50: #FDECCE;
+  --sp-warning-100: #FBD99D;
+  --sp-warning-200: #F9C56C;
+  --sp-warning-300: #F7B23B;
+  --sp-warning-500: #F59F0A;
+  --sp-warning-600: #C47F08;
+  --sp-warning-700: #935F06;
+  --sp-warning-800: #624004;
+  --sp-danger-50: #FBD0D0;
+  --sp-danger-100: #F7A1A1;
+  --sp-danger-200: #F37272;
+  --sp-danger-300: #EF4343;
+  --sp-danger-500: #EB1414;
+  --sp-danger-600: #BC1010;
+  --sp-danger-700: #8D0C0C;
+  --sp-danger-800: #5E0808;
+
+  --sp-shadow-xs: 0 1px 1px rgba(29, 41, 61, .02);
+  --sp-shadow-sm: 0 6px 12px rgba(31, 46, 137, .08);
+  --sp-shadow-md: 0 4px 12px rgba(31, 46, 137, .10);
+  --sp-shadow-hover: 0 16px 32px rgba(31, 46, 137, .12);
+  --sp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, .10), 0 4px 6px rgba(0, 0, 0, .05);
+}
+
+[data-bs-theme="dark"] {
+  --sp-color-bg: #0B1220;
+  --sp-color-surface: #111B2E;
+  --sp-color-surface-alt: #18253D;
+  --sp-color-primary-subtle: #1A2B4A;
+  --sp-color-border: #26324A;
+  --sp-color-border-strong: #65758F;
+  --sp-color-text: #F2F5FA;
+  --sp-color-text-muted: #A8B3C7;
+  --sp-color-text-subtle: #8A96AD;
+  --sp-color-primary: #80A3E5;
+  --sp-color-primary-hover: #AAC2EE;
+  --sp-color-on-primary: #09142A;
+  --sp-color-accent: #B4D728;
+  --sp-color-on-accent: #101828;
+  --sp-color-accent-text: #C3DF53;
+  --sp-color-success: #43EFB6;
+  --sp-color-success-subtle: #0D2A24;
+  --sp-color-warning: #F7B23B;
+  --sp-color-warning-subtle: #2E2410;
+  --sp-color-danger: #F37272;
+  --sp-color-danger-subtle: #3A1518;
+  --sp-color-on-danger: #09142A;
+  --sp-color-info: #BA9EFA;
+  --sp-color-info-subtle: #231A45;
+  --sp-color-rating: #F7B23B;
+  --sp-axis-sport: #43EFB6;
+  --sp-axis-anime: #BA9EFA;
+  --sp-axis-game: #5CD3EE;
+  --sp-focus-ring: #2B66D4;
+
+  --sp-shadow-xs: none;
+  --sp-shadow-sm: 0 1px 2px rgba(0, 0, 0, .40);
+  --sp-shadow-md: 0 2px 6px rgba(0, 0, 0, .45);
+  --sp-shadow-hover: 0 8px 20px rgba(0, 0, 0, .50);
+  --sp-shadow-lg: 0 12px 28px rgba(0, 0, 0, .60);
+}
+
+:root {
+  --sp-space-1: 4px;
+  --sp-space-2: 8px;
+  --sp-space-3: 12px;
+  --sp-space-4: 16px;
+  --sp-space-5: 24px;
+  --sp-space-6: 32px;
+  --sp-space-7: 48px;
+  --sp-space-8: 64px;
+  --sp-radius-sm: 6px;
+  --sp-radius-md: 8px;
+  --sp-radius-lg: 12px;
+  --sp-radius-xl: 16px;
+  --sp-radius-2xl: 24px;
+  --sp-radius-pill: 9999px;
+  --sp-container-xl: 1200px;
+  --sp-gutter: 24px;
+  --sp-margin-mobile: 16px;
+  --sp-margin-tablet: 24px;
+  --sp-filter-width: 280px;
+  --sp-tap-min: 44px;
+  --sp-font-display: "Chiron GoRound TC", "Montserrat", sans-serif;
+  --sp-font-body: "Montserrat", system-ui, sans-serif;
+  --sp-dur-fast: 150ms;
+  --sp-dur-dialog: 250ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --sp-dur-fast: 0ms;
+    --sp-dur-dialog: 0ms;
+  }
+}

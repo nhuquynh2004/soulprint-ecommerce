@@ -1,0 +1,28 @@
+<div class="container sp-authwrap">
+  <div class="sp-auth">
+    <aside class="sp-auth__art">
+      <div class="sp-auth__brand">
+        <img src="/assets/brand/soulprint-mark.png" alt="" width="44" height="44" />
+        <span>Soulprint</span>
+      </div>
+      <h1>{{ heading }}</h1>
+      <p class="sp-auth__lead">{{ lead }}</p>
+      <ul class="sp-auth__ben">
+        @for (b of benefits; track b.text) {
+          <li><span class="sp-auth__ic"><app-icon [name]="b.icon" [size]="18" /></span>{{ b.text }}</li>
+        }
+      </ul>
+      <img class="sp-auth__sau" src="/assets/brand/sau-beo.png" alt="" />
+    </aside>
+
+    <section class="sp-auth__form">
+      @if (tab) {
+        <nav class="sp-auth__tabs" aria-label="Đăng nhập hoặc đăng ký">
+          <a [routerLink]="['/dang-nhap']" [queryParams]="returnUrl ? { returnUrl } : {}" [class.is-on]="tab === 'login'" [attr.aria-current]="tab === 'login' ? 'page' : null">Đăng nhập</a>
+          <a [routerLink]="['/dang-ky']" [queryParams]="returnUrl ? { returnUrl } : {}" [class.is-on]="tab === 'register'" [attr.aria-current]="tab === 'register' ? 'page' : null">Đăng ký</a>
+        </nav>
+      }
+      <ng-content />
+    </section>
+  </div>
+</div>

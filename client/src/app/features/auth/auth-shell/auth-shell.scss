@@ -1,0 +1,132 @@
+// Khung SCR-11 đến SCR-14 (bám SCR-11-Desktop: 2 cột, cột trái nền đại dương)
+.sp-authwrap {
+  padding-block: var(--sp-space-5) var(--sp-space-7);
+}
+
+.sp-auth {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-2xl);
+  overflow: hidden;
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-sm);
+
+  @media (min-width: 992px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.sp-auth__art {
+  position: relative;
+  display: none;
+  flex-direction: column;
+  gap: var(--sp-space-4);
+  padding: var(--sp-space-7) var(--sp-space-6);
+  background: linear-gradient(160deg, var(--sp-ocean-top) 0%, var(--sp-ocean-mid) 55%, var(--sp-ocean-floor) 100%);
+  color: var(--sp-color-on-ocean);
+  overflow: hidden;
+
+  @media (min-width: 992px) {
+    display: flex;
+  }
+
+  h1 {
+    margin: var(--sp-space-5) 0 0;
+    font-size: 34px; // Theo SCR-11
+    line-height: 42px;
+    color: var(--sp-color-on-ocean);
+  }
+}
+
+.sp-auth__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  font-family: var(--sp-font-display);
+  font-size: 22px;
+  font-weight: 700;
+
+  img {
+    border-radius: 50%;
+    background: var(--sp-color-on-ocean);
+  }
+}
+
+.sp-auth__lead {
+  margin: 0;
+  color: var(--sp-primary-50);
+  font-size: 16px;
+}
+
+.sp-auth__ben {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-3);
+  margin: var(--sp-space-3) 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-3);
+    font-weight: 500;
+  }
+}
+
+.sp-auth__ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--sp-radius-md);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.sp-auth__sau {
+  align-self: flex-end;
+  width: 160px;
+  margin-top: auto;
+  border-radius: 50%;
+  background: var(--sp-color-surface);
+  border: 6px solid rgba(255, 255, 255, 0.4);
+}
+
+.sp-auth__form {
+  padding: var(--sp-space-6) var(--sp-space-5);
+
+  @media (min-width: 768px) {
+    padding: var(--sp-space-7);
+  }
+}
+
+.sp-auth__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: var(--sp-space-5);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface-alt);
+  border: 1px solid var(--sp-color-border);
+
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    border-radius: var(--sp-radius-md);
+    color: var(--sp-color-text-muted);
+    font-weight: 600;
+    text-decoration: none;
+
+    &.is-on {
+      background: var(--sp-color-surface);
+      color: var(--sp-color-primary);
+      box-shadow: var(--sp-shadow-sm);
+    }
+  }
+}

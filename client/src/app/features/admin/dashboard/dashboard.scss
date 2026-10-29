@@ -1,0 +1,655 @@
+// SCR-40 theo thiết kế (SCR-40-Desktop, SCR-40-Desktop-Kho): Gợi ý hành động, Thiết lập cửa hàng, 6 thẻ số liệu
+// 3 cột, biểu đồ 2/3 + trạng thái 1/3, bán chạy 2/3 + 3 trục 1/3; các nhóm phân tích bên dưới lưới 2 cột.
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.db-head p {
+  margin: 4px 0 0;
+  color: var(--sp-color-text-muted);
+}
+
+.db-range {
+  margin-bottom: var(--sp-space-4);
+  max-width: 100%;
+  overflow-x: auto;
+
+  .sp-seg {
+    flex-wrap: nowrap;
+
+    button {
+      white-space: nowrap;
+    }
+  }
+}
+
+.db-ph {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--sp-space-2, 8px) var(--sp-space-3);
+
+  .btn {
+    flex: none;
+    white-space: nowrap;
+  }
+  margin-bottom: var(--sp-space-3);
+
+  h2 {
+    margin: 0;
+    font: 600 18px/26px var(--sp-font-body);
+  }
+}
+
+.db-sec-h {
+  margin: var(--sp-space-5) 0 var(--sp-space-3);
+  font: 700 20px/28px var(--sp-font-heading, var(--sp-font-body));
+}
+
+.db-h3 {
+  margin: var(--sp-space-3) 0 6px;
+  font: 600 14px/20px var(--sp-font-body);
+}
+
+// ===== Gợi ý hành động =====
+
+.db-insrow {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--sp-space-3);
+  padding: 10px 0;
+  border-top: 1px solid var(--sp-color-border);
+
+  &:first-of-type {
+    border-top: 0;
+  }
+
+  &__b {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    .sp-muted {
+      font-size: 13px;
+    }
+  }
+
+  &__go {
+    white-space: nowrap;
+  }
+}
+
+.db-sev {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  justify-self: start;
+  padding: 2px 10px;
+  border-radius: var(--sp-radius-pill);
+  font: 600 12px/20px var(--sp-font-body);
+  white-space: nowrap;
+
+  &__due {
+    margin-left: 4px;
+    padding-left: 6px;
+    border-left: 1px solid currentColor;
+    font-weight: 500;
+  }
+
+  &--KHAN_CAP {
+    background: var(--sp-color-danger-subtle);
+    color: var(--sp-color-danger);
+  }
+
+  &--CAN_CHU_Y {
+    background: var(--sp-color-warning-subtle);
+    color: var(--sp-color-warning);
+  }
+
+  &--BINH_THUONG {
+    background: var(--sp-color-surface-alt);
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.db-ok {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sp-color-success);
+  font-weight: 600;
+}
+
+// ===== Thiết lập cửa hàng =====
+
+.db-setup {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-space-3);
+
+  &__c {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-3);
+    padding: var(--sp-space-3);
+    border: 1px solid var(--sp-color-border);
+    border-radius: var(--sp-radius-lg);
+    min-width: 0;
+
+    .btn {
+      flex: none;
+      white-space: nowrap;
+    }
+  }
+
+  &__ic {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-color-surface-alt);
+    color: var(--sp-color-text-muted);
+
+    &.is-done {
+      background: var(--sp-color-success-subtle);
+      color: var(--sp-color-success);
+    }
+  }
+
+  &__b {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+
+    .sp-muted {
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+// ===== Thẻ số liệu =====
+
+.db-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-space-3);
+  margin-bottom: var(--sp-space-4);
+
+  // Vai trò không xem doanh thu: 4 thẻ một hàng (thiết kế SCR-40 Kho)
+  &.is-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.db-tile {
+  padding: var(--sp-space-4);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-surface);
+  min-width: 0;
+
+  &__h {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--sp-color-text-muted);
+    font-weight: 600;
+  }
+
+  &__ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--sp-radius-sm);
+    background: var(--sp-color-primary-subtle);
+    color: var(--sp-color-primary);
+  }
+
+  &__v {
+    margin: 6px 0 2px;
+    font: 700 30px/38px var(--sp-font-heading, var(--sp-font-body));
+    overflow-wrap: anywhere;
+  }
+
+  &__c {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 13px;
+    color: var(--sp-color-text-muted);
+
+    &.is-up strong,
+    &.is-up app-icon {
+      color: var(--sp-color-success);
+    }
+
+    &.is-down strong,
+    &.is-down app-icon {
+      color: var(--sp-color-danger);
+    }
+  }
+}
+
+// Chú thích (i): hiện khi rê chuột hoặc đưa tiêu điểm bàn phím
+.db-info {
+  position: relative;
+  display: inline-flex;
+  color: var(--sp-color-text-subtle);
+  cursor: help;
+
+  &:hover::after,
+  &:focus::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    z-index: 5;
+    transform: translateX(-50%);
+    width: 240px;
+    padding: 8px 10px;
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-color-text);
+    color: var(--sp-color-bg);
+    font: 500 12px/17px var(--sp-font-body);
+  }
+}
+
+// ===== Hàng 2 cột =====
+
+.db-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--sp-space-4);
+  align-items: start;
+
+  > .sp-panel:only-child {
+    grid-column: 1 / -1;
+  }
+}
+
+.db-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  padding: 4px;
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-hover);
+
+  button {
+    padding: 6px 10px;
+    border: 0;
+    border-radius: var(--sp-radius-sm);
+    background: none;
+    color: var(--sp-color-text);
+    text-align: left;
+
+    &:hover,
+    &.is-on {
+      background: var(--sp-color-primary-subtle);
+      color: var(--sp-color-primary);
+    }
+  }
+}
+
+// Thanh trạng thái đơn
+.db-bars {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr) 36px;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px;
+    border-radius: var(--sp-radius-sm);
+    color: var(--sp-color-text);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--sp-color-surface-alt);
+    }
+  }
+
+  &__l {
+    font-size: 14px;
+  }
+
+  &__t {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--sp-color-surface-alt);
+    overflow: hidden;
+  }
+
+  &__f {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    background: var(--sp-color-primary);
+
+    &.is-cancel {
+      background: var(--sp-color-text-subtle);
+    }
+  }
+
+  &__n {
+    text-align: right;
+    font-weight: 600;
+  }
+}
+
+// Thanh tỷ trọng (3 trục, danh mục)
+.db-share {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) 96px;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+  }
+
+  &__l {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  &__t {
+    height: 12px;
+    border-radius: 6px;
+    background: var(--sp-color-surface-alt);
+    overflow: hidden;
+  }
+
+  &__f {
+    display: block;
+    height: 100%;
+    border-radius: 6px;
+    background: var(--sp-color-primary);
+
+    &--THE_THAO {
+      background: var(--sp-color-success);
+    }
+
+    &--ANIME {
+      background: var(--sp-color-accent, #7c3aed);
+    }
+
+    &--GAME {
+      background: var(--sp-color-info);
+    }
+  }
+
+  &__n {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.2;
+
+    small {
+      color: var(--sp-color-text-muted);
+    }
+  }
+
+  &--plain li {
+    grid-template-columns: 140px minmax(0, 1fr) 96px;
+  }
+}
+
+.db-table {
+  th {
+    white-space: nowrap;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--sp-color-text-muted);
+  }
+
+  td {
+    vertical-align: middle;
+  }
+}
+
+.db-prod {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--sp-color-text);
+  text-decoration: none;
+
+  img {
+    flex: none;
+    border-radius: var(--sp-radius-sm);
+    background: var(--sp-color-surface-alt);
+    object-fit: cover;
+  }
+
+  &:hover span {
+    color: var(--sp-color-primary);
+  }
+}
+
+.sp-badge-low {
+  flex: none;
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-warning-subtle);
+  color: var(--sp-color-warning);
+  font: 600 12px/18px var(--sp-font-body);
+  white-space: nowrap;
+}
+
+.db-lowrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  color: var(--sp-color-text);
+  text-decoration: none;
+}
+
+// ===== Các nhóm phân tích =====
+
+.db-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--sp-space-4);
+  align-items: start;
+}
+
+.db-mini {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-space-3) var(--sp-space-5);
+  margin-bottom: var(--sp-space-3);
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  strong {
+    font: 700 22px/28px var(--sp-font-heading, var(--sp-font-body));
+
+    small {
+      font-size: 14px;
+      color: var(--sp-color-text-muted);
+    }
+  }
+
+  span {
+    font-size: 13px;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.db-funnel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 6px;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 4px;
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-color-primary-subtle);
+    text-align: center;
+  }
+
+  strong {
+    font-size: 20px;
+  }
+
+  span {
+    font-size: 12px;
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.db-kv {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-space-3);
+  padding: 6px 0;
+  border-top: 1px solid var(--sp-color-border);
+  font-size: 14px;
+
+  span:last-child {
+    flex: none;
+    font-weight: 600;
+    text-align: right;
+  }
+}
+
+.db-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.db-opt {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  cursor: pointer;
+
+  &.is-on {
+    border-color: var(--sp-color-primary);
+    background: var(--sp-color-primary-subtle);
+  }
+
+  .form-check-input {
+    flex: none;
+    margin-top: 3px;
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+  }
+
+  small {
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.db-empty {
+  text-align: center;
+}
+
+// ===== Tablet =====
+@media (max-width: 1199.98px) {
+  .db-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .db-tiles,
+  .db-tiles.is-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .db-setup,
+  .db-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// ===== Mobile =====
+@media (max-width: 575.98px) {
+  .db-prod img {
+    display: none;
+  }
+
+  .db-tiles,
+  .db-tiles.is-4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .db-tile__v {
+    font-size: 26px;
+  }
+
+  .db-insrow {
+    grid-template-columns: minmax(0, 1fr) auto;
+
+    .db-sev {
+      grid-column: 1 / -1;
+    }
+
+    &__go {
+      grid-column: 1;
+      justify-self: start;
+    }
+  }
+
+  .db-setup__b .sp-muted {
+    white-space: normal;
+  }
+
+  .db-bars a {
+    grid-template-columns: 110px minmax(0, 1fr) 32px;
+  }
+
+  .db-share li,
+  .db-share--plain li {
+    grid-template-columns: 90px minmax(0, 1fr) 86px;
+  }
+
+  .db-funnel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

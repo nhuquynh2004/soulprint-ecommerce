@@ -1,0 +1,66 @@
+.sp-payqr {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--sp-space-3);
+}
+
+.sp-payqr__box {
+  flex: none;
+  width: 132px;
+  height: 132px;
+  padding: 8px;
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+  background: #fff; // QR luôn nền trắng để quét được cả ở chế độ Tối
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: #0f172a;
+  }
+}
+
+.sp-payqr__info {
+  display: flex;
+  flex: 1 1 200px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sp-payqr__amount {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.sp-payqr__link {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.sp-payqr__left {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  color: var(--sp-color-primary);
+
+  &.is-over {
+    color: var(--sp-color-danger);
+  }
+}
+
+// Nút xác nhận, hủy cùng chiều rộng
+.sp-payqr__acts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--sp-space-2);
+  max-width: 400px;
+
+  &:empty {
+    display: none;
+  }
+}

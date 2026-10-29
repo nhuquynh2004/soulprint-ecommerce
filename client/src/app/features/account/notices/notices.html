@@ -1,0 +1,65 @@
+<header class="sp-ph sp-ph--row">
+  <div>
+    <h1>Thông báo</h1>
+    <p>{{ data()?.unreadCount ? data()!.unreadCount + ' thông báo chưa đọc' : 'Bạn đã đọc hết thông báo' }}</p>
+  </div>
+  @if (data()?.unreadCount) {
+    <button class="btn btn-outline-primary btn-sm" type="button" (click)="markAll()"><app-icon name="check" [size]="16" /> Đánh dấu đã đọc tất cả</button>
+  }
+</header>
+
+<nav class="sp-tabs2 sp-ntabs" role="tablist" aria-label="Nhóm thông báo">
+  @for (t of tabs; track t.key) {
+    <button type="button" role="tab" [class.is-on]="group() === t.key" [attr.aria-selected]="group() === t.key" (click)="setGroup(t.key)">
+      {{ t.label }}
+      @if (t.key && data()?.counts?.[t.key]) {
+        <span class="sp-count">{{ data()!.counts[t.key] }}</span>
+      }
+    </button>
+  }
+</nav>
+
+@if (error()) {
+  <div class="sp-state" role="alert">
+    <p>{{ error() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!data()) {
+  @for (i of [1, 2, 3]; track i) {
+    <span class="sp-skel mb-2" style="height: 76px"></span>
+  }
+} @else if (!data()!.items.length) {
+  <div class="sp-state">
+    <span class="sp-state__ic"><app-icon name="bell" [size]="32" /></span>
+    <h2 class="h4">Chưa có thông báo nào</h2>
+    <p>Soulprint sẽ báo cho bạn ở đây mỗi khi đơn hàng đổi trạng thái hoặc có ưu đãi mới.</p>
+  </div>
+} @else {
+  @for (b of buckets(); track b.label) {
+    <h2 class="sp-nday">{{ b.label }}</h2>
+    <ul class="sp-nlist">
+      @for (n of b.items; track n._id) {
+        <li>
+          <button type="button" class="sp-notice" [class.is-unread]="!n.readAt" (click)="open(n)">
+            <span class="sp-notice__ic"><app-icon [name]="icon[n.type] || 'bell'" [size]="20" /></span>
+            <span class="sp-notice__b">
+              <strong>{{ n.title }}</strong>
+              <span>{{ n.body }}</span>
+            </span>
+            <span class="sp-notice__meta">
+              <time>{{ b.label === 'Hôm nay' ? (n.createdAt | date: 'HH:mm') : (n.createdAt | date: 'HH:mm dd/MM') }}</time>
+              @if (!n.readAt) {
+                <span class="sp-notice__dot">Chưa đọc</span>
+              }
+            </span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+  @if (data()!.page < data()!.totalPages) {
+    <div class="text-center mt-3">
+      <button class="btn btn-outline-primary" type="button" (click)="load(data()!.page + 1)">Xem thêm</button>
+    </div>
+  }
+}

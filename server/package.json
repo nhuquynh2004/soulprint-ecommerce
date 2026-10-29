@@ -1,0 +1,35 @@
+{
+  "name": "soulprint-server",
+  "version": "0.1.0",
+  "description": "Soulprint Restful API - Express (MVC) + MongoDB",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "start": "nodemon --env-file=.env index.js",
+    "prod": "node index.js",
+    "seed": "node --env-file=.env scripts/seed.js",
+    "seed:dataset": "node --env-file=.env scripts/seed-dataset.js",
+    "seed:images": "node --env-file=.env scripts/import-images.js ../data/images --apply",
+    "test": "node --test --test-force-exit \"tests/**/*.test.js\"",
+    "train": "node ml/train.js",
+    "evaluate": "node ml/evaluate.js"
+  },
+  "engines": {
+    "node": ">=22.22.3"
+  },
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "dependencies": {
+    "body-parser": "^2.3.0",
+    "connect-mongo": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "express-session": "^1.19.0",
+    "mongodb": "^7.7.0",
+    "morgan": "^1.12.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

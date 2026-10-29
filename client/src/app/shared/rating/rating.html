@@ -1,0 +1,13 @@
+<span class="sp-rating" [attr.aria-label]="'Đánh giá ' + score + ' trên 5'">
+  <span class="sp-rating__stars" aria-hidden="true">
+    @for (s of stars; track $index) {
+      <app-icon [name]="s" [size]="size" [class.off]="s === 'star-line'" />
+    }
+  </span>
+  @if (showScore) {
+    <span class="sp-rating__score">{{ score }}</span>
+  }
+  @if (count !== null) {
+    <span class="sp-rating__count">({{ count }})</span>
+  }
+</span>

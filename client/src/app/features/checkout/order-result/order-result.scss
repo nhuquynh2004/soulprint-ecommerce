@@ -1,0 +1,236 @@
+// SCR-09 Kết quả đặt hàng
+.sp-res {
+  padding-top: var(--sp-space-5);
+  padding-bottom: var(--sp-space-8);
+}
+
+.sp-res__steps {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2) var(--sp-space-5);
+  margin: 0 0 var(--sp-space-5);
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sp-color-success);
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  // Thanh toán không thành công: bước 2 đang làm, bước 3 chưa tới
+  .is-current {
+    color: var(--sp-color-primary);
+  }
+
+  .is-todo {
+    color: var(--sp-color-text-subtle);
+  }
+}
+
+.sp-res__num {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.sp-res__skel {
+  height: 420px;
+  max-width: 720px;
+  margin: 0 auto;
+  border-radius: var(--sp-radius-xl);
+}
+
+.sp-res__card {
+  max-width: 720px;
+  margin: 0 auto var(--sp-space-5);
+  padding: var(--sp-space-6);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-surface);
+  text-align: center;
+
+  h1 {
+    margin: var(--sp-space-3) 0 var(--sp-space-2);
+    font-size: clamp(26px, 4vw, 34px);
+  }
+
+  @media (max-width: 575.98px) {
+    padding: var(--sp-space-5) var(--sp-space-4);
+  }
+}
+
+.sp-res__ok {
+  display: inline-grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--sp-color-success-subtle);
+  color: var(--sp-color-success);
+
+  &.is-fail {
+    background: var(--sp-color-danger-subtle);
+    color: var(--sp-color-danger);
+  }
+}
+
+.sp-res__lead {
+  max-width: 520px;
+  margin: 0 auto var(--sp-space-4);
+  color: var(--sp-color-text-muted);
+}
+
+.sp-res__code {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-space-3) var(--sp-space-6);
+  border: 1px dashed var(--sp-color-primary);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-primary-subtle);
+
+  span {
+    font-size: 13px;
+    color: var(--sp-color-text-muted);
+  }
+
+  strong {
+    font-family: var(--sp-font-display);
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: var(--sp-color-primary);
+  }
+
+  // Mã giao dịch (chưa có đơn): viền liền, nền nhạt
+  &.is-muted {
+    border-style: solid;
+    border-color: var(--sp-color-border);
+    background: var(--sp-color-surface-alt);
+
+    strong {
+      color: var(--sp-color-text);
+    }
+  }
+}
+
+.sp-res__help {
+  margin: var(--sp-space-4) 0 0;
+  font-size: 14px;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-res__facts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: var(--sp-space-4) 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-align: left;
+  }
+}
+
+.sp-res__money {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-2);
+  padding: var(--sp-space-4);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface-alt);
+  text-align: left;
+}
+
+.sp-res__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-space-3);
+  font-size: 14px;
+
+  span:last-child {
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  &.is-minus span:last-child {
+    color: var(--sp-color-danger);
+  }
+
+  &.is-total {
+    padding-top: var(--sp-space-2);
+    border-top: 1px solid var(--sp-color-border);
+    font-size: 16px;
+    font-weight: 700;
+
+    span:last-child {
+      color: var(--sp-color-primary);
+    }
+  }
+}
+
+.sp-res__acts {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--sp-space-2);
+  margin-top: var(--sp-space-5);
+}
+
+.sp-res__invite {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-4);
+  max-width: 720px;
+  margin: 0 auto var(--sp-space-6);
+  padding: var(--sp-space-4) var(--sp-space-5);
+  border-radius: var(--sp-radius-xl);
+  background: var(--sp-color-primary-subtle);
+
+  p {
+    font-size: 14px;
+    color: var(--sp-color-text-muted);
+  }
+
+  @media (max-width: 575.98px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.sp-res__invite-ic {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--sp-color-primary);
+  color: var(--sp-color-on-primary);
+}
+
+.sp-res__invite-acts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: none;
+
+  @media (max-width: 575.98px) {
+    flex-direction: row;
+  }
+}

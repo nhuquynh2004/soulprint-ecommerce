@@ -1,0 +1,2882 @@
+[
+  {
+    "sku": "TT-DNC-SNBD-001",
+    "name": "Áo đấu CLB in tên số áo",
+    "slug": "ao-dau-clb-in-ten-so-ao",
+    "shortDescription": "Áo đấu Manchester United, Manchester City, Real Madrid in tên và số áo theo ý bạn",
+    "description": "Áo đấu CLB in tên số áo, chọn một trong ba câu lạc bộ Manchester United, Manchester City, Real Madrid. Chất liệu polyester thoáng khí, đóng gói cẩn thận. In tên và số áo theo yêu cầu.",
+    "sizeChart": {
+      "columns": [
+        "Size",
+        "Ngực (cm)",
+        "Dài áo (cm)",
+        "Cân nặng gợi ý (kg)"
+      ],
+      "rows": [
+        [
+          "M",
+          "96-100",
+          "70",
+          "55-65"
+        ],
+        [
+          "L",
+          "100-104",
+          "72",
+          "65-75"
+        ],
+        [
+          "XL",
+          "104-108",
+          "74",
+          "75-85"
+        ]
+      ],
+      "note": "Đo vòng ngực ở chỗ rộng nhất, thước dây vừa sát người. Nếu số đo nằm giữa hai size, chọn size lớn hơn."
+    },
+    "brand": "Soulprint",
+    "categorySlug": "diem-nhan-ca-nhan",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-dnc-snbd-001-1.svg"
+    ],
+    "price": 450000,
+    "salePrice": 399000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "TT-DNC-SNBD-001-MU-M",
+        "name": "Manchester United / M",
+        "attributes": {
+          "Câu lạc bộ": "Manchester United",
+          "Size": "M"
+        },
+        "priceDelta": 0,
+        "stock": 20,
+        "lowStockThreshold": 5,
+        "isActive": true
+      },
+      {
+        "sku": "TT-DNC-SNBD-001-MU-L",
+        "name": "Manchester United / L",
+        "attributes": {
+          "Câu lạc bộ": "Manchester United",
+          "Size": "L"
+        },
+        "priceDelta": 0,
+        "stock": 15,
+        "lowStockThreshold": 5,
+        "isActive": true
+      },
+      {
+        "sku": "TT-DNC-SNBD-001-MU-XL",
+        "name": "Manchester United / XL",
+        "attributes": {
+          "Câu lạc bộ": "Manchester United",
+          "Size": "XL"
+        },
+        "priceDelta": 20000,
+        "stock": 6,
+        "lowStockThreshold": 5,
+        "isActive": true
+      },
+      {
+        "sku": "TT-DNC-SNBD-001-MC-M",
+        "name": "Manchester City / M",
+        "attributes": {
+          "Câu lạc bộ": "Manchester City",
+          "Size": "M"
+        },
+        "priceDelta": 0,
+        "stock": 12,
+        "lowStockThreshold": 5,
+        "isActive": true
+      },
+      {
+        "sku": "TT-DNC-SNBD-001-MC-L",
+        "name": "Manchester City / L",
+        "attributes": {
+          "Câu lạc bộ": "Manchester City",
+          "Size": "L"
+        },
+        "priceDelta": 0,
+        "stock": 10,
+        "lowStockThreshold": 5,
+        "isActive": true
+      },
+      {
+        "sku": "TT-DNC-SNBD-001-MC-XL",
+        "name": "Manchester City / XL",
+        "attributes": {
+          "Câu lạc bộ": "Manchester City",
+          "Size": "XL"
+        },
+        "priceDelta": 20000,
+        "stock": 4,
+        "lowStockThreshold": 5,
+        "isActive": true
+      },
+      {
+        "sku": "TT-DNC-SNBD-001-RM-M",
+        "name": "Real Madrid / M",
+        "attributes": {
+          "Câu lạc bộ": "Real Madrid",
+          "Size": "M"
+        },
+        "priceDelta": 0,
+        "stock": 5,
+        "lowStockThreshold": 5,
+        "isActive": true
+      },
+      {
+        "sku": "TT-DNC-SNBD-001-RM-L",
+        "name": "Real Madrid / L",
+        "attributes": {
+          "Câu lạc bộ": "Real Madrid",
+          "Size": "L"
+        },
+        "priceDelta": 0,
+        "stock": 5,
+        "lowStockThreshold": 5,
+        "isActive": true
+      },
+      {
+        "sku": "TT-DNC-SNBD-001-RM-XL",
+        "name": "Real Madrid / XL",
+        "attributes": {
+          "Câu lạc bộ": "Real Madrid",
+          "Size": "XL"
+        },
+        "priceDelta": 20000,
+        "stock": 0,
+        "lowStockThreshold": 5,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "AO_DAU",
+        "topMaxChars": 20,
+        "bottomMaxChars": 20,
+        "numberMaxDigits": 3
+      }
+    },
+    "specs": {
+      "material": "Polyester thoáng khí",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "bong-da",
+      "nang-dong",
+      "ban-trai",
+      "anh-em-trai",
+      "huong-ngoai"
+    ],
+    "ageMin": 10,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": true,
+    "featuredOrder": 3,
+    "optionGroups": [
+      {
+        "name": "Câu lạc bộ",
+        "sortOrder": 1,
+        "hasImages": true,
+        "values": [
+          {
+            "value": "Manchester United",
+            "code": "MU",
+            "images": [
+              "/images/products/tt-dnc-snbd-001-mu.svg"
+            ],
+            "sortOrder": 1
+          },
+          {
+            "value": "Manchester City",
+            "code": "MC",
+            "images": [
+              "/images/products/tt-dnc-snbd-001-mc.svg"
+            ],
+            "sortOrder": 2
+          },
+          {
+            "value": "Real Madrid",
+            "code": "RM",
+            "images": [
+              "/images/products/tt-dnc-snbd-001-rm.svg"
+            ],
+            "sortOrder": 3
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "sortOrder": 2,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "M",
+            "code": "M",
+            "sortOrder": 1
+          },
+          {
+            "value": "L",
+            "code": "L",
+            "sortOrder": 2
+          },
+          {
+            "value": "XL",
+            "code": "XL",
+            "sortOrder": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "TT-MMN-SNBD-001",
+    "name": "Khăn quàng cổ vũ đội tuyển",
+    "slug": "khan-quang-co-vu-doi-tuyen",
+    "shortDescription": "Quà tặng bạn bè",
+    "description": "Khăn quàng cổ vũ đội tuyển. Chất liệu len acrylic, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "me-man",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-mmn-snbd-001-1.svg"
+    ],
+    "price": 180000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "TT-MMN-SNBD-001-1",
+        "name": "Đỏ",
+        "attributes": {
+          "Màu sắc": "Đỏ"
+        },
+        "stock": 30,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "TT-MMN-SNBD-001-2",
+        "name": "Xanh",
+        "attributes": {
+          "Màu sắc": "Xanh"
+        },
+        "stock": 25,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Len acrylic",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 0,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "bong-da",
+      "nang-dong",
+      "ban-be",
+      "suu-tam"
+    ],
+    "ageMin": 8,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Màu sắc",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "Đỏ",
+            "code": "DO",
+            "sortOrder": 1
+          },
+          {
+            "value": "Xanh",
+            "code": "XANH",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "TT-MMN-SNBD-002",
+    "name": "Bóng đá size 5 khắc tên",
+    "slug": "bong-da-size-5-khac-ten",
+    "shortDescription": "Quà tặng anh em trai, có thể cá nhân hóa",
+    "description": "Bóng đá size 5 khắc tên. Chất liệu da pu, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "me-man",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-mmn-snbd-002-1.svg"
+    ],
+    "price": 390000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "TT-MMN-SNBD-002-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 18,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Da PU",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "quoc-te-thieu-nhi",
+      "bong-da",
+      "nang-dong",
+      "anh-em-trai",
+      "suu-tam"
+    ],
+    "ageMin": 6,
+    "ageMax": 30,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "TT-MMN-SNBD-003",
+    "name": "Găng tay thủ môn chuyên nghiệp",
+    "slug": "gang-tay-thu-mon-chuyen-nghiep",
+    "shortDescription": "Quà tặng bạn trai",
+    "description": "Găng tay thủ môn chuyên nghiệp. Chất liệu latex cao cấp, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "me-man",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-mmn-snbd-003-1.svg"
+    ],
+    "price": 520000,
+    "salePrice": 470000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "TT-MMN-SNBD-003-1",
+        "name": "8",
+        "attributes": {
+          "Size": "8"
+        },
+        "stock": 10,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "TT-MMN-SNBD-003-2",
+        "name": "9",
+        "attributes": {
+          "Size": "9"
+        },
+        "stock": 12,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Latex cao cấp",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "bong-da",
+      "nang-dong",
+      "ban-trai",
+      "suu-tam"
+    ],
+    "ageMin": 12,
+    "ageMax": 35,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Size",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "8",
+            "code": "8",
+            "sortOrder": 1
+          },
+          {
+            "value": "9",
+            "code": "9",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "TT-MMN-GGY-004",
+    "name": "Bộ dây kháng lực tập gym 5 mức",
+    "slug": "bo-day-khang-luc-tap-gym-5-muc",
+    "shortDescription": "Quà tặng chồng, bạn trai",
+    "description": "Bộ dây kháng lực tập gym 5 mức. Chất liệu cao su tự nhiên, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "me-man",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-mmn-ggy-004-1.svg"
+    ],
+    "price": 350000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "TT-MMN-GGY-004-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 25,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Cao su tự nhiên",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "gym",
+      "thuc-te",
+      "chong",
+      "ban-trai",
+      "nang-dong",
+      "suu-tam"
+    ],
+    "ageMin": 16,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "TT-MMN-005",
+    "name": "Bóng rổ size 7 khắc tên",
+    "slug": "bong-ro-size-7-khac-ten",
+    "shortDescription": "Quà tặng anh em trai, có thể cá nhân hóa",
+    "description": "Bóng rổ size 7 khắc tên. Chất liệu da tổng hợp, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "me-man",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-mmn-005-1.svg"
+    ],
+    "price": 480000,
+    "salePrice": 430000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "TT-MMN-005-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 14,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Da tổng hợp",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "bong-ro",
+      "sinh-nhat",
+      "nang-dong",
+      "anh-em-trai",
+      "suu-tam"
+    ],
+    "ageMin": 10,
+    "ageMax": 35,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "TT-MMN-GGY-006",
+    "name": "Tạ tay bọc cao su 2 x 5kg",
+    "slug": "ta-tay-boc-cao-su-2-x-5kg",
+    "shortDescription": "Quà tặng ba, chồng",
+    "description": "Tạ tay bọc cao su 2 x 5kg. Chất liệu gang bọc cao su, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "me-man",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-mmn-ggy-006-1.svg"
+    ],
+    "price": 690000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "TT-MMN-GGY-006-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 9,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Gang bọc cao su",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 12,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "gym",
+      "thuc-te",
+      "ba",
+      "chong",
+      "suu-tam"
+    ],
+    "ageMin": 18,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "TT-KGC-GGY-001",
+    "name": "Thảm tập yoga kèm túi",
+    "slug": "tham-tap-yoga-kem-tui",
+    "shortDescription": "Quà tặng bạn trai, có thể cá nhân hóa",
+    "description": "Thảm tập yoga kèm túi. Chất liệu tpe 6mm, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "khong-gian-chill",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-kgc-ggy-001-1.svg"
+    ],
+    "price": 420000,
+    "salePrice": 379000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "TT-KGC-GGY-001-1",
+        "name": "Xanh rêu",
+        "attributes": {
+          "Màu sắc": "Xanh rêu"
+        },
+        "stock": 12,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "TT-KGC-GGY-001-2",
+        "name": "Đen",
+        "attributes": {
+          "Màu sắc": "Đen"
+        },
+        "stock": 16,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "TPE 6mm",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "gym",
+      "toi-gian",
+      "huong-noi",
+      "ban-trai",
+      "trang-tri"
+    ],
+    "ageMin": 16,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Màu sắc",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "Xanh rêu",
+            "code": "XANHREU",
+            "sortOrder": 1
+          },
+          {
+            "value": "Đen",
+            "code": "DEN",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "TT-VBL-001",
+    "name": "Đồng hồ thể thao chống nước khắc chữ",
+    "slug": "dong-ho-the-thao-chong-nuoc-khac-chu",
+    "shortDescription": "Quà tặng chồng, ba, sếp, có thể cá nhân hóa",
+    "description": "Đồng hồ thể thao chống nước khắc chữ. Chất liệu nhựa cường lực, dây silicone, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "vat-bat-ly-than",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-vbl-001-1.svg"
+    ],
+    "price": 1250000,
+    "salePrice": 1090000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "TT-VBL-001-1",
+        "name": "Đen",
+        "attributes": {
+          "Màu sắc": "Đen"
+        },
+        "stock": 7,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "TT-VBL-001-2",
+        "name": "Xanh navy",
+        "attributes": {
+          "Màu sắc": "Xanh navy"
+        },
+        "stock": 5,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Nhựa cường lực, dây silicone",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 12,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "tot-nghiep",
+      "ky-niem",
+      "chay-bo",
+      "cong-nghe",
+      "chong",
+      "ba",
+      "sep",
+      "mang-theo-hang-ngay"
+    ],
+    "ageMin": 16,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Màu sắc",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "Đen",
+            "code": "DEN",
+            "sortOrder": 1
+          },
+          {
+            "value": "Xanh navy",
+            "code": "XANHNAVY",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "TT-TBN-001",
+    "name": "Bình giữ nhiệt thể thao 750ml khắc tên",
+    "slug": "binh-giu-nhiet-the-thao-750ml-khac-ten",
+    "shortDescription": "Quà tặng bạn bè, có thể cá nhân hóa",
+    "description": "Bình giữ nhiệt thể thao 750ml khắc tên. Chất liệu inox 304, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "tram-bu-nuoc",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-tbn-001-1.svg"
+    ],
+    "price": 290000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "TT-TBN-001-1",
+        "name": "Bạc",
+        "attributes": {
+          "Màu sắc": "Bạc"
+        },
+        "stock": 30,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "TT-TBN-001-2",
+        "name": "Đen",
+        "attributes": {
+          "Màu sắc": "Đen"
+        },
+        "stock": 28,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Inox 304",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 12,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "khai-giang",
+      "chay-bo",
+      "gym",
+      "thuc-te",
+      "ban-be",
+      "giu-nhiet"
+    ],
+    "ageMin": 8,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": true,
+    "featuredOrder": 4,
+    "optionGroups": [
+      {
+        "name": "Màu sắc",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "Bạc",
+            "code": "BAC",
+            "sortOrder": 1
+          },
+          {
+            "value": "Đen",
+            "code": "DEN",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "TT-VBL-002",
+    "name": "Đai chạy bộ đựng điện thoại",
+    "slug": "dai-chay-bo-dung-dien-thoai",
+    "shortDescription": "Quà tặng bạn trai, bạn bè",
+    "description": "Đai chạy bộ đựng điện thoại. Chất liệu vải lycra, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "vat-bat-ly-than",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-vbl-002-1.svg"
+    ],
+    "price": 210000,
+    "salePrice": 189000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "TT-VBL-002-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 22,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Vải lycra",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "chay-bo",
+      "toi-gian",
+      "ban-trai",
+      "ban-be",
+      "mang-theo-hang-ngay"
+    ],
+    "ageMin": 14,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "TT-GBX-SNBD-001",
+    "name": "Hộp quà fan bóng đá (áo, khăn, móc khóa)",
+    "slug": "hop-qua-fan-bong-da-ao-khan-moc-khoa",
+    "shortDescription": "Quà tặng bạn trai, chồng, có thể cá nhân hóa",
+    "description": "Hộp quà fan bóng đá (áo, khăn, móc khóa). Chất liệu nhiều chất liệu, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "giftbox",
+    "axis": "THE_THAO",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/tt-gbx-snbd-001-1.svg"
+    ],
+    "price": 790000,
+    "salePrice": 690000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "TT-GBX-SNBD-001-1",
+        "name": "M",
+        "attributes": {
+          "Size": "M"
+        },
+        "stock": 6,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "TT-GBX-SNBD-001-2",
+        "name": "L",
+        "attributes": {
+          "Size": "L"
+        },
+        "stock": 6,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "THIET_KE"
+      ]
+    },
+    "specs": {
+      "material": "Nhiều chất liệu",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "valentine",
+      "bong-da",
+      "ca-tinh",
+      "ban-trai",
+      "chong"
+    ],
+    "ageMin": 14,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Size",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "M",
+            "code": "M",
+            "sortOrder": 1
+          },
+          {
+            "value": "L",
+            "code": "L",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "AN-MMN-GCO-001",
+    "name": "Mô hình chiến binh ninja 20cm",
+    "slug": "mo-hinh-chien-binh-ninja-20cm",
+    "shortDescription": "Quà tặng anh em trai, bạn trai",
+    "description": "Mô hình chiến binh ninja 20cm. Chất liệu nhựa pvc, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "me-man",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-mmn-gco-001-1.svg"
+    ],
+    "price": 650000,
+    "salePrice": 590000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "AN-MMN-GCO-001-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 10,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Nhựa PVC",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "anime-manga",
+      "suu-tam-mo-hinh",
+      "ca-tinh",
+      "anh-em-trai",
+      "ban-trai",
+      "suu-tam"
+    ],
+    "ageMin": 10,
+    "ageMax": 35,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "AN-KGC-GCO-001",
+    "name": "Mô hình hải tặc mũ rơm có đèn LED",
+    "slug": "mo-hinh-hai-tac-mu-rom-co-den-led",
+    "shortDescription": "Quà tặng bạn trai",
+    "description": "Mô hình hải tặc mũ rơm có đèn LED. Chất liệu nhựa pvc, đèn led, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "khong-gian-chill",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-kgc-gco-001-1.svg"
+    ],
+    "price": 890000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "AN-KGC-GCO-001-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 6,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Nhựa PVC, đèn LED",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "tot-nghiep",
+      "anime-manga",
+      "suu-tam-mo-hinh",
+      "huong-noi",
+      "ban-trai",
+      "trang-tri"
+    ],
+    "ageMin": 12,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": true,
+    "featuredOrder": 1,
+    "optionGroups": []
+  },
+  {
+    "sku": "AN-MMN-GCO-002",
+    "name": "Tượng robot khổng lồ lắp ráp",
+    "slug": "tuong-robot-khong-lo-lap-rap",
+    "shortDescription": "Quà tặng chồng",
+    "description": "Tượng robot khổng lồ lắp ráp. Chất liệu nhựa abs, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "me-man",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-mmn-gco-002-1.svg"
+    ],
+    "price": 1150000,
+    "salePrice": 990000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "AN-MMN-GCO-002-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 4,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Nhựa ABS",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "ky-niem",
+      "suu-tam-mo-hinh",
+      "sang-tao",
+      "huong-noi",
+      "chong",
+      "suu-tam"
+    ],
+    "ageMin": 14,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "AN-MMN-GCO-003",
+    "name": "Bộ 6 figure chibi để bàn",
+    "slug": "bo-6-figure-chibi-de-ban",
+    "shortDescription": "Quà tặng anh em trai, bạn bè",
+    "description": "Bộ 6 figure chibi để bàn. Chất liệu nhựa pvc, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "me-man",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-mmn-gco-003-1.svg"
+    ],
+    "price": 320000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "AN-MMN-GCO-003-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 20,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Nhựa PVC",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 0,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "quoc-te-thieu-nhi",
+      "anime-manga",
+      "hai-huoc",
+      "anh-em-trai",
+      "ban-be",
+      "suu-tam"
+    ],
+    "ageMin": 6,
+    "ageMax": 30,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "AN-DNC-GCO-001",
+    "name": "Áo hoodie anime in tên",
+    "slug": "ao-hoodie-anime-in-ten",
+    "shortDescription": "Quà tặng bạn trai, anh em trai, có thể cá nhân hóa",
+    "description": "Áo hoodie anime in tên. Chất liệu nỉ bông, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "sizeChart": {
+      "columns": [
+        "Size",
+        "Ngực (cm)",
+        "Dài áo (cm)",
+        "Dài tay (cm)"
+      ],
+      "rows": [
+        [
+          "M",
+          "108",
+          "68",
+          "60"
+        ],
+        [
+          "L",
+          "114",
+          "70",
+          "62"
+        ],
+        [
+          "XL",
+          "120",
+          "72",
+          "64"
+        ]
+      ],
+      "note": "Hoodie dáng rộng. Muốn mặc vừa người thì chọn nhỏ hơn 1 size."
+    },
+    "brand": "Soulprint",
+    "categorySlug": "diem-nhan-ca-nhan",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-dnc-gco-001-1.svg"
+    ],
+    "price": 480000,
+    "salePrice": 420000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "AN-DNC-GCO-001-1",
+        "name": "M",
+        "attributes": {
+          "Size": "M"
+        },
+        "stock": 12,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "AN-DNC-GCO-001-2",
+        "name": "L",
+        "attributes": {
+          "Size": "L"
+        },
+        "stock": 14,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "AN-DNC-GCO-001-3",
+        "name": "XL",
+        "attributes": {
+          "Size": "XL"
+        },
+        "stock": 6,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC",
+        "THIET_KE"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Nỉ bông",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "giang-sinh",
+      "anime-manga",
+      "ca-tinh",
+      "ban-trai",
+      "anh-em-trai"
+    ],
+    "ageMin": 12,
+    "ageMax": 35,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Size",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "M",
+            "code": "M",
+            "sortOrder": 1
+          },
+          {
+            "value": "L",
+            "code": "L",
+            "sortOrder": 2
+          },
+          {
+            "value": "XL",
+            "code": "XL",
+            "sortOrder": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "AN-DNC-GCO-002",
+    "name": "Áo thun họa tiết manga",
+    "slug": "ao-thun-hoa-tiet-manga",
+    "shortDescription": "Quà tặng bạn bè, có thể cá nhân hóa",
+    "description": "Áo thun họa tiết manga. Chất liệu cotton 100%, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "sizeChart": {
+      "columns": [
+        "Size",
+        "Ngực (cm)",
+        "Dài áo (cm)"
+      ],
+      "rows": [
+        [
+          "M",
+          "100",
+          "69"
+        ],
+        [
+          "L",
+          "106",
+          "71"
+        ]
+      ],
+      "note": "Đo áo đặt phẳng, số đo có thể lệch 1-2 cm."
+    },
+    "brand": "Soulprint",
+    "categorySlug": "diem-nhan-ca-nhan",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-dnc-gco-002-1.svg"
+    ],
+    "price": 250000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "AN-DNC-GCO-002-1",
+        "name": "M",
+        "attributes": {
+          "Size": "M"
+        },
+        "stock": 20,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "AN-DNC-GCO-002-2",
+        "name": "L",
+        "attributes": {
+          "Size": "L"
+        },
+        "stock": 20,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "THIET_KE"
+      ]
+    },
+    "specs": {
+      "material": "Cotton 100%",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 0,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "khai-giang",
+      "anime-manga",
+      "hai-huoc",
+      "ban-be"
+    ],
+    "ageMin": 10,
+    "ageMax": 30,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Size",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "M",
+            "code": "M",
+            "sortOrder": 1
+          },
+          {
+            "value": "L",
+            "code": "L",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "AN-DNC-GCO-003",
+    "name": "Mũ lưỡi trai thêu biểu tượng làng lá",
+    "slug": "mu-luoi-trai-theu-bieu-tuong-lang-la",
+    "shortDescription": "Quà tặng bạn trai, anh em trai, có thể cá nhân hóa",
+    "description": "Mũ lưỡi trai thêu biểu tượng làng lá. Chất liệu kaki, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "diem-nhan-ca-nhan",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-dnc-gco-003-1.svg"
+    ],
+    "price": 220000,
+    "salePrice": 199000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "AN-DNC-GCO-003-1",
+        "name": "Đen",
+        "attributes": {
+          "Màu sắc": "Đen"
+        },
+        "stock": 18,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "AN-DNC-GCO-003-2",
+        "name": "Xám",
+        "attributes": {
+          "Màu sắc": "Xám"
+        },
+        "stock": 12,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Kaki",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 0,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "anime-manga",
+      "nang-dong",
+      "ban-trai",
+      "anh-em-trai"
+    ],
+    "ageMin": 10,
+    "ageMax": 35,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Màu sắc",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "Đen",
+            "code": "DEN",
+            "sortOrder": 1
+          },
+          {
+            "value": "Xám",
+            "code": "XAM",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "AN-VBL-GCO-001",
+    "name": "Balo anime chống nước",
+    "slug": "balo-anime-chong-nuoc",
+    "shortDescription": "Quà tặng anh em trai, có thể cá nhân hóa",
+    "description": "Balo anime chống nước. Chất liệu vải oxford chống nước, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "vat-bat-ly-than",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-vbl-gco-001-1.svg"
+    ],
+    "price": 560000,
+    "salePrice": 499000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "AN-VBL-GCO-001-1",
+        "name": "Đen",
+        "attributes": {
+          "Màu sắc": "Đen"
+        },
+        "stock": 10,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "AN-VBL-GCO-001-2",
+        "name": "Xanh",
+        "attributes": {
+          "Màu sắc": "Xanh"
+        },
+        "stock": 8,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Vải Oxford chống nước",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "khai-giang",
+      "tot-nghiep",
+      "anime-manga",
+      "thuc-te",
+      "anh-em-trai",
+      "mang-theo-hang-ngay"
+    ],
+    "ageMin": 10,
+    "ageMax": 30,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Màu sắc",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "Đen",
+            "code": "DEN",
+            "sortOrder": 1
+          },
+          {
+            "value": "Xanh",
+            "code": "XANH",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "AN-TBN-VAL26-001",
+    "name": "Ly sứ đổi màu nhân vật anime",
+    "slug": "ly-su-doi-mau-nhan-vat-anime",
+    "shortDescription": "Quà tặng bạn bè, bạn trai, có thể cá nhân hóa",
+    "description": "Ly sứ đổi màu nhân vật anime. Chất liệu sứ cao cấp, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "tram-bu-nuoc",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-tbn-val26-001-1.svg"
+    ],
+    "price": 190000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "AN-TBN-VAL26-001-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 35,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Sứ cao cấp",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 0,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "valentine",
+      "anime-manga",
+      "hai-huoc",
+      "ban-be",
+      "ban-trai",
+      "giu-nhiet"
+    ],
+    "ageMin": 8,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "AN-KGC-VAL26-002",
+    "name": "Đèn ngủ 3D hình nhân vật khắc tên",
+    "slug": "den-ngu-3d-hinh-nhan-vat-khac-ten",
+    "shortDescription": "Quà tặng anh em trai, có thể cá nhân hóa",
+    "description": "Đèn ngủ 3D hình nhân vật khắc tên. Chất liệu acrylic, đế gỗ, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "khong-gian-chill",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-kgc-val26-002-1.svg"
+    ],
+    "price": 350000,
+    "salePrice": 315000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "AN-KGC-VAL26-002-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 16,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Acrylic, đế gỗ",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "ky-niem",
+      "anime-manga",
+      "sang-tao",
+      "huong-noi",
+      "anh-em-trai",
+      "trang-tri"
+    ],
+    "ageMin": 8,
+    "ageMax": 35,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "AN-VBL-002",
+    "name": "Sổ tay bìa da khắc tên phong cách manga",
+    "slug": "so-tay-bia-da-khac-ten-phong-cach-manga",
+    "shortDescription": "Quà tặng bạn bè, có thể cá nhân hóa",
+    "description": "Sổ tay bìa da khắc tên phong cách manga. Chất liệu bìa da pu, giấy 100gsm, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "vat-bat-ly-than",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-vbl-002-1.svg"
+    ],
+    "price": 160000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "AN-VBL-002-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 40,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Bìa da PU, giấy 100gsm",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 0,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "khai-giang",
+      "tot-nghiep",
+      "anime-manga",
+      "sang-tao",
+      "huong-noi",
+      "ban-be",
+      "mang-theo-hang-ngay",
+      "lam-viec"
+    ],
+    "ageMin": 10,
+    "ageMax": 35,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "AN-GBX-VAL26-001",
+    "name": "Hộp quà otaku (figure, ly, móc khóa)",
+    "slug": "hop-qua-otaku-figure-ly-moc-khoa",
+    "shortDescription": "Quà tặng bạn trai, có thể cá nhân hóa",
+    "description": "Hộp quà otaku (figure, ly, móc khóa). Chất liệu nhiều chất liệu, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "giftbox",
+    "axis": "ANIME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/an-gbx-val26-001-1.svg"
+    ],
+    "price": 990000,
+    "salePrice": 890000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "AN-GBX-VAL26-001-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 5,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "THIET_KE"
+      ]
+    },
+    "specs": {
+      "material": "Nhiều chất liệu",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "valentine",
+      "anime-manga",
+      "suu-tam-mo-hinh",
+      "ban-trai"
+    ],
+    "ageMin": 12,
+    "ageMax": 35,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "GM-VBL-001",
+    "name": "Bàn phím cơ RGB khắc tên phím Esc",
+    "slug": "ban-phim-co-rgb-khac-ten-phim-esc",
+    "shortDescription": "Quà tặng bạn trai, chồng, có thể cá nhân hóa",
+    "description": "Bàn phím cơ RGB khắc tên phím Esc. Chất liệu nhôm, keycap pbt, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "vat-bat-ly-than",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-vbl-001-1.svg"
+    ],
+    "price": 1190000,
+    "salePrice": 1050000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "GM-VBL-001-1",
+        "name": "Switch đỏ",
+        "attributes": {
+          "Phân loại": "Switch đỏ"
+        },
+        "stock": 8,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "GM-VBL-001-2",
+        "name": "Switch xanh",
+        "attributes": {
+          "Phân loại": "Switch xanh"
+        },
+        "stock": 6,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Nhôm, keycap PBT",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 12,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "tot-nghiep",
+      "game-pc",
+      "esports",
+      "cong-nghe",
+      "ban-trai",
+      "chong",
+      "mang-theo-hang-ngay",
+      "lam-viec"
+    ],
+    "ageMin": 12,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": true,
+    "featuredOrder": 2,
+    "optionGroups": [
+      {
+        "name": "Phân loại",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "Switch đỏ",
+            "code": "SWITCHDO",
+            "sortOrder": 1
+          },
+          {
+            "value": "Switch xanh",
+            "code": "SWITCHXANH",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "GM-VBL-002",
+    "name": "Chuột gaming RGB 7 nút",
+    "slug": "chuot-gaming-rgb-7-nut",
+    "shortDescription": "Quà tặng bạn trai, anh em trai",
+    "description": "Chuột gaming RGB 7 nút. Chất liệu nhựa abs, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "vat-bat-ly-than",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-vbl-002-1.svg"
+    ],
+    "price": 450000,
+    "salePrice": 399000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "GM-VBL-002-1",
+        "name": "Đen",
+        "attributes": {
+          "Màu sắc": "Đen"
+        },
+        "stock": 15,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "GM-VBL-002-2",
+        "name": "Trắng",
+        "attributes": {
+          "Màu sắc": "Trắng"
+        },
+        "stock": 10,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Nhựa ABS",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 12,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "game-pc",
+      "esports",
+      "cong-nghe",
+      "ban-trai",
+      "anh-em-trai",
+      "mang-theo-hang-ngay",
+      "lam-viec"
+    ],
+    "ageMin": 10,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Màu sắc",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "Đen",
+            "code": "DEN",
+            "sortOrder": 1
+          },
+          {
+            "value": "Trắng",
+            "code": "TRANG",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "GM-VBL-003",
+    "name": "Tai nghe gaming âm thanh vòm",
+    "slug": "tai-nghe-gaming-am-thanh-vom",
+    "shortDescription": "Quà tặng chồng",
+    "description": "Tai nghe gaming âm thanh vòm. Chất liệu nhựa, đệm da, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "vat-bat-ly-than",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-vbl-003-1.svg"
+    ],
+    "price": 890000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "GM-VBL-003-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 9,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Nhựa, đệm da",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 12,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "game-pc",
+      "esports",
+      "cong-nghe",
+      "huong-noi",
+      "chong",
+      "mang-theo-hang-ngay",
+      "lam-viec"
+    ],
+    "ageMin": 12,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "GM-MMN-001",
+    "name": "Tay cầm chơi game không dây",
+    "slug": "tay-cam-choi-game-khong-day",
+    "shortDescription": "Quà tặng anh em trai, bạn bè, có thể cá nhân hóa",
+    "description": "Tay cầm chơi game không dây. Chất liệu nhựa abs, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "me-man",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-mmn-001-1.svg"
+    ],
+    "price": 690000,
+    "salePrice": 620000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "GM-MMN-001-1",
+        "name": "Đen",
+        "attributes": {
+          "Màu sắc": "Đen"
+        },
+        "stock": 11,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "GM-MMN-001-2",
+        "name": "Trắng",
+        "attributes": {
+          "Màu sắc": "Trắng"
+        },
+        "stock": 7,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "THIET_KE"
+      ]
+    },
+    "specs": {
+      "material": "Nhựa ABS",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 12,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "giang-sinh",
+      "game-pc",
+      "game-mobile",
+      "hai-huoc",
+      "anh-em-trai",
+      "ban-be",
+      "suu-tam"
+    ],
+    "ageMin": 8,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Màu sắc",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "Đen",
+            "code": "DEN",
+            "sortOrder": 1
+          },
+          {
+            "value": "Trắng",
+            "code": "TRANG",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "GM-KGC-001",
+    "name": "Lót chuột cỡ lớn in theo yêu cầu",
+    "slug": "lot-chuot-co-lon-in-theo-yeu-cau",
+    "shortDescription": "Quà tặng bạn bè, có thể cá nhân hóa",
+    "description": "Lót chuột cỡ lớn in theo yêu cầu. Chất liệu cao su, vải may viền, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "khong-gian-chill",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-kgc-001-1.svg"
+    ],
+    "price": 250000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "GM-KGC-001-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 30,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "THIET_KE"
+      ]
+    },
+    "specs": {
+      "material": "Cao su, vải may viền",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 0,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "game-pc",
+      "esports",
+      "sang-tao",
+      "ban-be",
+      "trang-tri",
+      "lam-viec"
+    ],
+    "ageMin": 10,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "GM-KGC-002",
+    "name": "Giá treo tai nghe có đèn LED",
+    "slug": "gia-treo-tai-nghe-co-den-led",
+    "shortDescription": "Quà tặng bạn trai, có thể cá nhân hóa",
+    "description": "Giá treo tai nghe có đèn LED. Chất liệu nhôm, nhựa, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "khong-gian-chill",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-kgc-002-1.svg"
+    ],
+    "price": 320000,
+    "salePrice": 289000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "GM-KGC-002-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 14,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Nhôm, nhựa",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "game-pc",
+      "cong-nghe",
+      "toi-gian",
+      "ban-trai",
+      "trang-tri"
+    ],
+    "ageMin": 12,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "GM-KGC-003",
+    "name": "Đèn LED thanh RGB trang trí bàn game",
+    "slug": "den-led-thanh-rgb-trang-tri-ban-game",
+    "shortDescription": "Quà tặng anh em trai",
+    "description": "Đèn LED thanh RGB trang trí bàn game. Chất liệu nhựa, led, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "khong-gian-chill",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-kgc-003-1.svg"
+    ],
+    "price": 380000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "GM-KGC-003-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 12,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Nhựa, LED",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 6,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "game-pc",
+      "esports",
+      "cong-nghe",
+      "sang-tao",
+      "anh-em-trai",
+      "trang-tri"
+    ],
+    "ageMin": 12,
+    "ageMax": 35,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "GM-VBL-004",
+    "name": "Móc khóa kim loại vũ khí game",
+    "slug": "moc-khoa-kim-loai-vu-khi-game",
+    "shortDescription": "Quà tặng bạn bè, anh em trai, có thể cá nhân hóa",
+    "description": "Móc khóa kim loại vũ khí game. Chất liệu hợp kim kẽm, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "vat-bat-ly-than",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-vbl-004-1.svg"
+    ],
+    "price": 120000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "GM-VBL-004-1",
+        "name": "Kiếm",
+        "attributes": {
+          "Phân loại": "Kiếm"
+        },
+        "stock": 40,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "GM-VBL-004-2",
+        "name": "Khiên",
+        "attributes": {
+          "Phân loại": "Khiên"
+        },
+        "stock": 35,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Hợp kim kẽm",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 0,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "quoc-te-thieu-nhi",
+      "game-mobile",
+      "hai-huoc",
+      "ban-be",
+      "anh-em-trai",
+      "mang-theo-hang-ngay"
+    ],
+    "ageMin": 6,
+    "ageMax": 30,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Phân loại",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "Kiếm",
+            "code": "KIEM",
+            "sortOrder": 1
+          },
+          {
+            "value": "Khiên",
+            "code": "KHIEN",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "GM-KGC-004",
+    "name": "Poster khung tranh nhân vật game",
+    "slug": "poster-khung-tranh-nhan-vat-game",
+    "shortDescription": "Quà tặng bạn trai, có thể cá nhân hóa",
+    "description": "Poster khung tranh nhân vật game. Chất liệu giấy mỹ thuật, khung gỗ, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "khong-gian-chill",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-kgc-004-1.svg"
+    ],
+    "price": 280000,
+    "salePrice": 249000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "GM-KGC-004-1",
+        "name": "A3",
+        "attributes": {
+          "Phân loại": "A3"
+        },
+        "stock": 20,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      },
+      {
+        "sku": "GM-KGC-004-2",
+        "name": "A2",
+        "attributes": {
+          "Phân loại": "A2"
+        },
+        "stock": 10,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "IN_KHAC"
+      ],
+      "engrave": {
+        "mode": "THUONG",
+        "maxChars": 20
+      }
+    },
+    "specs": {
+      "material": "Giấy mỹ thuật, khung gỗ",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 0,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "game-pc",
+      "game-mobile",
+      "ca-tinh",
+      "ban-trai",
+      "trang-tri"
+    ],
+    "ageMin": 10,
+    "ageMax": 35,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": [
+      {
+        "name": "Phân loại",
+        "sortOrder": 1,
+        "hasImages": false,
+        "values": [
+          {
+            "value": "A3",
+            "code": "A3",
+            "sortOrder": 1
+          },
+          {
+            "value": "A2",
+            "code": "A2",
+            "sortOrder": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "GM-KGC-005",
+    "name": "Board game chiến thuật 2-6 người",
+    "slug": "board-game-chien-thuat-2-6-nguoi",
+    "shortDescription": "Quà tặng bạn bè, ba",
+    "description": "Board game chiến thuật 2-6 người. Chất liệu giấy, nhựa, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "khong-gian-chill",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-kgc-005-1.svg"
+    ],
+    "price": 420000,
+    "salePrice": null,
+    "saleStartAt": null,
+    "saleEndAt": null,
+    "variants": [
+      {
+        "sku": "GM-KGC-005-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 15,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Giấy, nhựa",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 0,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "giang-sinh",
+      "tet",
+      "board-game",
+      "huong-ngoai",
+      "hai-huoc",
+      "ban-be",
+      "ba",
+      "trang-tri"
+    ],
+    "ageMin": 8,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "GM-KGC-006",
+    "name": "Bộ bài ma sói bản tiếng Việt",
+    "slug": "bo-bai-ma-soi-ban-tieng-viet",
+    "shortDescription": "Quà tặng bạn bè",
+    "description": "Bộ bài ma sói bản tiếng Việt. Chất liệu giấy couche, đóng gói cẩn thận.",
+    "brand": "Soulprint",
+    "categorySlug": "khong-gian-chill",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-kgc-006-1.svg"
+    ],
+    "price": 180000,
+    "salePrice": 159000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "GM-KGC-006-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 25,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": false,
+      "types": []
+    },
+    "specs": {
+      "material": "Giấy couche",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 0,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "khai-giang",
+      "board-game",
+      "huong-ngoai",
+      "hai-huoc",
+      "ban-be",
+      "trang-tri"
+    ],
+    "ageMin": 10,
+    "ageMax": 35,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  },
+  {
+    "sku": "GM-GBX-VAL26-001",
+    "name": "Hộp quà game thủ (chuột, lót chuột, móc khóa)",
+    "slug": "hop-qua-game-thu-chuot-lot-chuot-moc-khoa",
+    "shortDescription": "Quà tặng bạn trai, chồng, có thể cá nhân hóa",
+    "description": "Hộp quà game thủ (chuột, lót chuột, móc khóa). Chất liệu nhiều chất liệu, đóng gói cẩn thận. Hỗ trợ cá nhân hóa theo yêu cầu.",
+    "brand": "Soulprint",
+    "categorySlug": "giftbox",
+    "axis": "GAME",
+    "status": "DANG_HIEN_THI",
+    "images": [
+      "/images/products/gm-gbx-val26-001-1.svg"
+    ],
+    "price": 750000,
+    "salePrice": 669000,
+    "saleStartAt": "2026-10-01T00:00:00+07:00",
+    "saleEndAt": "2026-12-31T23:59:59+07:00",
+    "variants": [
+      {
+        "sku": "GM-GBX-VAL26-001-1",
+        "name": "Mặc định",
+        "attributes": {},
+        "stock": 6,
+        "lowStockThreshold": 5,
+        "priceDelta": 0,
+        "isActive": true
+      }
+    ],
+    "personalization": {
+      "allowed": true,
+      "types": [
+        "THIET_KE"
+      ]
+    },
+    "specs": {
+      "material": "Nhiều chất liệu",
+      "origin": "Việt Nam"
+    },
+    "warrantyMonths": 12,
+    "outOfStockBehavior": "HIEN_TAM_HET",
+    "tagSlugs": [
+      "sinh-nhat",
+      "valentine",
+      "game-pc",
+      "esports",
+      "ban-trai",
+      "chong"
+    ],
+    "ageMin": 12,
+    "ageMax": 40,
+    "soldCount": 0,
+    "viewCount": 0,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "hasOrders": false,
+    "isFeatured": false,
+    "featuredOrder": null,
+    "optionGroups": []
+  }
+]

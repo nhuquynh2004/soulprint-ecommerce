@@ -1,0 +1,141 @@
+@if (loading()) {
+  <span class="sp-skel d-block" style="height: 420px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <a class="btn btn-primary" routerLink="/quan-tri/khach-hang">Về danh sách khách</a>
+  </div>
+} @else if (c(); as c) {
+  <nav class="sp-crumbs mb-2" aria-label="Vị trí"><a routerLink="/quan-tri/khach-hang">Khách hàng</a> <span aria-hidden="true">/</span> <span>{{ c.fullName }}</span></nav>
+  <header class="sp-aph">
+    <div class="d-flex align-items-center gap-3">
+      <span class="sp-avatar sp-avatar--lg" aria-hidden="true">{{ initials(c.fullName) }}</span>
+      <div>
+        <h1 class="d-flex align-items-center gap-2 flex-wrap">{{ c.fullName }} <span [class]="'sp-status sp-status--' + c.status">{{ statusLabel[c.status] }}</span></h1>
+        <!-- Tài khoản chờ kích hoạt chưa là thành viên -->
+        <p>{{ c.isMember ? 'Thành viên từ ' + (c.memberSince | date: 'MM/yyyy') : 'Chưa là thành viên' + (c.firstOrderAt ? ' | mua lần đầu ' + (c.firstOrderAt | date: 'MM/yyyy') : '') }} | {{ c.orderCount }} đơn | đã chi {{ c.totalSpent | vnd }}{{ c.orders[0] ? ' | đơn gần nhất ' + (c.orders[0].createdAt | date: 'dd/MM/yyyy') : '' }}</p>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      @if (auth.can('DON_NHAP.TAO')) {
+        <a class="btn btn-primary" routerLink="/quan-tri/don-nhap/moi" [queryParams]="{ khach: c._id }">Tạo đơn nháp cho khách</a>
+      }
+      @if (menu().length) {
+        <app-row-menu [items]="menu()" label="Thao tác với khách" (picked)="onMenu($event)" />
+      }
+    </div>
+  </header>
+
+  @if (c.status === 'BI_KHOA') {
+    <div class="sp-alert sp-alert--danger">Tài khoản đã bị khóa{{ c.statusReason ? ': ' + c.statusReason : '' }}</div>
+  }
+  @if (devLink()) {
+    <div class="sp-alert sp-alert--info">Chế độ demo: liên kết kích hoạt <a [href]="devLink()" target="_blank" rel="noopener">{{ devLink() }}</a></div>
+  }
+
+  <div class="sp-odgrid2">
+    <div class="d-flex flex-column gap-3">
+      <section class="sp-acard">
+        <h2>Đơn hàng <small class="text-body-secondary fw-normal">{{ c.orderCount }} đơn</small></h2>
+        @if (c.orders.length) {
+          <div class="sp-table-wrap">
+            <table class="table sp-atable align-middle mb-0">
+              <thead><tr><th>Mã đơn</th><th>Ngày</th><th>Trạng thái</th><th class="text-end">Tổng</th></tr></thead>
+              <tbody>
+                @for (o of c.orders; track o.code) {
+                  <tr>
+                    <td>@if (auth.can('DON_HANG.XEM')) { <a [routerLink]="['/quan-tri/don-hang', o.code]">{{ o.code }}</a> } @else { {{ o.code }} }</td>
+                    <td>{{ o.createdAt | date: 'dd/MM/yyyy' }}</td>
+                    <td><span [class]="'sp-status sp-status--' + o.orderStatus">{{ o.orderStatusLabel }}</span></td>
+                    <td class="text-end">{{ o.total | vnd }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="text-body-secondary mb-0">Khách chưa có đơn hàng.</p>
+        }
+      </section>
+
+      <section class="sp-acard">
+        <h2>Yêu cầu hậu mãi <small class="text-body-secondary fw-normal">{{ c.requests.length }} yêu cầu</small></h2>
+        @for (r of c.requests; track r._id) {
+          <p class="mb-1">{{ requestLabel(r.kind) }} | đơn {{ r.orderCode }} | {{ r.status }} | {{ r.createdAt | date: 'dd/MM/yyyy' }}</p>
+        } @empty {
+          <p class="text-body-secondary mb-0">Chưa có yêu cầu đổi trả hay bảo hành.</p>
+        }
+      </section>
+
+      <section class="sp-acard">
+        <div class="sp-acard__head">
+          <h2>Đánh giá</h2>
+          <a class="small" routerLink="/quan-tri/khach-hang/danh-gia">Xem trong Đánh giá</a>
+        </div>
+        @for (r of c.reviews; track r._id) {
+          <div class="sp-cdrev">
+            <strong>{{ r.productName }}</strong> <span [class]="'sp-status sp-status--' + (r.isHidden ? 'TAM_NGUNG' : 'DANG_HIEN')">{{ r.isHidden ? 'Đã ẩn' : 'Đang hiện' }}</span>
+            <p class="mb-1">{{ r.rating }} sao | {{ r.comment }}</p>
+            <small class="text-body-secondary">{{ r.createdAt | date: 'dd/MM/yyyy' }} | đơn {{ r.orderCode }}{{ r.imageCount ? ' | ' + r.imageCount + ' ảnh' : '' }}</small>
+          </div>
+        } @empty {
+          <p class="text-body-secondary mt-2 mb-0">Khách chưa viết đánh giá.</p>
+        }
+      </section>
+
+      <section class="sp-acard">
+        <h2>Hội thoại</h2>
+        @for (h of c.conversations; track h._id) {
+          <p class="mb-1">{{ h.summary || 'Hội thoại hỗ trợ' }} | {{ h.lastMessageAt | date: 'dd/MM/yyyy HH:mm' }} | {{ h.status === 'DA_DONG' ? 'Đã đóng' : 'Đang hỗ trợ' }}</p>
+        } @empty {
+          <p class="text-body-secondary mb-0">Chưa có hội thoại hỗ trợ.</p>
+        }
+      </section>
+    </div>
+
+    <aside class="d-flex flex-column gap-3">
+      <section class="sp-acard">
+        <h2>Liên hệ</h2>
+        <dl class="sp-cdkv">
+          <div><dt>Họ tên</dt><dd>{{ c.fullName }} <button type="button" (click)="copy(c.fullName, 'họ tên')">Sao chép</button></dd></div>
+          <div><dt>Số điện thoại</dt><dd>{{ c.phone || '-' }} @if (c.phone) { <button type="button" (click)="copy(c.phone, 'số điện thoại')">Sao chép</button> }</dd></div>
+          <div><dt>Email</dt><dd>{{ c.email || '-' }} @if (c.email) { <button type="button" (click)="copy(c.email, 'email')">Sao chép</button> }</dd></div>
+          @if (c.birthday) {
+            <div><dt>Sinh nhật</dt><dd>{{ c.birthday | date: 'dd/MM' }}</dd></div>
+          }
+        </dl>
+      </section>
+      <section class="sp-acard">
+        <h2>Sổ địa chỉ <small class="text-body-secondary fw-normal">Chỉ xem</small></h2>
+        @for (a of c.addresses; track a._id) {
+          <p class="mb-2">{{ a.street }}, {{ a.ward }}, {{ a.province }}{{ a.isDefault ? ' | Mặc định' : '' }}<small class="d-block text-body-secondary">{{ a.recipientName }} | {{ a.phone }}</small></p>
+        } @empty {
+          <p class="text-body-secondary mb-0">Chưa lưu địa chỉ.</p>
+        }
+      </section>
+      <section class="sp-acard">
+        <h2>Tài khoản</h2>
+        <dl class="sp-cdkv">
+          <div><dt>Đăng nhập</dt><dd>{{ c.loginLocked ? 'Đang khóa tạm đến ' + (c.lockedUntil | date: 'HH:mm dd/MM') : 'Bình thường' }}</dd></div>
+          <div><dt>Tra cứu đơn bằng SĐT</dt><dd>{{ c.lookupLocked ? 'Đang khóa' : 'Bình thường' }}</dd></div>
+          <div><dt>Lần đăng nhập cuối</dt><dd>{{ c.lastLoginAt ? (c.lastLoginAt | date: 'dd/MM/yyyy HH:mm') : 'Chưa đăng nhập' }}</dd></div>
+        </dl>
+      </section>
+      <section class="sp-acard">
+        <h2>Voucher được cấp</h2>
+        @for (v of c.vouchers; track v.code) {
+          <p class="mb-1"><strong>{{ v.code }}</strong> | {{ v.source === 'COMPENSATION' ? 'Bồi hoàn' : v.source === 'WELCOME' ? 'Chào mừng' : 'Chiến dịch' }} | {{ v.usedCount ? 'đã dùng' : v.expiresAt ? 'hạn ' + (v.expiresAt | date: 'dd/MM/yyyy') : 'chưa dùng' }}</p>
+        } @empty {
+          <p class="text-body-secondary mb-0">Chưa có voucher.</p>
+        }
+      </section>
+    </aside>
+  </div>
+
+  @if (lockDialog()) {
+    <app-confirm-dialog [title]="'Khóa tài khoản ' + c.fullName + '?'" confirmLabel="Khóa tài khoản" [danger]="true" [busy]="busy() || lockReason().trim().length < 5" (confirm)="doLock()" (cancel)="lockDialog.set(false)">
+      <p class="small">Khách bị đăng xuất khỏi mọi thiết bị, đăng nhập lại sẽ nhận thông báo tài khoản bị khóa.</p>
+      <label class="sp-field w-100"><span>Lý do khóa *</span><textarea class="form-control" rows="2" maxlength="300" [value]="lockReason()" (input)="lockReason.set($any($event.target).value)"></textarea></label>
+    </app-confirm-dialog>
+  }
+}

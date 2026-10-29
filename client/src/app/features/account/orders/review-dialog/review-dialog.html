@@ -1,0 +1,112 @@
+<app-dialog [title]="review() ? 'Sửa đánh giá' : 'Đánh giá sản phẩm'" [subtitle]="order() ? 'Đơn ' + order()!.code + ' | đã giao ' + (order()!.deliveredAt | date: 'dd/MM/yyyy') : ''" (closed)="closed.emit()">
+  @if (loadError()) {
+    <p class="text-danger m-0" role="alert">{{ loadError() }}</p>
+  } @else if (!order()) {
+    <span class="sp-skel d-block" style="height: 260px"></span>
+  } @else if (!item()) {
+    <p class="m-0">Bạn đã đánh giá tất cả sản phẩm của đơn này. Cảm ơn bạn!</p>
+  } @else {
+    @let it = item()!;
+    <!-- Sản phẩm đang đánh giá; bấm để chọn sản phẩm khác của đơn -->
+    <button class="sp-rv__item" type="button" [attr.aria-expanded]="choosing()" [disabled]="candidates().length < 2" (click)="choosing.set(!choosing())">
+      @if (it.image) {
+        <img [src]="it.image" [alt]="it.name" width="48" height="48" />
+      }
+      <span class="flex-grow-1 text-start">
+        <strong>{{ it.name }}</strong>
+        <small>{{ it.variantName }}{{ it.personalizationText ? ', ' + it.personalizationText : '' }}</small>
+      </span>
+      @if (candidates().length > 1) {
+        <app-icon [name]="choosing() ? 'chevron-up' : 'chevron-down'" [size]="18" />
+      }
+    </button>
+    @if (choosing()) {
+      <div class="sp-rv__list" role="listbox" aria-label="Chọn sản phẩm">
+        @for (c of candidates(); track c._id) {
+          <button type="button" role="option" [attr.aria-selected]="c._id === it._id" (click)="select(c._id)">
+            {{ c.name }}{{ c.review ? ' (đã đánh giá)' : '' }}
+          </button>
+        }
+      </div>
+    }
+
+    @if (readOnly()) {
+      <!-- Quá 24 giờ: chỉ xem, vẫn xóa được (1b) -->
+      <div class="sp-rv__done">
+        <span class="sp-rv__stars" [attr.aria-label]="review()!.rating + ' sao'">
+          @for (s of stars; track s) {
+            <app-icon [name]="s <= review()!.rating ? 'star' : 'star-line'" [size]="22" />
+          }
+        </span>
+        <strong>{{ review()!.ratingLabel }}</strong>
+        @if (review()!.comment) {
+          <p>{{ review()!.comment }}</p>
+        }
+        <small class="text-body-secondary">Đã quá 24 giờ nên không sửa được đánh giá.</small>
+      </div>
+    } @else {
+      <div class="sp-rv__rate" role="radiogroup" aria-label="Số sao">
+        @for (s of stars; track s) {
+          <button type="button" role="radio" [attr.aria-checked]="rating() === s" [attr.aria-label]="s + ' sao - ' + labels[s]"
+            [class.is-on]="s <= (hover() || rating())" (mouseenter)="hover.set(s)" (mouseleave)="hover.set(0)" (click)="rating.set(s)">
+            <app-icon [name]="s <= (hover() || rating()) ? 'star' : 'star-line'" [size]="32" />
+          </button>
+        }
+        <strong>{{ (hover() || rating()) ? labels[hover() || rating()] : 'Chọn số sao' }}</strong>
+      </div>
+      @if (!rating()) {
+        <p class="sp-rv__hint">Chọn số sao trước khi gửi đánh giá</p>
+      }
+
+      <p class="sp-field__label mb-2 mt-3">Điểm bạn thích</p>
+      <div class="sp-chips flex-wrap">
+        @for (l of likeOptions; track l.key) {
+          <button class="sp-chip sp-chip--sm" type="button" [class.is-on]="likes().includes(l.key)" [attr.aria-pressed]="likes().includes(l.key)" (click)="toggleLike(l.key)">{{ l.label }}</button>
+        }
+      </div>
+
+      <label class="sp-field mt-3 mb-2">
+        <span class="sp-field__label">Nhận xét</span>
+        <textarea class="form-control" rows="3" [maxlength]="textMax" [(ngModel)]="comment" placeholder="Chia sẻ cảm nhận về món quà để giúp những người mua sau"></textarea>
+        <span class="sp-field__hint text-end">{{ comment.length }}/{{ textMax }}</span>
+      </label>
+
+      <p class="sp-field__label mb-2">Ảnh (không bắt buộc)</p>
+      <app-photo-input [(ngModel)]="images" hint="Tối đa 5 ảnh JPG, PNG, mỗi ảnh dưới 10MB." />
+
+      <label class="form-check mt-3 mb-0">
+        <input class="form-check-input" type="checkbox" [(ngModel)]="hideName" />
+        <span class="form-check-label">Ẩn tên khi hiển thị đánh giá</span>
+      </label>
+    }
+
+    @if (confirmDelete()) {
+      <div class="sp-alert sp-alert--warning mt-3 mb-0">
+        <app-icon name="alert" [size]="20" />
+        <div>
+          <strong>Xóa đánh giá này?</strong>
+          <p>Đánh giá và ảnh sẽ bị xóa, bạn không đánh giá lại sản phẩm này trong đơn được nữa.</p>
+          <div class="d-flex gap-2 mt-2">
+            <button class="btn btn-sm btn-danger" type="button" [disabled]="sending()" (click)="remove()">Xóa đánh giá</button>
+            <button class="btn btn-sm btn-outline-secondary" type="button" (click)="confirmDelete.set(false)">Giữ lại</button>
+          </div>
+        </div>
+      </div>
+    }
+    @if (error()) {
+      <p class="text-danger mt-2 mb-0" role="alert">{{ error() }}</p>
+    }
+  }
+
+  <div dialog-footer class="sp-rv__foot">
+    @if (review() && !confirmDelete()) {
+      <button class="btn btn-link text-danger me-auto px-0" type="button" (click)="confirmDelete.set(true)">Xóa đánh giá</button>
+    }
+    <button class="btn btn-outline-primary" type="button" (click)="closed.emit()">{{ readOnly() ? 'Đóng' : 'Để sau' }}</button>
+    @if (item() && !readOnly()) {
+      <button class="btn btn-primary" type="button" [disabled]="!rating() || sending()" (click)="submit()">
+        {{ sending() ? 'Đang gửi...' : review() ? 'Lưu đánh giá' : 'Gửi đánh giá' }}
+      </button>
+    }
+  </div>
+</app-dialog>

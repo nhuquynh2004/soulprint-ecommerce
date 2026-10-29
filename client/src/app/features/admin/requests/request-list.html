@@ -1,0 +1,104 @@
+<header class="sp-aph">
+  <div>
+    <h1>Yêu cầu hậu mãi</h1>
+    <p>{{ counts()['cho-duyet'] || 0 }} yêu cầu chờ duyệt, {{ counts()['cho-hoan-tien'] || 0 }} khoản chờ hoàn tiền. Phản hồi khách trong 48 giờ làm việc.</p>
+  </div>
+</header>
+
+<nav class="sp-tabs2 sp-rqtabs" role="tablist" aria-label="Tiến độ yêu cầu">
+  @for (t of stages; track t.key) {
+    <button type="button" role="tab" [class.is-on]="stage() === t.key" [attr.aria-selected]="stage() === t.key" (click)="go({ stage: t.key || null, page: null })">
+      {{ t.label }}
+      @if (t.key) {
+        <span class="sp-count" [class.sp-count--danger]="(t.key === 'cho-duyet' || t.key === 'cho-hoan-tien') && counts()[t.key]">{{ counts()[t.key] || 0 }}</span>
+      }
+    </button>
+  }
+</nav>
+
+<div class="sp-atools">
+  <div class="sp-field__icon flex-grow-1">
+    <app-icon name="search" [size]="18" />
+    <input class="form-control" type="search" placeholder="Tìm mã yêu cầu, mã đơn, tên khách" aria-label="Tìm yêu cầu" [value]="q()" (input)="onSearch($any($event.target).value)" />
+  </div>
+  <select class="form-select sp-atools__sel" aria-label="Loại yêu cầu" [value]="type()" (change)="go({ type: $any($event.target).value || null, page: null })">
+    @for (t of types; track t.key) {
+      <option [value]="t.key" [selected]="t.key === type()">Loại: {{ t.label }}</option>
+    }
+  </select>
+</div>
+
+@if (loading()) {
+  <span class="sp-skel d-block" style="height: 360px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!items().length) {
+  <div class="sp-state">
+    <app-icon name="refresh" [size]="40" />
+    <p>{{ q() ? 'Không tìm thấy yêu cầu khớp "' + q() + '".' : 'Chưa có yêu cầu nào ở mục này.' }}</p>
+  </div>
+} @else {
+  <div class="sp-table-wrap">
+    <table class="table sp-atable align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Ưu tiên</th>
+          <th scope="col">Mã yêu cầu</th>
+          <th scope="col">Khách hàng</th>
+          <th scope="col">Sản phẩm, loại và lý do</th>
+          <th scope="col">Trạng thái</th>
+          <th scope="col" class="text-end">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of items(); track r.kind + r._id) {
+          <tr>
+            <td>
+              @if (r.stage === 'cho-duyet' || r.stage === 'cho-hoan-tien' || r.priorityLevel !== 'BINH_THUONG') {
+                <span class="sp-prio" [ngClass]="'sp-prio--' + priorityClass(r)" [title]="r.priorityReason || ''">{{ priorityLabel(r) }}</span>
+                <small class="d-block text-body-secondary">{{ waiting(r.waitingHours) }}</small>
+                @if (r.slaRemaining) {
+                  <small class="d-block" [class.text-danger]="r.slaRemaining.startsWith('Quá')">{{ r.slaRemaining.startsWith('Quá') ? 'Quá hạn ' + r.slaRemaining.slice(4) : 'Hạn còn ' + r.slaRemaining }}</small>
+                }
+              } @else {
+                <span class="text-body-secondary">-</span>
+              }
+            </td>
+            <td>
+              <!-- Mã yêu cầu mở trang chi tiết yêu cầu (có nút xử lý); mã đơn là liên kết phụ sang đơn hàng -->
+              <a class="fw-semibold" [routerLink]="['/quan-tri/yeu-cau', kindPath[r.kind], r._id]">{{ r.kind === 'REFUND' ? 'Hoàn tiền' : r.code }}</a>
+              <small class="d-block text-body-secondary">Đơn <a [routerLink]="['/quan-tri/don-hang', r.orderCode]">{{ r.orderCode }}</a></small>
+            </td>
+            <td>
+              <span class="d-block text-nowrap">{{ r.customerName }}</span>
+              <small class="text-body-secondary">{{ r.customerPhone }}</small>
+            </td>
+            <td>
+              <span class="d-block fw-semibold">{{ r.product.name }}{{ r.product.more ? ' và ' + r.product.more + ' sản phẩm khác' : '' }}</span>
+              <small class="text-body-secondary">{{ r.typeLabel }}: {{ r.reasonLabel }}{{ r.amount ? ', ' + (r.amount | vnd) : '' }}</small>
+            </td>
+            <td><span class="sp-status" [class]="'sp-status--' + r.status">{{ r.statusLabel }}</span></td>
+            <td class="text-end text-nowrap">
+              @if (primary(r); as p) {
+                <button class="btn btn-sm btn-primary" type="button" (click)="onMenu(r, p.key)">{{ p.label }}</button>
+              } @else {
+                <button class="btn btn-sm btn-outline-secondary" type="button" (click)="open(r)">Xem</button>
+              }
+              <app-row-menu [items]="menu(r)" [label]="'Thao tác với ' + r.code" (picked)="onMenu(r, $event)" />
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (total() > pageSize()) {
+    <app-pagination class="d-block mt-3" [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="go({ page: $event })" />
+  }
+}
+
+@if (dialog(); as dl) {
+  <app-request-action-dialog [detail]="dl.detail" [action]="dl.action" (closed)="dialog.set(null)" (done)="onDone()" />
+}

@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Halloween 2026",
+    "kind": "BST_MUA",
+    "seasonLabel": "Halloween 2026",
+    "collectionSlug": null,
+    "badge": "MOI",
+    "categorySlugs": [],
+    "axes": [],
+    "startAt": "2026-10-01T00:00:00+07:00",
+    "endAt": "2026-11-02T23:59:59+07:00",
+    "stickers": [
+      {
+        "code": "HLW-BINGO",
+        "name": "Bí ngô",
+        "image": "/images/stickers/hlw-bingo.svg",
+        "isActive": true,
+        "sortOrder": 1
+      },
+      {
+        "code": "HLW-DOI",
+        "name": "Dơi",
+        "image": "/images/stickers/hlw-doi.svg",
+        "isActive": true,
+        "sortOrder": 2
+      },
+      {
+        "code": "HLW-BONGMA",
+        "name": "Bóng ma",
+        "image": "/images/stickers/hlw-bongma.svg",
+        "isActive": true,
+        "sortOrder": 3
+      }
+    ],
+    "sortOrder": 1,
+    "isActive": true
+  },
+  {
+    "name": "Sân cỏ",
+    "kind": "THUONG",
+    "seasonLabel": null,
+    "collectionSlug": null,
+    "badge": null,
+    "categorySlugs": [],
+    "axes": [
+      "THE_THAO"
+    ],
+    "startAt": null,
+    "endAt": null,
+    "stickers": [
+      {
+        "code": "TT-BONG",
+        "name": "Quả bóng",
+        "image": "/images/stickers/tt-bong.svg",
+        "isActive": true,
+        "sortOrder": 1
+      },
+      {
+        "code": "TT-CUP",
+        "name": "Cúp vô địch",
+        "image": "/images/stickers/tt-cup.svg",
+        "isActive": true,
+        "sortOrder": 2
+      },
+      {
+        "code": "TT-SO10",
+        "name": "Số áo 10",
+        "image": "/images/stickers/tt-so10.svg",
+        "isActive": true,
+        "sortOrder": 3
+      }
+    ],
+    "sortOrder": 2,
+    "isActive": true
+  },
+  {
+    "name": "Thế giới anime",
+    "kind": "THUONG",
+    "seasonLabel": null,
+    "collectionSlug": null,
+    "badge": null,
+    "categorySlugs": [],
+    "axes": [
+      "ANIME"
+    ],
+    "startAt": null,
+    "endAt": null,
+    "stickers": [
+      {
+        "code": "AN-SAO",
+        "name": "Ngôi sao lấp lánh",
+        "image": "/images/stickers/an-sao.svg",
+        "isActive": true,
+        "sortOrder": 1
+      },
+      {
+        "code": "AN-MEO",
+        "name": "Mèo chibi",
+        "image": "/images/stickers/an-meo.svg",
+        "isActive": true,
+        "sortOrder": 2
+      },
+      {
+        "code": "AN-KIEM",
+        "name": "Thanh kiếm",
+        "image": "/images/stickers/an-kiem.svg",
+        "isActive": true,
+        "sortOrder": 3
+      }
+    ],
+    "sortOrder": 3,
+    "isActive": true
+  },
+  {
+    "name": "Góc game thủ",
+    "kind": "THUONG",
+    "seasonLabel": null,
+    "collectionSlug": null,
+    "badge": null,
+    "categorySlugs": [],
+    "axes": [
+      "GAME"
+    ],
+    "startAt": null,
+    "endAt": null,
+    "stickers": [
+      {
+        "code": "GM-TAYCAM",
+        "name": "Tay cầm",
+        "image": "/images/stickers/gm-taycam.svg",
+        "isActive": true,
+        "sortOrder": 1
+      },
+      {
+        "code": "GM-PIXEL",
+        "name": "Trái tim pixel",
+        "image": "/images/stickers/gm-pixel.svg",
+        "isActive": true,
+        "sortOrder": 2
+      },
+      {
+        "code": "GM-GG",
+        "name": "Chữ GG",
+        "image": "/images/stickers/gm-gg.svg",
+        "isActive": true,
+        "sortOrder": 3
+      }
+    ],
+    "sortOrder": 4,
+    "isActive": true
+  }
+]

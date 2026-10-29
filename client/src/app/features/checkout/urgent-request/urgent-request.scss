@@ -1,0 +1,207 @@
+// Trang yêu cầu đặt gấp: đầu trang mã + trạng thái, 3 bước, thông báo theo trạng thái, 2 cột như SCR-07
+.sp-ur {
+  padding-top: var(--sp-space-5);
+  padding-bottom: var(--sp-space-8);
+}
+
+.sp-ur__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-space-3);
+  margin-bottom: var(--sp-space-4);
+
+  h1 {
+    font-size: clamp(24px, 4vw, 32px);
+  }
+}
+
+.sp-ur__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-weight: 700;
+  color: var(--sp-color-warning);
+}
+
+// Màu theo .sp-status--URG_* dùng chung, ở đây chỉ to hơn
+.sp-ur__status {
+  padding: 6px 14px;
+  font-size: 14px;
+  white-space: normal;
+}
+
+.sp-ur__steps {
+  display: flex;
+  gap: var(--sp-space-2);
+  margin: 0 0 var(--sp-space-4);
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sp-color-text-muted);
+
+    &:not(:last-child)::after {
+      content: '';
+      flex: 1;
+      min-width: 12px;
+      height: 2px;
+      background: var(--sp-color-border);
+    }
+
+    &.is-done::after {
+      background: var(--sp-color-success);
+    }
+
+    &.is-on {
+      color: var(--sp-color-primary);
+    }
+  }
+
+  .dot {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    font-size: 13px;
+  }
+
+  .is-done .dot {
+    border-color: var(--sp-color-success);
+    background: var(--sp-color-success);
+    color: var(--sp-color-on-primary);
+  }
+
+  .is-on .dot {
+    border-color: var(--sp-color-primary);
+    background: var(--sp-color-primary);
+    color: var(--sp-color-on-primary);
+  }
+
+  .lb {
+    white-space: nowrap;
+  }
+
+  // Màn hẹp: chỉ bước đang làm hiện chữ
+  @media (max-width: 575.98px) {
+    li:not(.is-on) .lb {
+      display: none;
+    }
+  }
+}
+
+.sp-ur__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: var(--sp-space-5);
+  align-items: start;
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sp-ur__h {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  font-size: 18px;
+  margin-bottom: var(--sp-space-3);
+}
+
+.sp-ur__lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--sp-color-surface-alt);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-ur__dl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-3);
+  margin: 0;
+
+  > div {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: var(--sp-space-3);
+
+    @media (max-width: 575.98px) {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2px;
+    }
+  }
+
+  dt {
+    font-weight: 500;
+    color: var(--sp-color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.sp-ur__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-3);
+  }
+
+  .thumb {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    overflow: hidden;
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-color-surface-alt);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
+
+.sp-ur__gift {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--sp-space-3);
+  color: var(--sp-color-text-muted);
+}
+
+.sp-ur__sum {
+  .sp-ur__fee span:last-child {
+    font-weight: 600;
+    color: var(--sp-color-warning);
+  }
+}

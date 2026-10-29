@@ -1,0 +1,186 @@
+@if (!auth.isStaff()) {
+  @if (chat.isOpen()) {
+    <section class="sp-chat" role="dialog" aria-label="Chat với Sâu Béo">
+      <header class="sp-chat__head">
+        <img src="/assets/brand/sau-beo.png" alt="" width="40" height="40" />
+        <div class="who">
+          <strong>{{ chat.staffMode() ? 'Soulprint' : 'Sâu Béo' }}</strong>
+          <span>{{ chat.headline() }}</span>
+        </div>
+        <button type="button" class="sp-chat__hbtn" aria-label="Thu nhỏ" (click)="chat.close()"><app-icon name="minus" [size]="20" /></button>
+        <button type="button" class="sp-chat__hbtn" aria-label="Đóng" (click)="chat.close()"><app-icon name="close" [size]="20" /></button>
+      </header>
+
+      <div class="sp-chat__log" #log aria-live="polite">
+        @if (chat.loading()) {
+          <span class="sp-chatsys">{{ chat.staffMode() ? 'Đang nối với nhân viên Soulprint...' : 'Sâu đang trả lời...' }}</span>
+        }
+        @if (shown().length) {
+          <span class="sp-chatsys">Hôm nay {{ shown()[0].createdAt | date: 'HH:mm' }}</span>
+        }
+        @for (m of shown(); track m._id) {
+          @switch (m.sender) {
+            @case ('KHACH') {
+              <div class="sp-msgme">
+                <div class="sp-msg sp-msg--me">{{ m.text }}</div>
+                @if (m.failed) {
+                  <span class="sp-msgmeta is-fail"><app-icon name="alert-circle" [size]="12" />Chưa gửi được |
+                    <button type="button" class="sp-linkbtn" (click)="chat.retry(m)">Thử lại</button></span>
+                } @else {
+                  <span class="sp-msgmeta">{{ m.createdAt | date: 'HH:mm' }}</span>
+                }
+              </div>
+            }
+            @case ('HE_THONG') {
+              @if (m.card; as c) {
+                <!-- Thẻ yêu cầu đặt gấp -->
+                <div class="sp-ucard">
+                  <span class="sp-ucard__h"><app-icon name="clock" [size]="16" /> {{ c.title }}</span>
+                  <p>{{ m.text }}</p>
+                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="follow(c.url)">Xem yêu cầu</button>
+                </div>
+              } @else {
+                <span class="sp-chatsys"><app-icon name="headset" [size]="14" />{{ m.text }}</span>
+              }
+            }
+            @case ('ADMIN') {
+              <div class="sp-msgrow">
+                <span class="sp-msgav sp-msgav--staff" aria-hidden="true">{{ m.senderName | slice: 0 : 1 }}</span>
+                <div class="sp-msg sp-msg--staff"><small>{{ m.senderName }} | Nhân viên hỗ trợ</small>{{ m.text }}</div>
+              </div>
+            }
+            @default {
+              <div class="sp-msgrow">
+                <img class="sp-msgav" src="/assets/brand/sau-beo.png" alt="" width="28" height="28" />
+                <div class="sp-msg sp-msg--bot">
+                  <small>Sâu Béo</small>{{ m.text }}
+                  @if (m.link) {
+                    <button type="button" class="sp-linkbtn d-block mt-1" (click)="follow(m.link.url)">{{ m.link.label }}</button>
+                  }
+                </div>
+              </div>
+            }
+          }
+        }
+
+        <!-- Khung chờ nhân viên (UC-CSK-02 bước 4) -->
+        @if (chat.waiting() && chat.state(); as s) {
+          <div class="sp-queuebox">
+            @if (s.leftMessage) {
+              <span class="sp-queue"><app-icon name="check" [size]="14" />Đã gửi lời nhắn | liên hệ {{ s.contact }}</span>
+            } @else {
+              <span class="sp-queue"><app-icon name="clock" [size]="14" />Đang chờ nhân viên (vị trí {{ s.queuePosition }})</span>
+              <span class="sp-chat__muted">Thời gian chờ dự kiến khoảng {{ s.waitMinutes }} phút</span>
+            }
+            <button type="button" class="btn btn-link btn-sm" [disabled]="chat.sending()" (click)="chat.cancelWait()">Hủy chờ, tiếp tục với Sâu Béo</button>
+          </div>
+        }
+
+        <!-- Để lại lời nhắn ngoài giờ (UC-CSK-02 4Ea) -->
+        @if (chat.leaveOpen() && !chat.closed()) {
+          <form class="sp-leave" (ngSubmit)="submitLeave()" novalidate>
+            <strong><app-icon name="mail" [size]="16" />Để lại lời nhắn</strong>
+            <div class="sp-field m-0">
+              <label class="sp-field__label" for="lv-contact">Số điện thoại hoặc email</label>
+              <input id="lv-contact" name="contact" class="form-control form-control-sm" [class.is-invalid]="leaveContactError()" autocomplete="tel"
+                [ngModel]="leaveContact()" (ngModelChange)="leaveContact.set($event)" />
+              @if (leaveContactError()) {
+                <span class="sp-field__error">{{ leaveContactError() }}</span>
+              }
+            </div>
+            <div class="sp-field m-0">
+              <label class="sp-field__label" for="lv-text">Nội dung</label>
+              <textarea id="lv-text" name="text" rows="3" class="form-control form-control-sm" [class.is-invalid]="leaveTextError()" placeholder="Bạn cần hỗ trợ gì?"
+                [ngModel]="leaveText()" (ngModelChange)="leaveText.set($event)"></textarea>
+              @if (leaveTextError()) {
+                <span class="sp-field__error">{{ leaveTextError() }}</span>
+              }
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary btn-sm" [disabled]="chat.sending()">Gửi lời nhắn</button>
+              <button type="button" class="btn btn-link btn-sm" (click)="chat.leaveOpen.set(false)">Để sau</button>
+            </div>
+            <span class="sp-chat__muted">{{ chat.support()?.offHours ? 'Nhân viên phản hồi trước 9:00 sáng mai.' : 'Nhân viên sẽ phản hồi bạn sớm nhất.' }}</span>
+          </form>
+        }
+
+        <!-- Đề xuất chuyển ngữ (UC-CSK-03) -->
+        @if (chat.proposal(); as p) {
+          <div class="sp-rephrase" role="region" aria-label="Gợi ý chuyển ngữ">
+            <span class="sp-rephrase__title"><app-icon name="info" [size]="16" />Gợi ý chuyển ngữ
+              <button type="button" class="sp-chat__x" aria-label="Đóng gợi ý, sửa lại tin" (click)="chat.dismissProposal()"><app-icon name="close" [size]="14" /></button></span>
+            <span>Chúng mình hiểu bạn đang không vui. Đây là phiên bản nhẹ nhàng hơn của tin nhắn, bạn muốn gửi bản nào?</span>
+            <q class="sp-rephrase__q">{{ p.softened }}</q>
+            <div class="d-flex gap-2 flex-wrap">
+              <button type="button" class="btn btn-primary btn-sm" [disabled]="chat.sending()" (click)="chat.chooseSoftened()">Gửi bản này</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" [disabled]="chat.sending()" (click)="chat.chooseOriginal()">Gửi nguyên văn</button>
+            </div>
+          </div>
+        }
+
+        @if (chat.closed()) {
+          <div class="sp-queuebox">
+            <span class="sp-chat__muted">Cuộc trò chuyện đã kết thúc.</span>
+            <button type="button" class="btn btn-primary btn-sm" (click)="chat.restart()">Bắt đầu cuộc trò chuyện mới</button>
+          </div>
+        }
+      </div>
+
+      <!-- Đang chat với nhân viên: quay lại Sâu Béo trong cùng hội thoại -->
+      @if (chat.status() === 'DANG_HO_TRO') {
+        <div class="sp-chat__quick" role="group" aria-label="Chuyển chế độ chat">
+          <button type="button" class="sp-chip sp-chip--sm" [disabled]="chat.sending()" (click)="chat.backToBot()"><app-icon name="arrow-left" [size]="14" /> Quay lại Sâu Béo</button>
+        </div>
+      }
+      <!-- Trả lời Soulprint ở đơn đang hỏi: Đổi sản phẩm, Hủy đơn, Khác -->
+      @if (chat.orderReplies(); as code) {
+        @if (!chat.closed()) {
+          <div class="sp-chat__quick" role="group" aria-label="Trả lời nhanh về đơn">
+            <button type="button" class="sp-chip sp-chip--sm" [disabled]="chat.sending()" (click)="chat.replyChangeProduct()">Đổi sản phẩm</button>
+            <button type="button" class="sp-chip sp-chip--sm" (click)="cancelOrder(code)">Hủy đơn</button>
+            <button type="button" class="sp-chip sp-chip--sm" (click)="chat.orderReplies.set(null); box.focus()">Khác</button>
+          </div>
+        }
+      } @else if (chat.status() === 'BOT' && !chat.closed() && chat.conversationId()) {
+        <div class="sp-chat__quick" role="group" aria-label="Gợi ý nhanh">
+          @for (t of chat.quickTopics(); track t) {
+            <button type="button" class="sp-chip sp-chip--sm" [disabled]="chat.sending()" (click)="topic(t)">{{ t }}</button>
+          }
+          <button type="button" class="sp-chip sp-chip--sm" [disabled]="chat.sending()" (click)="chat.askHuman()">Gặp nhân viên</button>
+        </div>
+      }
+
+      <form class="sp-chat__input" (ngSubmit)="submit()">
+        @if (chat.offline()) {
+          <span class="sp-chat__alert" role="alert"><app-icon name="alert" [size]="14" />Mất kết nối. Tin nhắn chưa gửi được.
+            <button type="button" class="sp-linkbtn" (click)="chat.refresh()">Thử lại</button></span>
+        } @else if (tooLong()) {
+          <span class="sp-chat__alert" role="alert">Tin nhắn tối đa {{ max }} ký tự ({{ chat.draft().length }}/{{ max }})</span>
+        } @else if (chat.error()) {
+          <span class="sp-chat__alert" role="alert">{{ chat.error() }}</span>
+        }
+        <div class="sp-chat__row">
+          <textarea #box name="draft" rows="1" class="form-control" autocomplete="off" aria-label="Nhập tin nhắn"
+            [placeholder]="chat.offline() ? 'Đang kết nối lại...' : 'Nhập tin nhắn...'" [disabled]="chat.closed() || chat.offline() || !chat.conversationId()"
+            [ngModel]="chat.draft()" (ngModelChange)="chat.draft.set($event)" (keydown.enter)="onEnter($any($event))"></textarea>
+          <button type="submit" class="sp-chat__send" aria-label="Gửi" [disabled]="!canSend()"><app-icon name="send" [size]="18" /></button>
+        </div>
+      </form>
+    </section>
+  } @else {
+    <div class="sp-fabwrap">
+      @if (tipVisible()) {
+        <div class="sp-fabtip" role="status">
+          <strong>Cần giúp chọn quà?</strong>Hỏi Sâu Béo về phí ship, đổi trả, cá nhân hóa...
+          <button type="button" aria-label="Ẩn lời nhắc" (click)="chat.hideTip()"><app-icon name="close" [size]="14" /></button>
+        </div>
+      }
+      <button type="button" class="sp-fab" aria-label="Mở chat với Sâu Béo" aria-expanded="false" (click)="toggle()">
+        <img src="/assets/brand/sau-beo.png" alt="" width="58" height="58" />
+        @if (chat.unread()) {
+          <span class="sp-fab__dot">{{ chat.unread() }}<span class="visually-hidden"> tin nhắn mới</span></span>
+        }
+      </button>
+    </div>
+  }
+}

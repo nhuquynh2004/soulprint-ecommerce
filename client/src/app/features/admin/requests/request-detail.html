@@ -1,0 +1,195 @@
+<a class="sp-more" routerLink="/quan-tri/yeu-cau"><app-icon name="arrow-left" [size]="18" /> Yêu cầu hậu mãi</a>
+
+@if (error()) {
+  <div class="sp-state" role="alert">
+    <p>{{ error() }}</p>
+    <a class="btn btn-primary" routerLink="/quan-tri/yeu-cau">Về danh sách</a>
+  </div>
+} @else if (!detail()) {
+  <span class="sp-skel d-block mt-3" style="height: 420px"></span>
+} @else {
+  @let d = detail()!;
+  <header class="sp-aph">
+    <div>
+      <h1 class="d-flex flex-wrap align-items-center gap-2">
+        {{ d.kind === 'RETURN' ? 'Đổi trả' : d.kind === 'WARRANTY' ? 'Bảo hành' : 'Hoàn tiền đơn' }} {{ d.code }}
+        <span class="sp-status" [class]="'sp-status--' + d.status">{{ d.statusLabel }}</span>
+      </h1>
+      <p>
+        Gửi {{ d.createdAt | date: 'dd/MM/yyyy HH:mm' }} | đơn <a [routerLink]="['/quan-tri/don-hang', d.orderCode]">{{ d.orderCode }}</a>
+        @if (d.priority !== 'BINH_THUONG') {
+          | <span class="sp-prio" [ngClass]="d.priority === 'KHAN_CAP' ? 'sp-prio--urgent' : 'sp-prio--attention'">{{ d.priorityReason }}{{ d.slaRemaining ? ' | ' + d.slaRemaining : '' }}</span>
+        }
+      </p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      @for (b of buttons(); track b.key) {
+        <button class="btn btn-sm" [ngClass]="b.cls" type="button" (click)="dialog.set(b.key)">{{ b.label }}</button>
+      }
+    </div>
+  </header>
+
+  <div class="sp-pf-grid">
+    <div class="sp-pf-main">
+      @if (d.kind !== 'REFUND') {
+        <section class="sp-acard">
+          <h2>Sản phẩm</h2>
+          @for (it of d.items || (d.item ? [d.item] : []); track $index) {
+            <div class="sp-rq__item">
+              @if (it.image) {
+                <img [src]="it.image" [alt]="it.name" width="56" height="56" />
+              }
+              <span class="flex-grow-1">
+                <strong>{{ it.name }}</strong>
+                <small>{{ it.variantName }}{{ it.personalizationText ? ', ' + it.personalizationText : '' }}, x{{ it.quantity }}</small>
+                @if ($any(it).reasonLabel) {
+                  <small>Lý do: {{ $any(it).reasonLabel }}{{ $any(it).lineValue ? ', giá trị ' + ($any(it).lineValue | vnd) : '' }}</small>
+                }
+              </span>
+            </div>
+          }
+          <dl class="sp-rq__dl">
+            @if (d.kind === 'RETURN') {
+              <dt>Hình thức</dt><dd>{{ d.resolutionLabel }}</dd>
+              <dt>Xác nhận tình trạng</dt><dd>{{ d.conditionConfirmed ? 'Khách xác nhận còn tem, nhãn, bao bì' : 'Món cá nhân hóa (không cần)' }}</dd>
+            } @else {
+              <dt>Hiện tượng</dt><dd>{{ d.symptomLabel }}</dd>
+              <dt>Cách gửi</dt><dd>{{ d.shippingMethodLabel }}</dd>
+              <dt>Hạn bảo hành</dt><dd>{{ d.warrantyUntil | date: 'dd/MM/yyyy' }}</dd>
+              @if (d.resolutionLabel) {
+                <dt>Cách xử lý</dt><dd>{{ d.resolutionLabel }}</dd>
+              }
+            }
+            <dt>Mô tả</dt><dd>{{ d.description || '-' }}</dd>
+          </dl>
+          @if (d.images?.length) {
+            <p class="sp-field__label mb-2">Ảnh của khách</p>
+            <ul class="sp-photos">
+              @for (img of d.images; track img) {
+                <li><a [href]="img" target="_blank" rel="noopener"><img [src]="img" alt="Ảnh khách gửi" /></a></li>
+              }
+            </ul>
+          }
+        </section>
+      }
+
+      @if (d.returnInstruction || d.returnCarrierLabel) {
+        <section class="sp-acard">
+          <h2>Hướng dẫn đã gửi khách</h2>
+          <p class="sp-rq__pre">{{ d.returnInstruction }}</p>
+          @if (d.returnCarrierLabel) {
+            <p class="mb-0">{{ d.returnCarrierLabel }}{{ d.returnTrackingCode ? ' | mã vận đơn ' + d.returnTrackingCode : '' }}</p>
+          }
+        </section>
+      }
+
+      @if (d.progressNotes?.length) {
+        <section class="sp-acard">
+          <h2>Tiến độ bảo hành</h2>
+          <ul class="mb-0">
+            @for (n of d.progressNotes; track $index) {
+              <li><small class="text-body-secondary">{{ n.at | date: 'dd/MM HH:mm' }}</small> {{ n.text }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (d.reject; as rej) {
+        <section class="sp-acard">
+          <h2>Đã từ chối: {{ rej.reasonLabel }}</h2>
+          <p>{{ rej.detail }}</p>
+          @if (rej.evidence.length) {
+            <ul class="sp-photos">
+              @for (e of rej.evidence; track e) {
+                <li><a [href]="e" target="_blank" rel="noopener">Tệp {{ $index + 1 }}</a></li>
+              }
+            </ul>
+          }
+          @if (rej.allowResubmit) {
+            <p class="small text-body-secondary mt-2 mb-0">Khách được gửi lại yêu cầu với ảnh mới.</p>
+          }
+        </section>
+      }
+
+      @if (d.kind === 'REFUND') {
+        <section class="sp-acard">
+          <h2>Yêu cầu hoàn tiền</h2>
+          <dl class="sp-rq__dl">
+            <dt>Lý do</dt><dd>{{ d.reasonLabel }}</dd>
+            <dt>Số tiền</dt><dd class="fw-bold">{{ d.amount | vnd }}</dd>
+            <dt>Phương thức</dt><dd>{{ d.method === 'GATEWAY' ? 'Hoàn qua cổng thanh toán' : d.method === 'VOUCHER' ? 'Voucher ' + (d.voucherCode || '') + ' (khách chọn nhận voucher thay chuyển khoản)' : 'Chuyển khoản ngân hàng' }}</dd>
+            @if (d.failReason) {
+              <dt>Lần trước thất bại</dt><dd class="text-danger">{{ d.failReason }}</dd>
+            }
+            @if (d.note) {
+              <dt>Ghi chú</dt><dd>{{ d.note }}</dd>
+            }
+            @if (d.processedAt) {
+              <dt>Xử lý lúc</dt><dd>{{ d.processedAt | date: 'dd/MM/yyyy HH:mm' }}</dd>
+            }
+          </dl>
+          @if (d.actions.waitingAccount) {
+            <div class="sp-alert sp-alert--warning mb-0"><app-icon name="clock" [size]="20" /><div><strong>Chờ khách nhập tài khoản</strong><p>Khách nhập tài khoản nhận tiền ở chi tiết đơn hàng.</p></div></div>
+          }
+        </section>
+      }
+
+      <section class="sp-acard">
+        <h2>Lịch sử đơn {{ d.order.code }}</h2>
+        <ul class="sp-rq__hist">
+          @for (h of d.order.history; track $index) {
+            <li><small>{{ h.at | date: 'dd/MM HH:mm' }}</small> {{ h.label }}{{ h.note ? ' - ' + h.note : '' }}</li>
+          }
+        </ul>
+      </section>
+    </div>
+
+    <aside class="sp-pf-side">
+      <section class="sp-acard">
+        <h2>Khách hàng</h2>
+        <p class="mb-1"><strong>{{ d.order.customer.fullName }}</strong></p>
+        <p class="mb-0">{{ d.order.customer.phone }} <button class="btn btn-link btn-sm" type="button" (click)="copy(d.order.customer.phone)">Sao chép</button></p>
+      </section>
+      @if (d.pickupAddress; as a) {
+        <section class="sp-acard">
+          <h2>Địa chỉ lấy hàng</h2>
+          <p class="mb-0">{{ a.recipientName }} | {{ a.phone }}<br />{{ a.street }}, {{ a.ward }}, {{ a.province }}</p>
+        </section>
+      }
+      @if (d.bankInfo; as b) {
+        <section class="sp-acard">
+          <h2>Tài khoản nhận tiền</h2>
+          <p class="mb-0"><strong>{{ b.bankName }}</strong><br />{{ b.accountNumber || b.account }} | {{ b.accountName }}</p>
+          @if (b.accountNumber) {
+            <button class="btn btn-link btn-sm px-0" type="button" (click)="copy(b.accountNumber)">Sao chép số tài khoản</button>
+          }
+        </section>
+      }
+      <section class="sp-acard">
+        <h2>Đơn gốc</h2>
+        <dl class="sp-rq__dl">
+          <dt>Trạng thái</dt><dd>{{ d.order.orderStatusLabel }}</dd>
+          <dt>Thanh toán</dt><dd>{{ d.order.paymentStatusLabel }}</dd>
+          <dt>Tổng đơn</dt><dd>{{ d.order.total | vnd }}</dd>
+          <dt>Đã trả</dt><dd>{{ d.order.paidAmount | vnd }}</dd>
+          <dt>Đã hoàn</dt><dd>{{ (d.order.refundedAmount - (d.pendingCounted || 0)) | vnd }}</dd>
+          @if (d.pendingCounted) {
+            <dt>Đang chờ hoàn</dt><dd>{{ d.pendingCounted | vnd }}</dd>
+          }
+          <dt>Ngày giao</dt><dd>{{ d.order.deliveredAt ? (d.order.deliveredAt | date: 'dd/MM/yyyy') : '-' }}</dd>
+        </dl>
+        @if (d.refundAmount) {
+          <p class="small mb-1">Số hoàn của yêu cầu: <strong>{{ d.refundAmount | vnd }}</strong>{{ d.refundWithoutReturn ? ' (không cần trả hàng)' : '' }}</p>
+        }
+        @if (d.replacementOrderCode) {
+          <p class="small mb-1">Đơn thay thế: <a [routerLink]="['/quan-tri/don-hang', d.replacementOrderCode]">{{ d.replacementOrderCode }}</a></p>
+        }
+        <a class="btn btn-outline-secondary btn-sm w-100" [routerLink]="['/quan-tri/don-hang', d.orderCode]">Mở đơn hàng</a>
+      </section>
+    </aside>
+  </div>
+
+  @if (dialog(); as a) {
+    <app-request-action-dialog [detail]="d" [action]="a" (closed)="dialog.set(null)" (done)="onDone($event)" />
+  }
+}

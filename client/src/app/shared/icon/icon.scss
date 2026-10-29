@@ -1,0 +1,12 @@
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.sp-icon {
+  display: inline-block;
+  flex-shrink: 0;
+  background-color: currentColor;
+  -webkit-mask: var(--sp-icon) center / contain no-repeat;
+  mask: var(--sp-icon) center / contain no-repeat;
+}

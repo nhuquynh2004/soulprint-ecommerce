@@ -1,0 +1,299 @@
+<div class="container sp-cart">
+  <nav class="sp-crumbs" aria-label="Đường dẫn">
+    <a routerLink="/">Trang chủ</a>
+    <app-icon name="chevron-right" [size]="16" />
+    <span aria-current="page">Giỏ hàng</span>
+  </nav>
+
+  <header class="sp-cart__head">
+    <h1 class="h2 m-0">Giỏ hàng của bạn</h1>
+    @if (cart(); as c) {
+      <p class="m-0 text-body-secondary">{{ c.count }} sản phẩm{{ c.count ? ' | chọn món muốn thanh toán' : '' }}</p>
+    }
+  </header>
+
+  @if (loading() && !cart()) {
+    <div class="sp-cart__layout">
+      <div class="d-flex flex-column gap-3">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="sp-skel sp-cart__skel"></div>
+        }
+      </div>
+      <div class="sp-skel sp-cart__skel sp-cart__skel--sum"></div>
+    </div>
+  } @else if (loadError()) {
+    <div class="sp-state">
+      <p>{{ loadError() }}</p>
+      <button class="btn btn-primary" type="button" (click)="reload()">Thử lại</button>
+    </div>
+  } @else if (cart(); as c) {
+    @if (!c.count) {
+      <!-- 2Ea: giỏ trống -->
+      <div class="sp-state">
+        <img class="sp-state__art" src="/assets/brand/soulprint-mark.png" alt="" />
+        <h2 class="h3">Giỏ hàng của bạn đang trống</h2>
+        <p class="text-body-secondary">Sâu chưa thấy món quà nào trong giỏ. Bạn ghé xem các danh mục, hoặc để Sâu Béo gợi ý quà hợp với chàng nhé.</p>
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+          <a class="btn btn-primary" routerLink="/tu-van-qua"><app-icon name="sparkle" [size]="18" /> Tìm quà cùng AI</a>
+          <a class="btn btn-outline-primary" routerLink="/san-pham">Xem danh mục</a>
+        </div>
+        <!-- Giỏ trống cũng mời đặt số lượng lớn -->
+        <app-bulk-order-note class="d-block mt-3" />
+      </div>
+      @if (suggestions().length) {
+        <section class="sp-sec" aria-label="Có thể bạn quan tâm">
+          <div class="sp-sec-head">
+            <h2 class="h3 m-0">Có thể bạn quan tâm</h2>
+            <a class="sp-more" routerLink="/san-pham">Xem thêm <app-icon name="arrow-right" [size]="18" /></a>
+          </div>
+          <div class="sp-grid">
+            @for (p of suggestions(); track p._id) {
+              <app-product-card [product]="p" />
+            }
+          </div>
+        </section>
+      }
+    } @else {
+      @for (w of generalWarnings(); track w.code) {
+        <div class="sp-alert sp-alert--warning mb-3" role="alert"><app-icon name="alert-circle" [size]="20" /> {{ w.message }}</div>
+      }
+      <div class="sp-cart__layout">
+        <div class="sp-cart__list">
+          <div class="sp-cart__bar">
+            <label class="sp-cb">
+              <input
+                type="checkbox"
+                [checked]="allSelected()"
+                [indeterminate]="someSelected() && !allSelected()"
+                [disabled]="!selectable().length || busy()"
+                (change)="toggleAll()"
+              />
+              <span>Chọn tất cả ({{ c.count }})</span>
+            </label>
+            <span class="text-body-secondary small">Đã chọn {{ c.selectedCount }}/{{ c.count }} sản phẩm{{ c.giftWrap?.selected ? ' + gói quà' : '' }}</span>
+          </div>
+
+          @for (it of c.items; track it._id) {
+            <div class="sp-cart__row">
+              <label class="sp-cb sp-cb--solo" [class.is-disabled]="!!it.warning">
+                <input type="checkbox" [checked]="it.selected" [disabled]="!!it.warning || busy()" (change)="toggleItem(it)" [attr.aria-label]="'Chọn ' + it.name" />
+              </label>
+              <article class="sp-citem" [class.is-off]="!it.selected" [class.is-invalid]="!!it.warning">
+                <a class="sp-citem__img" [routerLink]="it.slug ? ['/san-pham', it.slug] : null" tabindex="-1" aria-hidden="true">
+                  <img [src]="it.image || '/assets/brand/soulprint-mark.png'" alt="" />
+                </a>
+                <div class="sp-citem__info">
+                  <h3 class="sp-citem__name">
+                    @if (it.slug) {
+                      <a [routerLink]="['/san-pham', it.slug]">{{ it.name }}</a>
+                    } @else {
+                      {{ it.name }}
+                    }
+                  </h3>
+                  @if (it.variantName && it.variantName !== 'Mặc định') {
+                    <span class="sp-citem__variant">
+                      {{ it.variantName }}
+                      @if (it.hasOptions && !it.warning?.code?.startsWith('NGUNG')) {
+                        <button class="btn btn-link btn-sm p-0" type="button" (click)="openDialog(it)">Đổi</button>
+                      }
+                    </span>
+                  }
+
+                  <!-- Nội dung cá nhân hóa: In/Khắc sửa tại chỗ, Thiết kế mở SCR-04 -->
+                  @if (editingId() === it._id) {
+                    <div class="sp-citem__edit">
+                      @if (it.engrave?.mode === 'AO_DAU') {
+                        <div class="sp-citem__edit3">
+                          <input class="form-control form-control-sm" aria-label="Dòng trên" [value]="editTop()" (input)="onEdit('top', it, $any($event.target))" />
+                          <input class="form-control form-control-sm" aria-label="Số áo" inputmode="numeric" [value]="editNumber()" (input)="onEditNumber(it, $any($event.target))" />
+                          <input class="form-control form-control-sm" aria-label="Dòng dưới" [value]="editBottom()" (input)="onEdit('bottom', it, $any($event.target))" />
+                        </div>
+                        <span class="sp-citem__help">Dòng trên, Số áo, Dòng dưới <b [class.text-danger]="editOver()">{{ count(editTop()) }}/{{ it.engrave?.topMaxChars }}</b></span>
+                      } @else {
+                        <input class="form-control form-control-sm" aria-label="Nội dung khắc" [class.is-invalid]="editOver()" [value]="editText()" (input)="onEdit('text', it, $any($event.target))" />
+                        <span class="sp-citem__help">Nội dung khắc <b [class.text-danger]="editOver()">{{ count(editText()) }}/{{ it.engrave?.maxChars }}</b></span>
+                      }
+                      @if (editError()) {
+                        <span class="sp-citem__err" role="alert">{{ editError() }}</span>
+                      }
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-primary btn-sm" type="button" [disabled]="busy()" (click)="saveEdit(it)">Lưu</button>
+                        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="cancelEdit()">Hủy</button>
+                      </div>
+                    </div>
+                  } @else if (it.personalization; as pz) {
+                    <div class="sp-citem__pz">
+                      <span>
+                        {{ pz.type === 'IN_KHAC' ? 'In/Khắc' : 'Thiết kế' }}: <strong>{{ describe(pz) }}</strong>
+                      </span>
+                      @if (!it.warning || it.warning.code === 'STICKER' || it.warning.code === 'CA_NHAN_HOA') {
+                        <button class="btn btn-link btn-sm p-0" type="button" (click)="pz.type === 'IN_KHAC' && it.engrave ? startEdit(it) : openDialog(it)">Sửa</button>
+                      }
+                    </div>
+                  } @else if (!it.warning) {
+                    @if (it.personalizationTypes.includes('IN_KHAC')) {
+                      <button class="btn btn-link btn-sm p-0 align-self-start" type="button" (click)="startEdit(it)">Khắc tên miễn phí</button>
+                    } @else if (it.personalizationTypes.includes('THIET_KE')) {
+                      <button class="btn btn-link btn-sm p-0 align-self-start" type="button" (click)="openDialog(it, 'THIET_KE')">Thêm sticker, lời nhắn</button>
+                    }
+                  }
+
+                  @if (it.warning) {
+                    <span class="sp-citem__warn" role="alert"><app-icon name="alert-circle" [size]="16" /> {{ it.warning.message }}</span>
+                  }
+
+                  <div class="sp-citem__acts">
+                    <button class="btn btn-link btn-sm" type="button" [disabled]="busy()" (click)="moveToWishlist(it)"><app-icon name="heart" [size]="16" /> Chuyển vào yêu thích</button>
+                    <button class="btn btn-link btn-sm text-danger" type="button" [disabled]="busy()" (click)="confirmRemove.set(it)"><app-icon name="trash" [size]="16" /> Xóa</button>
+                  </div>
+                </div>
+                <div class="sp-citem__side">
+                  <div class="sp-price">
+                    <span class="sp-price__now">{{ it.unitPrice | vnd }}</span>
+                    @if (it.originalUnitPrice) {
+                      <span class="sp-price__was">{{ it.originalUnitPrice | vnd }}</span>
+                    }
+                  </div>
+                  @if (it.priceChanged) {
+                    <!-- Dòng thêm từ Đặt lại, giá khác đơn cũ (UC-CNL-03 3a) -->
+                    <span class="sp-status sp-status--CAN_XU_LY">Giá đã thay đổi</span>
+                  }
+                  @if (it.personalizationFeePerUnit) {
+                    <span class="sp-citem__fee">+{{ it.personalizationFeePerUnit | vnd }} cá nhân hóa</span>
+                  }
+                  <div class="sp-stepper" [class.is-disabled]="!!it.warning && it.warning.code !== 'KHONG_DU'">
+                    <button type="button" aria-label="Giảm số lượng" [disabled]="busy()" (click)="changeQty(it, -1)"><app-icon name="minus" [size]="16" /></button>
+                    <span aria-live="polite">{{ it.quantity }}</span>
+                    <button type="button" aria-label="Tăng số lượng" [disabled]="busy() || it.quantity >= it.stock || !!it.warning" (click)="changeQty(it, 1)"><app-icon name="plus" [size]="16" /></button>
+                  </div>
+                  @if (it.quantity > 1 || it.personalizationFeePerUnit) {
+                    <span class="sp-citem__line">Thành tiền <strong>{{ it.lineValue | vnd }}</strong></span>
+                  }
+                </div>
+              </article>
+            </div>
+          }
+
+          <!-- Dòng gói quà có ô chọn -->
+          <div class="sp-cart__row">
+            @if (c.giftWrap; as g) {
+              <label class="sp-cb sp-cb--solo">
+                <input type="checkbox" [checked]="g.selected" [disabled]="busy()" (change)="toggleGift()" aria-label="Chọn gói quà" />
+              </label>
+              <div class="sp-giftrow" [class.is-off]="!g.selected">
+                <img class="sp-giftrow__art" [src]="g.image || g.paper.image || '/assets/brand/soulprint-mark.png'" alt="" />
+                <div class="sp-giftrow__tx">
+                  <strong>Gói quà: {{ g.name }}</strong>
+                  <span>{{ g.paper.name }}, {{ g.ribbon.name }}, {{ g.card.name }}{{ g.message ? ', lời nhắn “' + g.message + '”' : '' }}. Gói chung các món đã chọn</span>
+                  @if (!g.available) {
+                    <span class="sp-citem__warn"><app-icon name="alert-circle" [size]="16" /> Mẫu đang tạm hết vật liệu, vui lòng chọn mẫu khác</span>
+                  }
+                </div>
+                <button class="btn btn-outline-primary btn-sm" type="button" (click)="giftOpen.set(true)">Đổi gói quà</button>
+              </div>
+            } @else {
+              <span></span>
+              <div class="sp-giftrow sp-giftrow--add">
+                <app-icon name="gift" [size]="28" />
+                <div class="sp-giftrow__tx">
+                  <strong>Thêm gói quà miễn phí</strong>
+                  <span>Giấy gói, ruy băng và thiệp cho các món đã chọn</span>
+                </div>
+                <button class="btn btn-outline-primary btn-sm" type="button" (click)="giftOpen.set(true)">Thêm gói quà</button>
+              </div>
+            }
+          </div>
+
+          <a class="sp-more" routerLink="/san-pham"><app-icon name="arrow-left" [size]="18" /> Tiếp tục mua sắm</a>
+        </div>
+
+        <aside class="sp-summary" aria-label="Tóm tắt các món đã chọn">
+          <h2 class="h4">Tóm tắt đơn đã chọn</h2>
+          <div class="sp-summary__row">
+            <span>Tạm tính</span>
+            <span>{{ c.subtotal | vnd }}</span>
+          </div>
+          @if (c.hasPersonalization) {
+            <div class="sp-summary__row" [class.is-good]="!c.personalizationFee">
+              <span>Phí cá nhân hóa</span>
+              <span>{{ c.personalizationFee ? (c.personalizationFee | vnd) : 'Miễn phí' }}</span>
+            </div>
+          }
+          @if (c.giftWrap?.selected && c.selectedCount) {
+            <div class="sp-summary__row is-good">
+              <span>Gói quà: {{ c.giftWrap?.name }}</span>
+              <span>Miễn phí</span>
+            </div>
+          }
+          <div class="sp-summary__row">
+            <span>Phí vận chuyển</span>
+            <span>{{ c.shippingFee | vnd }}</span>
+          </div>
+          @if (c.selectedCount) {
+            <p class="sp-summary__hint">Miễn phí khi dùng mã <strong>FREESHIP</strong> ở bước thanh toán</p>
+          }
+          <div class="sp-summary__row sp-summary__total">
+            <span>Tổng tạm tính</span>
+            <span>{{ c.estimatedTotal | vnd }}</span>
+          </div>
+          <p class="sp-summary__note"><app-icon name="ticket" [size]="18" /> Có mã giảm giá? Bạn nhập hoặc chọn từ kho ưu đãi ở bước thanh toán.</p>
+          @if (!c.selectedCount) {
+            <p class="sp-summary__warn" role="status">Chọn ít nhất 1 sản phẩm để đặt hàng</p>
+            <button class="btn btn-primary btn-lg w-100" type="button" disabled>Đặt hàng</button>
+          } @else {
+            <a class="btn btn-primary btn-lg w-100" routerLink="/thanh-toan" [queryParams]="checkoutParams">Đặt hàng ({{ c.selectedCount }})</a>
+          }
+          <span class="sp-summary__secure"><app-icon name="lock" [size]="16" /> Thanh toán bảo mật | Đổi trả trong 7 ngày</span>
+          <app-bulk-order-note />
+        </aside>
+      </div>
+      <div class="sp-cart__mbar">
+        <div>
+          <span>Tổng tạm tính ({{ c.selectedCount }})</span>
+          <strong>{{ c.estimatedTotal | vnd }}</strong>
+        </div>
+        @if (c.selectedCount) {
+          <a class="btn btn-primary" routerLink="/thanh-toan" [queryParams]="checkoutParams">Đặt hàng ({{ c.selectedCount }})</a>
+        } @else {
+          <button class="btn btn-primary" type="button" disabled>Đặt hàng</button>
+        }
+      </div>
+    }
+  }
+</div>
+
+@if (confirmRemove(); as it) {
+  <app-dialog title="Xóa sản phẩm" size="sm" (closed)="confirmRemove.set(null)">
+    <p class="m-0">Xóa sản phẩm này khỏi giỏ hàng?</p>
+    <p class="m-0 text-body-secondary small">{{ it.name }}</p>
+    <div dialog-footer class="d-flex gap-2 justify-content-end w-100">
+      <button class="btn btn-outline-secondary" type="button" (click)="confirmRemove.set(null)">Giữ lại</button>
+      <button class="btn btn-danger" type="button" (click)="remove(it)">Xóa</button>
+    </div>
+  </app-dialog>
+}
+
+@if (pzItem(); as it) {
+  @if (pzProduct(); as pp) {
+    <app-personalize-dialog
+      [product]="pp"
+      [variantLabel]="it.variantName === 'Mặc định' ? '' : it.variantName"
+      [unitPrice]="it.unitPrice"
+      [quantity]="it.quantity"
+      [stickerFee]="cart()?.stickerFee ?? 5000"
+      [initial]="it.personalization"
+      [startTab]="pzTab()"
+      [variants]="pzVariants()"
+      [variantSku]="it.variantSku"
+      applyLabel="Cập nhật"
+      [error]="pzError()"
+      [busy]="busy()"
+      (applied)="onDialogApplied(it, $event)"
+      (closed)="closeDialog()"
+    />
+  }
+}
+
+@if (giftOpen()) {
+  <app-gift-dialog [current]="cart()?.giftWrap ?? null" [busy]="busy()" [error]="giftError()" (applied)="onGiftApplied($event)" (closed)="giftOpen.set(false)" />
+}

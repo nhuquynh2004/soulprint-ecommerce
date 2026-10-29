@@ -1,0 +1,226 @@
+<app-dialog [title]="mode === 'edit' ? 'Sửa mẫu gói quà' : tab() === 'TAO_MOI' ? (editingId() ? 'Sửa mẫu gói quà' : base() ? 'Mẫu: ' + base()!.name : 'Tạo gói quà mới') : 'Chọn gói quà'" size="lg" (closed)="closed.emit()">
+  <div class="sp-gd">
+    @if (mode === 'cart') {
+      <div class="sp-seg" role="tablist" aria-label="Cách chọn gói quà">
+        <button type="button" role="tab" [class.is-on]="activeTab() === 'GOI_Y'" [attr.aria-selected]="activeTab() === 'GOI_Y'" (click)="openTab('GOI_Y')">Mẫu gợi ý</button>
+        <button type="button" role="tab" [class.is-on]="activeTab() === 'CUA_TOI'" [attr.aria-selected]="activeTab() === 'CUA_TOI'" (click)="openTab('CUA_TOI')">{{ staff ? 'Mẫu của khách' : 'Mẫu của tôi' }}</button>
+        <button type="button" role="tab" [class.is-on]="activeTab() === 'TAO_MOI'" [attr.aria-selected]="activeTab() === 'TAO_MOI'" (click)="openTab('TAO_MOI')">Tạo mới</button>
+      </div>
+    }
+
+    @if (loadError()) {
+      <div class="sp-alert sp-alert--danger" role="alert">{{ loadError() }}</div>
+    } @else if (!data()) {
+      <div class="sp-gd__grid">
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          <div class="sp-skel sp-gd__skel"></div>
+        }
+      </div>
+    } @else {
+      @switch (tab()) {
+        @case ('GOI_Y') {
+          @if (!data()!.suggested.length) {
+            <div class="sp-gd__empty">
+              <p>Chưa có mẫu gợi ý, bạn hãy tự tạo gói quà nhé</p>
+              <button class="btn btn-outline-primary" type="button" (click)="openTab('TAO_MOI')">Tạo gói quà</button>
+            </div>
+          }
+          @for (g of data()!.suggested; track g.seasonLabel ?? g.kind) {
+            <section class="sp-gd__group">
+              <div class="sp-gd__ghead">
+                @if (g.kind === 'BST_MUA') {
+                  <span class="k">Mùa</span> {{ g.seasonLabel }}
+                  @if (g.badge) {
+                    <span class="sp-badge" [class.sp-badge--hot]="g.badge === 'HOT'" [class.sp-badge--new]="g.badge === 'MOI'">{{ badgeText(g.badge) }}</span>
+                  }
+                } @else {
+                  Mẫu cơ bản
+                }
+              </div>
+              <div class="sp-gd__grid">
+                @for (t of g.templates; track t._id) {
+                  <button type="button" class="sp-gwrap" [class.is-on]="pickTemplate() === t._id" [class.is-out]="!t.available" [disabled]="!t.available" [attr.aria-pressed]="pickTemplate() === t._id" (click)="pick(t)">
+                    <img [src]="t.image || '/assets/brand/soulprint-mark.png'" alt="" />
+                    <strong>{{ t.name }}</strong>
+                    <span>{{ t.available ? t.description || t.paper.name + ', ' + t.ribbon.name : 'Tạm hết' }}</span>
+                  </button>
+                }
+              </div>
+            </section>
+          }
+          <p class="sp-gd__note">Mỗi mẫu gồm giấy gói, ruy băng và thiệp. Gói quà <strong class="text-success">miễn phí</strong> cho mọi đơn hàng.</p>
+        }
+
+        @case ('CUA_TOI') {
+          @if (staff) {
+            <!-- Mẫu khách chọn lúc gửi yêu cầu -->
+            @if (customerWrap; as w) {
+              <div class="sp-mytpl" [class.is-on]="pickCustomer()">
+                <div class="sp-mytpl__art">
+                  <img [src]="w.image || w.paper.image || '/assets/brand/soulprint-mark.png'" alt="" />
+                </div>
+                <div class="sp-mytpl__body">
+                  <strong>{{ w.name }}</strong>
+                  <dl>
+                    <dt>Giấy</dt><dd>{{ w.paper.name }}</dd>
+                    <dt>Ruy băng</dt><dd>{{ w.ribbon.name }}</dd>
+                    <dt>Thiệp</dt><dd>{{ w.card.name }}</dd>
+                    <dt>Lời nhắn</dt><dd>{{ w.message ? '“' + w.message + '”' : 'Không có' }}</dd>
+                  </dl>
+                  @if (!w.available) {
+                    <span class="sp-badge sp-badge--out">Tạm hết vật liệu</span>
+                  }
+                </div>
+                <div class="sp-mytpl__acts">
+                  <button class="btn btn-sm" type="button" [class.btn-primary]="pickCustomer()" [class.btn-outline-primary]="!pickCustomer()" [disabled]="busy" (click)="pickCustomer.set(true)">
+                    {{ pickCustomer() ? 'Đang chọn' : 'Dùng mẫu của khách' }}
+                  </button>
+                </div>
+              </div>
+              <p class="sp-gd__note">Mẫu khách đã chọn khi gửi yêu cầu. Đã đổi sang mẫu khác vẫn quay lại mẫu này được. Muốn sửa một phần thì dùng tab Tạo mới (đã điền sẵn mẫu đang áp dụng).</p>
+            } @else {
+              <div class="sp-gd__empty"><p>Khách không chọn gói quà khi gửi yêu cầu.</p></div>
+            }
+          } @else if (!isMember()) {
+            <div class="sp-gd__empty">
+              <p>Đăng nhập để dùng mẫu đã lưu</p>
+              <button class="btn btn-primary" type="button" (click)="login()">Đăng nhập</button>
+            </div>
+          } @else if (!mine()) {
+            <div class="sp-skel sp-gd__skel"></div>
+          } @else if (!mine()!.length) {
+            <div class="sp-gd__empty">
+              <p>Bạn chưa lưu mẫu nào</p>
+              <button class="btn btn-outline-primary" type="button" (click)="openTab('TAO_MOI')">Tạo gói quà</button>
+            </div>
+          } @else {
+            @for (d of mine(); track d._id) {
+              <div class="sp-mytpl" [class.is-on]="pickDesign() === d._id">
+                <div class="sp-mytpl__art">
+                  <img [src]="d.paper?.image || '/assets/brand/soulprint-mark.png'" alt="" />
+                </div>
+                <div class="sp-mytpl__body">
+                  <strong>{{ d.name }}</strong>
+                  <dl>
+                    <dt>Giấy</dt><dd>{{ d.paper?.name }}</dd>
+                    <dt>Ruy băng</dt><dd>{{ d.ribbon?.name }}</dd>
+                    <dt>Thiệp</dt><dd>{{ d.card?.name }}</dd>
+                    <dt>Lời nhắn</dt><dd>{{ d.message ? '“' + d.message + '”' : 'Không có' }}</dd>
+                  </dl>
+                  @if (d.available === false) {
+                    <span class="sp-badge sp-badge--out">Tạm hết</span>
+                  }
+                </div>
+                <div class="sp-mytpl__acts">
+                  <button class="btn btn-sm" type="button" [class.btn-primary]="pickDesign() === d._id" [class.btn-outline-primary]="pickDesign() !== d._id" [disabled]="d.available === false || busy" (click)="applyDesign(d)">
+                    {{ pickDesign() === d._id ? 'Đang chọn' : 'Áp dụng' }}
+                  </button>
+                  <button class="btn btn-sm btn-link" type="button" (click)="startEdit(d)">Sửa</button>
+                  <button class="btn btn-sm btn-link text-danger" type="button" [attr.aria-label]="'Xóa mẫu ' + d.name" (click)="confirmDelete.set(d)"><app-icon name="trash" [size]="18" /></button>
+                </div>
+              </div>
+              @if (confirmDelete()?._id === d._id) {
+                <div class="sp-alert sp-alert--warning sp-gd__confirm" role="alertdialog">
+                  <span>Bạn có chắc chắn muốn xóa thiết kế này? Bạn không thể lấy lại sau khi xóa</span>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-danger" type="button" (click)="remove(d)">Xóa</button>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" (click)="confirmDelete.set(null)">Hủy</button>
+                  </div>
+                </div>
+              }
+            }
+            <p class="sp-gd__note">Mẫu bạn tạo ở tab "Tạo mới" và chọn "Lưu thành mẫu của tôi" sẽ nằm ở đây.</p>
+          }
+        }
+
+        @case ('TAO_MOI') {
+          <ol class="sp-gd-steps" aria-label="Các bước tạo gói quà">
+            @for (s of ['Giấy', 'Ruy băng', 'Thiệp']; track s; let i = $index) {
+              <li [class.is-on]="step() === i + 1" [class.is-done]="step() > i + 1">
+                <span class="n">@if (step() > i + 1) {
+                  <app-icon name="check" [size]="14" />
+                } @else {
+                  {{ i + 1 }}
+                }</span>{{ s }}
+              </li>
+            }
+          </ol>
+          @if (base(); as b) {
+            <p class="sp-gd__note mt-0">Đây là mẫu "{{ b.name }}". Bạn ghi lời nhắn trên thiệp, hoặc bấm Quay lại để đổi giấy, ruy băng.{{ !staff && isMember() ? ' Đổi giấy, ruy băng hoặc thiệp thì mẫu được lưu vào Mẫu của tôi với tên "' + b.name + ' - tùy chỉnh".' : '' }}</p>
+          }
+          @if (paper() || ribbon()) {
+            <p class="sp-gd__picked">
+              Đã chọn: <strong>{{ materialName('paper') }}</strong>
+              @if (ribbon()) {, <strong>{{ materialName('ribbon') }}</strong> }
+              @if (card() && step() === 3) {, <strong>{{ materialName('card') }}</strong> }
+            </p>
+          }
+          <div class="sp-gd__grid">
+            @for (m of stepItems(); track m.code) {
+              <button type="button" class="sp-gwrap" [class.is-on]="slotValue(stepSlot()) === m.code" [class.is-out]="!m.available" [disabled]="!m.available" [attr.aria-pressed]="slotValue(stepSlot()) === m.code" (click)="choose(m)">
+                <img [src]="m.image || '/assets/brand/soulprint-mark.png'" alt="" />
+                <strong>{{ m.name }}</strong>
+                <span>{{ m.available ? m.description : 'Hết hàng' }}</span>
+              </button>
+            }
+          </div>
+          @if (step() === 3) {
+            @if (mode === 'edit' || editingId()) {
+              <div>
+                <label class="form-label" for="gd-name">Tên mẫu <span class="req">*</span></label>
+                <input id="gd-name" class="form-control" maxlength="60" [value]="designName()" (input)="designName.set($any($event.target).value)" />
+              </div>
+            }
+            <div>
+              <label class="form-label" for="gd-msg">Lời nhắn trên thiệp <span class="text-body-secondary">(không bắt buộc)</span></label>
+              <textarea id="gd-msg" class="form-control" rows="3" [value]="message()" (input)="onMessage($any($event.target))"></textarea>
+              <div class="sp-gd__help"><span>Viết tay bởi Soulprint</span><span>{{ messageCount() }}/{{ MESSAGE_MAX }}</span></div>
+            </div>
+            @if (mode === 'cart' && !editingId() && !staff && !base()) {
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="gd-save" [checked]="saveAsMine()" (change)="toggleSave($any($event.target).checked)" />
+                <label class="form-check-label" for="gd-save">Lưu thành mẫu của tôi</label>
+              </div>
+              <!-- Ô tên nằm ngay dưới ô tick, điền sẵn tên gợi ý (trước đây ở cuối hộp thoại, bị khuất nên không bấm được Hoàn tất) -->
+              @if (saveAsMine() && isMember()) {
+                <div>
+                  <label class="form-label" for="gd-name">Tên mẫu <span class="req">*</span></label>
+                  <input id="gd-name" class="form-control" maxlength="60" [value]="designName()" (input)="designName.set($any($event.target).value)" />
+                </div>
+              }
+              @if (saveAsMine() && !isMember()) {
+                <p class="sp-gd__note">
+                  Đăng nhập để lưu mẫu. Gói quà vẫn được gắn vào giỏ hàng.
+                  <button class="btn btn-link p-0 align-baseline" type="button" (click)="login()">Đăng nhập</button>
+                </p>
+              }
+            }
+          }
+        }
+      }
+    }
+    @if (localError() || error) {
+      <p class="sp-gd__err" role="alert">{{ localError() || error }}</p>
+    }
+  </div>
+
+  <div dialog-footer class="sp-gd__foot">
+    @if (tab() === 'TAO_MOI') {
+      <button class="btn btn-outline-secondary" type="button" (click)="mode === 'edit' && step() === 1 ? closed.emit() : back()">{{ step() === 1 && mode === 'edit' ? 'Hủy' : 'Quay lại' }}</button>
+      @if (step() < 3) {
+        <button class="btn btn-primary" type="button" [disabled]="!slotValue(stepSlot())" (click)="next()">Tiếp tục</button>
+      } @else {
+        @if (needName() && !designName().trim()) {
+          <span class="sp-gd__line">Nhập tên mẫu để lưu</span>
+        }
+        <button class="btn btn-primary" type="button" [disabled]="!canFinish() || working() || busy" (click)="finish()">{{ editingId() ? 'Lưu thay đổi' : base() ? 'Áp dụng gói quà' : 'Hoàn tất' }}</button>
+      }
+    } @else {
+      @if (pickLine()) {
+        <span class="sp-gd__line">Mẫu đã chọn: <strong>“{{ pickLine() }}”</strong></span>
+      }
+      <button class="btn btn-outline-secondary" type="button" (click)="closed.emit()">Hủy</button>
+      <button class="btn btn-primary" type="button" [disabled]="!pickLine() || busy" (click)="apply()">Áp dụng</button>
+    }
+  </div>
+</app-dialog>

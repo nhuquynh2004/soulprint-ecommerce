@@ -1,0 +1,200 @@
+// SCR-31 theo thiết kế: nền ombre ocean giống footer, chữ trắng --sp-color-on-ocean (>= 5,6:1)
+.sp-nf {
+  position: relative;
+  overflow: hidden;
+  padding: 56px 0 72px;
+  color: var(--sp-color-on-ocean);
+  text-align: center;
+  background: linear-gradient(180deg, var(--sp-ocean-top) 0%, var(--sp-ocean-deep) 100%);
+}
+
+.sp-nf__rays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 0 18%, color-mix(in srgb, var(--sp-color-on-ocean) 7%, transparent) 18% 24%, transparent 24% 46%, color-mix(in srgb, var(--sp-color-on-ocean) 5%, transparent) 46% 50%, transparent 50% 70%, color-mix(in srgb, var(--sp-color-on-ocean) 6%, transparent) 70% 75%, transparent 75%);
+}
+
+.sp-nf__bub {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--sp-color-on-ocean) 55%, transparent);
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--sp-color-on-ocean) 45%, transparent), color-mix(in srgb, var(--sp-color-on-ocean) 6%, transparent) 60%);
+}
+
+.sp-nf__inner {
+  position: relative;
+  max-width: 680px;
+}
+
+.sp-nf__code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 var(--sp-space-5);
+  font: 700 160px/1 var(--sp-font-display);
+  text-shadow: 0 6px 0 var(--sp-ocean-floor);
+
+  @media (max-width: 575.98px) {
+    font-size: 96px;
+  }
+}
+
+.sp-nf__ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, var(--sp-color-on-ocean) 60%, transparent);
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--sp-color-on-ocean) 35%, transparent), color-mix(in srgb, var(--sp-color-on-ocean) 8%, transparent) 70%);
+
+  img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--sp-color-primary-subtle);
+  }
+
+  b {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sp-color-accent);
+    color: var(--sp-color-on-accent);
+    font: 700 22px/1 var(--sp-font-body);
+    text-shadow: none;
+  }
+
+  @media (max-width: 575.98px) {
+    width: 96px;
+    height: 96px;
+
+    img {
+      width: 64px;
+      height: 64px;
+    }
+  }
+}
+
+h1 {
+  margin: 0 0 var(--sp-space-3);
+  font-size: 36px;
+  line-height: 44px;
+  color: var(--sp-color-on-ocean);
+
+  @media (max-width: 575.98px) {
+    font-size: 26px;
+    line-height: 34px;
+  }
+}
+
+.sp-nf__lead {
+  max-width: 620px;
+  margin: 0 auto var(--sp-space-5);
+  color: var(--sp-color-on-ocean);
+  opacity: 0.92;
+}
+
+.sp-nf__search {
+  display: flex;
+  max-width: 460px;
+  height: 44px;
+  margin: 0 auto var(--sp-space-4);
+  border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-surface);
+  overflow: hidden;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    padding: 0 18px;
+    background: transparent;
+    color: var(--sp-color-text);
+    text-align: center;
+    outline: none;
+  }
+
+  button {
+    width: 56px;
+    border: 0;
+    background: var(--sp-color-primary);
+    color: var(--sp-color-on-primary);
+  }
+
+  &:focus-within {
+    box-shadow: 0 0 0 3px var(--sp-focus-ring);
+  }
+}
+
+.sp-nf__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-space-3);
+  margin-bottom: var(--sp-space-5);
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-space-2);
+  }
+}
+
+.sp-nf__ghost {
+  border: 1.5px solid var(--sp-color-on-ocean);
+  color: var(--sp-color-on-ocean);
+  background: transparent;
+
+  &:hover {
+    background: color-mix(in srgb, var(--sp-color-on-ocean) 12%, transparent);
+    color: var(--sp-color-on-ocean);
+  }
+}
+
+.sp-nf__more {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--sp-space-2);
+  font-size: 13px;
+
+  span {
+    opacity: 0.85;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: var(--sp-radius-pill);
+    border: 1px solid color-mix(in srgb, var(--sp-color-on-ocean) 30%, transparent);
+    background: color-mix(in srgb, var(--sp-color-on-ocean) 12%, transparent);
+    color: var(--sp-color-on-ocean);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      background: color-mix(in srgb, var(--sp-color-on-ocean) 22%, transparent);
+    }
+  }
+}
+
+.sp-nf__note {
+  margin: var(--sp-space-4) 0 0;
+  font-size: 12px;
+  font-weight: 500;
+}

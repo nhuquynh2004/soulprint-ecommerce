@@ -1,0 +1,82 @@
+[
+  {
+    "code": "DIP_TANG",
+    "name": "Dịp tặng",
+    "description": "Dịp tặng quà, dùng cho bộ lọc và Tư vấn AI",
+    "kind": "LIST",
+    "rangeField": null,
+    "isFilter": true,
+    "isSystem": true,
+    "sortOrder": 1
+  },
+  {
+    "code": "SO_THICH",
+    "name": "Sở thích",
+    "description": "Đam mê, sở thích của người nhận",
+    "kind": "LIST",
+    "rangeField": null,
+    "isFilter": false,
+    "isSystem": true,
+    "sortOrder": 2
+  },
+  {
+    "code": "PHONG_CACH",
+    "name": "Phong cách",
+    "description": "",
+    "kind": "LIST",
+    "rangeField": null,
+    "isFilter": false,
+    "isSystem": true,
+    "sortOrder": 3
+  },
+  {
+    "code": "TINH_CACH",
+    "name": "Tính cách",
+    "description": "",
+    "kind": "LIST",
+    "rangeField": null,
+    "isFilter": false,
+    "isSystem": true,
+    "sortOrder": 4
+  },
+  {
+    "code": "DOI_TUONG",
+    "name": "Đối tượng nhận",
+    "description": "Người nhận quà",
+    "kind": "LIST",
+    "rangeField": null,
+    "isFilter": true,
+    "isSystem": true,
+    "sortOrder": 5
+  },
+  {
+    "code": "CONG_DUNG",
+    "name": "Công dụng",
+    "description": "Giúp lọc theo nhu cầu sử dụng",
+    "kind": "LIST",
+    "rangeField": null,
+    "isFilter": false,
+    "isSystem": true,
+    "sortOrder": 6
+  },
+  {
+    "code": "DO_TUOI",
+    "name": "Độ tuổi",
+    "description": "Tự khớp theo độ tuổi phù hợp của sản phẩm",
+    "kind": "RANGE",
+    "rangeField": "AGE",
+    "isFilter": true,
+    "isSystem": true,
+    "sortOrder": 7
+  },
+  {
+    "code": "NGAN_SACH",
+    "name": "Ngân sách",
+    "description": "Tự khớp theo giá bán",
+    "kind": "RANGE",
+    "rangeField": "PRICE",
+    "isFilter": true,
+    "isSystem": true,
+    "sortOrder": 8
+  }
+]

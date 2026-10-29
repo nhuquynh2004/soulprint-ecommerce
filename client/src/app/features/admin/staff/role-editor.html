@@ -1,0 +1,164 @@
+@if (loading()) {
+  <span class="sp-skel" style="height: 400px"></span>
+} @else {
+  <div class="sp-rebar">
+    <a class="btn sp-rebar__back" routerLink="/quan-tri/nhan-vien/vai-tro" aria-label="Quay lại danh sách vai trò"><app-icon name="arrow-left" /></a>
+    <h1>{{ isNew ? 'Tạo vai trò' : (readOnly() ? 'Vai trò: ' : 'Sửa vai trò: ') + role()?.name }}</h1>
+    @if (role(); as r) {
+      <span class="sp-badge" [class]="r.type === 'MAC_DINH' ? 'sp-badge--neutral' : 'sp-badge--primary'">{{ r.type === 'MAC_DINH' ? 'Mặc định' : 'Tùy chỉnh' }}</span>
+    }
+    <div class="sp-rebar__acts">
+      @if (role()?.updatedAt) {
+        <small class="text-body-secondary d-none d-lg-inline">Cập nhật lần cuối {{ role()?.updatedAt | date: 'dd/MM/yyyy' }}</small>
+      }
+      <a class="btn btn-outline-secondary" routerLink="/quan-tri/nhan-vien/vai-tro">{{ readOnly() ? 'Đóng' : 'Hủy' }}</a>
+      @if (!readOnly()) {
+        <button class="btn btn-primary" type="button" (click)="save()" [disabled]="saving() || !!nameError || !count()">Lưu vai trò</button>
+      }
+    </div>
+  </div>
+
+  @if (errMessage()) {
+    <div class="sp-alert sp-alert--danger" role="alert"><app-icon name="alert-circle" [size]="20" /><p>{{ errMessage() }}</p></div>
+  }
+  @if (readOnly()) {
+    <div class="sp-alert sp-alert--info"><app-icon name="info" [size]="20" /><p>Vai trò Quản trị luôn có toàn quyền, gồm Nhân viên và phân quyền, Cài đặt cửa hàng. Không sửa được, chỉ nhân bản để tạo vai trò mới.</p></div>
+  } @else if (role()?.staff?.length) {
+    <div class="sp-alert sp-alert--warning">
+      <app-icon name="alert" [size]="20" />
+      <div>
+        <p><strong>Thay đổi áp dụng ngay cho {{ role()?.staff?.length }} nhân viên</strong></p>
+        <p>
+          @for (s of role()?.staff; track s._id; let last = $last) {
+            {{ s.fullName }}{{ last ? '.' : ', ' }}
+          }
+          Quyền riêng đã cấp cho từng người vẫn giữ nguyên.
+        </p>
+      </div>
+    </div>
+  }
+
+  <section class="sp-panel">
+    <h2>Thông tin vai trò</h2>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="sp-field mb-0">
+          <label for="rname">Tên vai trò <span class="req">*</span></label>
+          <input id="rname" class="form-control" maxlength="40" [(ngModel)]="name" [readonly]="readOnly() || isDefault()" [class.is-invalid]="name && nameError" />
+          <span class="sp-field__hint">
+            @if (isDefault()) {
+              Không đổi tên vai trò mặc định
+            } @else {
+              Tên không trùng với vai trò khác, 3 - 40 ký tự
+            }
+          </span>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="sp-field mb-0">
+          <label for="rdesc">Mô tả</label>
+          <input id="rdesc" class="form-control" maxlength="160" [(ngModel)]="description" [readonly]="readOnly()" />
+          <span class="sp-field__hint">Hiện khi chọn vai trò cho nhân viên (tối đa 160 ký tự)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sp-panel">
+    <div class="sp-matrix__head">
+      <div>
+        <h2 class="mb-1">Quyền được phép</h2>
+        <p class="text-body-secondary mb-0"><strong>{{ readOnly() ? total() : count() }}</strong> / {{ total() }} quyền đang bật</p>
+      </div>
+      @if (!readOnly()) {
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary" type="button" (click)="setAll(true)"><app-icon name="check" [size]="16" /> Bật tất cả</button>
+          <button class="btn btn-sm btn-outline-secondary" type="button" (click)="setAll(false)"><app-icon name="close" [size]="16" /> Tắt tất cả</button>
+        </div>
+      }
+    </div>
+    @if (!readOnly() && !count()) {
+      <p class="sp-field__error">Vai trò cần ít nhất 1 quyền</p>
+    }
+
+    <div class="sp-table-wrap">
+      <table class="table sp-matrix align-middle">
+        <thead>
+          <tr>
+            <th scope="col">Khu vực</th>
+            <th scope="col" class="text-center">Xem</th>
+            <th scope="col" class="text-center">Tạo</th>
+            <th scope="col" class="text-center">Sửa</th>
+            <th scope="col" class="text-center">Xóa</th>
+            <th scope="col">Hành động khác</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (g of groups(); track g.group) {
+            <tr class="sp-matrix__group">
+              <th colspan="6" scope="rowgroup">{{ g.group }}</th>
+            </tr>
+            @for (a of g.areas; track a.area) {
+              <tr>
+                <th scope="row">
+                  @if (a.adminOnly) {
+                    {{ a.areaLabel }}
+                  } @else {
+                    <label class="sp-matrix__row">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [checked]="readOnly() || rowState(a) === 'all'"
+                        [indeterminate]="!readOnly() && rowState(a) === 'some'"
+                        [disabled]="readOnly()"
+                        (change)="toggleRow(a)"
+                        [attr.aria-label]="'Chọn tất cả quyền ' + a.areaLabel"
+                      />
+                      {{ a.areaLabel }}
+                    </label>
+                  }
+                </th>
+                @if (a.adminOnly) {
+                  <td colspan="5" class="text-body-secondary">Chỉ vai trò Quản trị</td>
+                } @else {
+                  @for (c of columns; track c) {
+                    <td class="text-center">
+                      @if (action(a, c); as x) {
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          [checked]="readOnly() || has(x.code)"
+                          [disabled]="readOnly()"
+                          (change)="toggle(a, x.code)"
+                          [attr.aria-label]="a.areaLabel + ': ' + x.label"
+                        />
+                      } @else {
+                        <span class="text-body-secondary" aria-hidden="true">-</span>
+                      }
+                    </td>
+                  }
+                  <td>
+                    <div class="d-flex flex-wrap gap-1">
+                      @for (x of others(a); track x.code) {
+                        <button
+                          type="button"
+                          class="sp-chip sp-chip--sm"
+                          [class.is-on]="readOnly() || has(x.code)"
+                          [disabled]="readOnly()"
+                          [attr.aria-pressed]="readOnly() || has(x.code)"
+                          (click)="toggle(a, x.code)"
+                        >
+                          <app-icon [name]="readOnly() || has(x.code) ? 'check' : 'plus'" [size]="14" /> {{ x.label }}
+                        </button>
+                      }
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

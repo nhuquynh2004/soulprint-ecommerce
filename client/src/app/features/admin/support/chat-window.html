@@ -1,0 +1,62 @@
+<section class="sp-cw" [class.is-min]="win.minimized" role="dialog" [attr.aria-label]="'Chat với ' + win.name">
+  <header class="sp-cw__head">
+    <button class="sp-cw__title" type="button" [attr.aria-expanded]="!win.minimized" (click)="dock.toggleMin(win.id)">
+      <span class="sp-cw__av">{{ initials(win.name) }}</span>
+      <span class="sp-cw__name">
+        <strong>{{ win.name }}</strong>
+        @if (conv(); as c) {
+          <small>{{ c.statusLabel }}{{ c.assignedName && !c.isMine ? ', ' + c.assignedName : '' }}</small>
+        }
+      </span>
+    </button>
+    <a class="sp-cw__ic" [routerLink]="['/quan-tri/ho-tro']" [queryParams]="{ id: win.id }" title="Mở trang Hỗ trợ khách hàng" aria-label="Mở trang Hỗ trợ khách hàng"><app-icon name="link" [size]="16" /></a>
+    <button class="sp-cw__ic" type="button" [attr.aria-label]="win.minimized ? 'Mở rộng' : 'Thu gọn'" (click)="dock.toggleMin(win.id)"><app-icon [name]="win.minimized ? 'chevron-up' : 'minus'" [size]="16" /></button>
+    <button class="sp-cw__ic" type="button" aria-label="Đóng cửa sổ chat" (click)="dock.close(win.id)"><app-icon name="close" [size]="16" /></button>
+  </header>
+
+  @if (!win.minimized) {
+    @if (conv()?.labels?.length) {
+      <div class="sp-cw__labels">
+        @for (l of conv()!.labels; track l.code) {
+          <span class="sp-cw__label" [class.is-urgent]="l.code === 'DAT_GAP'">{{ l.label }}</span>
+        }
+      </div>
+    }
+    <div class="sp-cw__body" #body>
+      @if (error()) {
+        <p class="sp-cw__sys text-danger">{{ error() }}</p>
+      } @else if (!conv()) {
+        <span class="sp-skel d-block" style="height: 60px"></span>
+      }
+      @for (m of messages(); track m._id) {
+        @if (m.sender === 'HE_THONG') {
+          <p class="sp-cw__sys">{{ m.text }}</p>
+        } @else {
+          <div class="sp-cw__msg" [class.is-me]="m.sender === 'ADMIN'" [class.is-bot]="m.sender === 'BOT'">
+            <div class="sp-cw__bubble">
+              {{ m.text }}
+              @if (m.card) {
+                <a class="sp-cw__card" [routerLink]="['/quan-tri/don-nhap', m.card.code]">
+                  <strong>{{ m.card.title }}</strong>
+                  <span>{{ m.card.status }}</span>
+                </a>
+              }
+              @if (m.link) {
+                <a class="d-block" [href]="m.link.url" target="_blank" rel="noopener">{{ m.link.label }}</a>
+              }
+            </div>
+            <time>{{ m.createdAt | date: 'HH:mm' }}</time>
+          </div>
+        }
+      }
+    </div>
+    <footer class="sp-cw__foot">
+      @if (conv()?.canReply) {
+        <textarea class="form-control" rows="1" [attr.maxlength]="MAX" placeholder="Nhập tin nhắn, Enter để gửi" aria-label="Tin nhắn" [value]="text()" (input)="text.set($any($event.target).value)" (keydown)="onKey($event)"></textarea>
+        <button class="btn btn-primary sp-cw__send" type="button" aria-label="Gửi" [disabled]="!text().trim() || sending()" (click)="send()"><app-icon name="send" [size]="16" /></button>
+      } @else if (conv()) {
+        <small class="text-body-secondary">{{ conv()!.blockedReason || 'Không gửi được tin ở hội thoại này' }}</small>
+      }
+    </footer>
+  }
+</section>

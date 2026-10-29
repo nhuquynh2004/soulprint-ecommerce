@@ -1,0 +1,286 @@
+<a class="sp-more" routerLink="/tai-khoan/don-hang"><app-icon name="arrow-left" [size]="18" /> Đơn hàng của tôi</a>
+
+@if (error()) {
+  <div class="sp-state" role="alert">
+    <span class="sp-state__ic"><app-icon name="package" [size]="32" /></span>
+    <h1 class="h4">{{ error() }}</h1>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+      <button class="btn btn-outline-primary" type="button" (click)="load()">Thử lại</button>
+      <a class="btn btn-primary" routerLink="/tai-khoan/don-hang">Về Đơn hàng của tôi</a>
+    </div>
+  </div>
+} @else if (!order()) {
+  <span class="sp-skel mt-3" style="height: 120px"></span>
+  <span class="sp-skel mt-3" style="height: 360px"></span>
+} @else {
+  @let o = order()!;
+  <!-- Đơn vừa đổi ở nơi khác trong lúc đang mở hộp thoại -->
+  @if (staleBanner()) {
+    <div class="sp-alert sp-alert--info d-flex justify-content-between align-items-center flex-wrap gap-2" role="status">
+      <span><app-icon name="refresh" [size]="18" /> Đơn vừa thay đổi, tải lại để xem mới nhất.</span>
+      <button class="btn btn-sm btn-outline-primary" type="button" (click)="reloadNow()">Tải lại</button>
+    </div>
+  }
+  <header class="sp-odhead">
+    <div>
+      <h1>
+        Đơn {{ o.code }}
+        @if (o.urgent) {
+          <span class="sp-urgent-tag"><app-icon name="clock" [size]="12" /> Đơn gấp</span>
+        }
+        <span class="sp-status" [class]="'sp-status--' + (o.needAction ? 'CAN_XU_LY' : o.orderStatus)">{{ o.needAction ? 'Cần bạn xử lý' : statusLabel[o.orderStatus] }}</span>
+      </h1>
+      <p>Đặt lúc {{ o.createdAt | date: 'dd/MM/yyyy HH:mm' }}{{ subline() ? ' | ' + subline() : '' }}</p>
+    </div>
+    <div class="sp-odhead__acts">
+      <!-- Mở SCR-29, ô soạn tin điền sẵn mã đơn -->
+      <button class="btn btn-outline-secondary btn-sm" type="button" (click)="chatAbout(o.code)"><app-icon name="chat" [size]="16" /> Chat với Soulprint</button>
+      @if (o.actions; as a) {
+        @if (a.cancel) {
+          <button class="btn btn-outline-danger btn-sm" type="button" (click)="cancelOpen.set(true)">Hủy đơn</button>
+        }
+        @if (a.redelivery) {
+          <button class="btn btn-primary btn-sm" type="button" (click)="afterCancel.set('redelivery')">Nhận lại hàng</button>
+        }
+        @if (a.refund) {
+          <button class="btn btn-primary btn-sm" type="button" (click)="afterCancel.set('refund')">Nhận tiền hoàn</button>
+        }
+        @if (a.refundAccount && !(o.orderStatus !== 'DA_HUY' && o.refund?.canTakeVoucher)) {
+          <button class="btn btn-primary btn-sm" type="button" (click)="afterCancel.set('refund')">{{ o.refund?.status === 'THAT_BAI' ? 'Nhập lại tài khoản' : 'Nhập tài khoản nhận tiền' }}</button>
+        }
+        @if (a.return) {
+          <a class="btn btn-outline-primary btn-sm" [routerLink]="['doi-tra']">Đổi/trả hàng</a>
+        }
+        @if (a.review) {
+          <button class="btn btn-outline-primary btn-sm" type="button" (click)="reviewFor.set('')">Đánh giá</button>
+        }
+        @if (a.reorder) {
+          <button class="btn btn-outline-primary btn-sm" type="button" [disabled]="busy()" (click)="reorder()">{{ o.orderStatus === 'DA_HUY' ? 'Đặt lại' : 'Mua lại' }}</button>
+        }
+      }
+    </div>
+  </header>
+
+  <!-- Soulprint không thực hiện được món, đang hỏi khách có muốn đổi sản phẩm khác không (UC-TRK-02 5d) -->
+  @if (o.asking; as a) {
+    <section class="sp-alert sp-alert--warning mb-0">
+      <app-icon name="alert-circle" [size]="20" />
+      <div class="flex-grow-1">
+        <strong>Soulprint không thực hiện được {{ a.itemNames.join(', ') }}</strong>
+        <p>{{ a.message }}</p>
+        @if (a.responseDeadline) {
+          <p class="sp-callout__sub">Bạn trả lời trước <strong>{{ a.responseDeadline | date: 'HH:mm dd/MM' }}</strong> giúp Soulprint nhé. Sau thời hạn này, Soulprint sẽ hủy đơn và hoàn 100% số tiền bạn đã trả.</p>
+        }
+      </div>
+      <button class="btn btn-primary btn-sm" type="button" (click)="replySoulprint(o.code)"><app-icon name="chat" [size]="16" /> Trả lời Soulprint</button>
+    </section>
+  }
+  <!-- Thay đổi chờ bạn trả thêm (BR-47) -->
+  @if (o.pendingChange; as pc) {
+    <section class="sp-alert sp-alert--warning mb-0">
+      <app-icon name="ticket" [size]="20" />
+      <div class="flex-grow-1">
+        <strong>Đơn đang chờ bạn thanh toán thêm {{ pc.amount | vnd }}</strong>
+        <p>{{ pc.summary }}. Thanh toán trước {{ pc.expiresAt | date: 'HH:mm dd/MM' }} để Soulprint cập nhật đơn; quá hạn, đơn giữ như cũ.</p>
+      </div>
+      <a class="btn btn-primary btn-sm" [href]="pc.paymentUrl">Thanh toán</a>
+    </section>
+  }
+
+  <!-- Phần chênh khi đơn đổi đang chờ hoàn (BR-47 b): nhập tài khoản hoặc nhận voucher ngay -->
+  @if (o.orderStatus !== 'DA_HUY' && o.refund?.canTakeVoucher) {
+    <section class="sp-alert sp-alert--info mb-0">
+      <app-icon name="ticket" [size]="20" />
+      <div class="flex-grow-1">
+        <strong>Soulprint hoàn bạn {{ o.refund!.amount | vnd }} phần chênh khi đơn thay đổi</strong>
+        <p>{{ o.refund!.needsAccount ? 'Bạn nhập tài khoản ngân hàng để nhận tiền, tiền về trong 1 - 3 ngày làm việc.' : 'Soulprint chuyển khoản tới ' + o.refund!.bankName + ' ' + o.refund!.account + ', tiền về trong 1 - 3 ngày làm việc.' }} Hoặc nhận voucher {{ o.refund!.amount | vnd }} dùng ngay cho đơn sau.</p>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        @if (o.refund!.needsAccount) {
+          <button class="btn btn-primary btn-sm" type="button" (click)="afterCancel.set('refund')">Nhập tài khoản</button>
+        }
+        <button class="btn btn-outline-primary btn-sm" type="button" [disabled]="voucherBusy()" (click)="takeVoucher()">Nhận voucher ngay</button>
+      </div>
+    </section>
+  }
+
+  <!-- Thẻ nổi bật phía trên timeline (UC-TRK-02 bước 5, CNL-01 bước 2) -->
+  @switch (o.orderStatus) {
+    @case ('DA_HUY') {
+      @if (o.refund) {
+        <section class="sp-alert sp-alert--info mb-0" [class.sp-alert--success]="o.refund.status === 'DA_HOAN'">
+          <app-icon [name]="o.refund.status === 'DA_HOAN' ? 'check-circle' : 'clock'" [size]="20" />
+          <div>
+            @if (o.refund.status === 'DA_HOAN') {
+              <strong>Đơn đã hủy và đã hoàn {{ o.refund.amount | vnd }}</strong>
+              @if (o.refund.method === 'VOUCHER') {
+                <p>Đã hoàn bằng voucher {{ o.refund.voucherCode }} trong Ưu đãi của tôi.</p>
+              } @else {
+                <p>Tiền đã chuyển vào tài khoản {{ o.refund.bankName }} {{ o.refund.account }}{{ o.refund.processedAt ? ' ngày ' + (o.refund.processedAt | date: 'dd/MM/yyyy') : '' }}.</p>
+              }
+            } @else if (o.refund.status === 'THAT_BAI' || o.refund.needsAccount) {
+              <strong>{{ o.refund.status === 'THAT_BAI' ? 'Chưa chuyển được ' : 'Soulprint cần tài khoản để hoàn ' }}{{ o.refund.amount | vnd }}</strong>
+              <p>{{ o.refund.failReason ? o.refund.failReason + '. ' : '' }}Bấm "{{ o.refund.status === 'THAT_BAI' ? 'Nhập lại tài khoản' : 'Nhập tài khoản nhận tiền' }}" để nhập tài khoản ngân hàng nhận tiền hoàn.</p>
+            } @else {
+              <strong>Đơn hàng của bạn đã hủy. Yêu cầu hoàn {{ o.refund.amount | vnd }} đã được ghi nhận</strong>
+              <p>Soulprint chuyển khoản tới {{ o.refund.bankName }} {{ o.refund.account }}, tiền về trong 1 - 3 ngày làm việc.</p>
+            }
+            @if (cancelLine()) {
+              <p class="sp-callout__sub">{{ cancelLine() }}</p>
+            }
+          </div>
+        </section>
+      } @else {
+        @switch (o.cancelCase) {
+          @case ('TH3') {
+            <!-- Nói rõ phần đã trả không được hoàn và chi phí khi nhận lại hàng -->
+            @let kept = o.paidAmount - o.refundedAmount;
+            <section class="sp-alert sp-alert--warning mb-0">
+              <app-icon name="alert" [size]="20" />
+              <div>
+                @if (o.storageStatus === 'DANG_LUU_KHO') {
+                  <strong>{{ kept > 0 ? 'Đơn cá nhân hóa đã hủy, ' + (kept | vnd) + ' bạn đã trả không được hoàn' : 'Đơn cá nhân hóa đã hủy' }}</strong>
+                  <p>
+                    Sản phẩm đã được cá nhân hóa riêng cho bạn nên {{ kept > 0 ? 'số đã trả không được hoàn theo chính sách hủy đơn' : 'Soulprint giữ sản phẩm cho bạn' }}.
+                    Chọn "Nhận lại hàng" trước {{ o.storageDeadline | date: 'dd/MM/yyyy' }} để nhận sản phẩm{{ o.redelivery ? ': bạn trả phần còn lại ' + (o.redelivery.remaining | vnd) + ' và phí vận chuyển mới ' + (o.redelivery.shippingFee | vnd) : '' }}.
+                    Quá hạn 14 ngày, hàng cá nhân hóa sẽ được xử lý và không hoàn tiền phần này.
+                  </p>
+                } @else {
+                  <strong>Quá hạn lưu kho 14 ngày</strong>
+                  <p>Hàng cá nhân hóa đã được xử lý theo chính sách.</p>
+                }
+                @if (cancelLine()) {
+                  <p class="sp-callout__sub">{{ cancelLine() }}</p>
+                }
+              </div>
+            </section>
+          }
+          @case ('TH2') {
+            <section class="sp-alert sp-alert--info mb-0">
+              <app-icon name="info" [size]="20" />
+              <div>
+                <strong>Đơn hàng của bạn đã hủy</strong>
+                <p>Chọn "Nhận tiền hoàn" để nhận lại {{ o.paidAmount - o.refundedAmount | vnd }}.</p>
+                @if (cancelLine()) {
+                  <p class="sp-callout__sub">{{ cancelLine() }}</p>
+                }
+              </div>
+            </section>
+          }
+          @default {
+            <section class="sp-alert sp-alert--info mb-0">
+              <app-icon name="info" [size]="20" />
+              <div>
+                <strong>Đơn hàng của bạn đã hủy.</strong>
+                <p>{{ cancelLine() ? cancelLine() + '. ' : '' }}Bạn có thể đặt lại bất cứ lúc nào.</p>
+              </div>
+            </section>
+          }
+        }
+      }
+    }
+    @case ('DA_GIAO') {
+      <section class="sp-alert sp-alert--success mb-0">
+        <app-icon name="package" [size]="20" />
+        <div>
+          <strong>Bạn đã nhận được hàng?</strong>
+          <p>Bấm "Đã nhận hàng" để hoàn tất đơn. Sau 72 giờ kể từ khi giao, đơn sẽ tự hoàn tất. Bạn vẫn đổi/trả được trong 7 ngày kể từ khi nhận.</p>
+          <button class="btn btn-success btn-sm mt-2" type="button" [disabled]="busy()" (click)="received()">Đã nhận hàng</button>
+        </div>
+      </section>
+    }
+    @case ('HOAN_THANH') {
+      @if (justReceived()) {
+        <section class="sp-alert sp-alert--success mb-0">
+          <app-icon name="star" [size]="20" />
+          <div>
+            <strong>Cảm ơn bạn đã mua sắm tại Soulprint!</strong>
+            <p>Chia sẻ cảm nhận về món quà để giúp những người mua sau nhé.</p>
+            <button class="btn btn-primary btn-sm mt-2" type="button" (click)="reviewFor.set('')">Đánh giá sản phẩm</button>
+          </div>
+        </section>
+      }
+    }
+  }
+
+  <!-- Yêu cầu đổi trả, bảo hành của đơn (UC-TRK-04 8b, UC-TRK-05 bước 5) -->
+  @for (r of requests(); track r._id) {
+    <app-request-card [request]="r" [busy]="busy()" (cancelReturn)="cancelReturn($event)" />
+  }
+
+  <!-- Đơn thay thế 0đ (UC-OPS-07 3c, 1a) -->
+  @if (o.replacementFor) {
+    <p class="sp-alert sp-alert--info mb-0"><app-icon name="info" [size]="20" /> Đơn thay thế 0đ cho yêu cầu {{ o.replacementFor.kind === 'DOI_TRA' ? 'đổi trả' : 'bảo hành' }} {{ o.replacementFor.requestCode }} của đơn <a [routerLink]="['/tai-khoan/don-hang', o.sourceOrderCode]">{{ o.sourceOrderCode }}</a>.</p>
+  }
+
+  <app-order-view [order]="o" [itemActions]="!!o.actions" (review)="reviewFor.set($event)" (warranty)="openWarranty($event)" (editShipping)="editShippingOpen.set(true)" (editPersonalization)="openPersonalize($event)" />
+
+  <!-- Đơn cá nhân hóa đã xác nhận (BR-27): không còn nút Hủy đơn -->
+  @if ((o.orderStatus === 'DANG_CA_NHAN_HOA' || o.orderStatus === 'DANG_CHUAN_BI') && o.actions && !o.actions.cancel) {
+    <p class="sp-alert sp-alert--warning mb-0"><app-icon name="info" [size]="20" /> Đơn đã bắt đầu cá nhân hóa nên không thể hủy. Cần hỗ trợ? Gọi 1900 1234 hoặc nhắn Sâu Béo.</p>
+  }
+}
+
+@if (reviewFor() !== null) {
+  <app-review-dialog [code]="code" [itemId]="reviewFor()!" (closed)="reviewFor.set(null)" (saved)="onReviewed($event)" />
+}
+@if (afterCancel() && order()) {
+  <app-after-cancel-dialog [order]="order()!" [mode]="afterCancel()!" (closed)="afterCancel.set(null)" (done)="onAfterCancel($event)" />
+}
+
+@if (cancelOpen()) {
+  <app-cancel-dialog [code]="code" (closed)="cancelOpen.set(false)" (cancelled)="onCancelled($event)" (stale)="onStale()" (edit)="onEditInstead($event)" />
+}
+<!-- UC-TRK-06: sửa thông tin giao hàng, sửa cá nhân hóa khi đơn còn chờ xác nhận -->
+@if (editShippingOpen() && order()) {
+  <app-edit-shipping-dialog [order]="order()!" (closed)="editShippingOpen.set(false)" (saved)="onEdited($event)" (stale)="onEditStale()" />
+}
+@if (pzProduct(); as p) {
+  <app-personalize-dialog [product]="p" [allowSave]="false" [allowNone]="false" [initial]="pzInitial()" [quantity]="pzQuantity()" [unitPrice]="pzUnitPrice()" applyLabel="Lưu thay đổi" [busy]="pzBusy()" [error]="pzError()" (applied)="savePersonalize($event)" (closed)="pzProduct.set(null)" />
+}
+<!-- Hộp xác nhận trước khi sửa làm đổi giá trị đơn (BR-47) -->
+@if (pzConfirm(); as c) {
+  <app-dialog title="Xác nhận sửa cá nhân hóa" [subtitle]="'Đơn ' + code" (closed)="pzConfirm.set(null)">
+    <dl class="sp-confirm-money">
+      <dt>Tổng đơn</dt><dd>{{ c.preview.before.total | vnd }} → <strong>{{ c.preview.after.total | vnd }}</strong></dd>
+      @if (c.preview.settlement.extra > 0) {
+        <dt>Thanh toán thêm ngay</dt><dd><strong>{{ c.preview.settlement.extra | vnd }}</strong></dd>
+      }
+      @if (c.preview.before.remainingAmount || c.preview.after.remainingAmount) {
+        <dt>Thu khi giao (COD)</dt><dd>{{ c.preview.before.remainingAmount | vnd }} → <strong>{{ c.preview.after.remainingAmount | vnd }}</strong></dd>
+      }
+      @if (c.preview.settlement.surplus > 0) {
+        <dt>Soulprint hoàn bạn</dt><dd><strong>{{ c.preview.settlement.surplus | vnd }}</strong></dd>
+      }
+    </dl>
+    @if (c.preview.settlement.surplus > 0) {
+      <div class="d-flex flex-column gap-2 mb-3" role="radiogroup" aria-label="Cách nhận tiền hoàn">
+        <label class="sp-modecard" [class.is-on]="pzRefund() === 'BANK'">
+          <input class="form-check-input" type="radio" name="pzrefund" [checked]="pzRefund() === 'BANK'" (change)="pzRefund.set('BANK')" />
+          <span class="flex-grow-1"><strong>Hoàn về tài khoản ngân hàng</strong><small>{{ order()?.refundAccount ? (order()!.refundAccount!.bankName + ' ' + order()!.refundAccount!.account) : 'Bạn nhập tài khoản sau khi xác nhận' }}, tiền về trong 1 - 3 ngày làm việc</small></span>
+        </label>
+        <label class="sp-modecard" [class.is-on]="pzRefund() === 'VOUCHER'">
+          <input class="form-check-input" type="radio" name="pzrefund" [checked]="pzRefund() === 'VOUCHER'" (change)="pzRefund.set('VOUCHER')" />
+          <span class="flex-grow-1"><strong>Nhận voucher {{ c.preview.settlement.surplus | vnd }} dùng ngay</strong><small>Dùng cho đơn sau trong 90 ngày</small></span>
+        </label>
+      </div>
+    }
+    <p class="sp-alert sp-alert--warning m-0"><app-icon name="alert" [size]="20" /> <span>Mỗi đơn chỉ được sửa làm thay đổi giá trị 1 lần. Sau lần này, muốn sửa tiếp bạn liên hệ Soulprint để được hỗ trợ.</span></p>
+    @if (pzError()) {
+      <p class="text-danger mt-2 mb-0" role="alert">{{ pzError() }}</p>
+    }
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-primary" type="button" (click)="pzConfirm.set(null)">Quay lại</button>
+      <button class="btn btn-primary" type="button" [disabled]="pzBusy()" (click)="confirmPersonalize()">{{ pzBusy() ? 'Đang lưu...' : c.preview.settlement.extra > 0 ? 'Xác nhận và thanh toán' : 'Xác nhận' }}</button>
+    </div>
+  </app-dialog>
+}
+@if (pzLimit()) {
+  <app-dialog title="Đã hết lượt sửa" [subtitle]="'Đơn ' + code" (closed)="pzLimit.set(false)">
+    <p class="m-0">Mỗi đơn chỉ được sửa làm thay đổi giá trị 1 lần và đơn này đã dùng lượt sửa. Bạn liên hệ Soulprint, nhân viên sẽ hỗ trợ đổi giúp bạn. Sửa không làm đổi giá (VD đổi chữ In/Khắc) vẫn lưu được.</p>
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-primary" type="button" (click)="pzLimit.set(false)">Đóng</button>
+      <button class="btn btn-primary" type="button" (click)="contactForEdit()"><app-icon name="chat" [size]="16" /> Liên hệ Soulprint</button>
+    </div>
+  </app-dialog>
+}

@@ -1,0 +1,116 @@
+<header class="sp-ph">
+  <h1>Thiết kế đã lưu</h1>
+  <p>Nội dung In/Khắc, sticker và mẫu gói quà bạn đã lưu</p>
+</header>
+
+<div class="sp-seg mb-4" role="tablist" aria-label="Loại thiết kế">
+  <button type="button" role="tab" [class.is-on]="tab() === 'CA_NHAN_HOA'" [attr.aria-selected]="tab() === 'CA_NHAN_HOA'" (click)="tab.set('CA_NHAN_HOA')">
+    Thiết kế In/Khắc ({{ personal().length }})
+  </button>
+  <button type="button" role="tab" [class.is-on]="tab() === 'GOI_QUA'" [attr.aria-selected]="tab() === 'GOI_QUA'" (click)="tab.set('GOI_QUA')">
+    Mẫu gói quà ({{ gifts().length }})
+  </button>
+</div>
+
+@if (loading()) {
+  <div class="sp-dgrid">
+    @for (i of [1, 2, 3]; track i) {
+      <span class="sp-skel" style="height: 280px"></span>
+    }
+  </div>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else if (!shown().length) {
+  <!-- 2Ea -->
+  <div class="sp-state">
+    <span class="sp-state__ic"><app-icon [name]="tab() === 'GOI_QUA' ? 'gift' : 'wand'" [size]="32" /></span>
+    <h2 class="h4">Chưa có thiết kế nào</h2>
+    @if (tab() === 'CA_NHAN_HOA') {
+      <p>Khi cá nhân hóa sản phẩm, bấm "Lưu thiết kế" để dùng lại cho lần tặng sau.</p>
+      <a class="btn btn-primary" routerLink="/san-pham">Chọn sản phẩm để thiết kế</a>
+    } @else {
+      <p>Bạn chưa lưu thiết kế gói quà nào. Ở giỏ hàng, chọn "Thêm gói quà", tab "Tạo mới" rồi tích "Lưu thành mẫu của tôi".</p>
+      <a class="btn btn-primary" routerLink="/gio-hang">Đến giỏ hàng</a>
+    }
+  </div>
+} @else {
+  <div class="sp-dgrid">
+    @for (d of shown(); track d._id) {
+      <article class="sp-dcard">
+        @if (d.kind === 'CA_NHAN_HOA') {
+          <div class="sp-dcard__art">
+            <img [src]="d.product?.image || '/assets/brand/soulprint-mark.png'" alt="" />
+            @if (d.personalization; as pz) {
+              @if (pz.type === 'IN_KHAC') {
+                <span class="sp-dcard__text">{{ describe(pz) }}</span>
+              } @else {
+                <span class="sp-dcard__stk">
+                  @for (s of pz.stickerDetails ?? []; track s.code) {
+                    @if (s.image) {
+                      <img [src]="s.image" [alt]="s.name" />
+                    }
+                  }
+                </span>
+              }
+            }
+          </div>
+          <div class="sp-dcard__body">
+            <strong>{{ d.name }}</strong>
+            <span class="m">{{ d.product?.name }} | {{ d.personalization?.type === 'IN_KHAC' ? 'In/Khắc' : 'Thiết kế' }}</span>
+            <span class="m">Lưu {{ d.createdAt | date: 'dd/MM/yyyy' }}</span>
+            @if (!d.product?.available) {
+              <span class="sp-badge sp-badge--out">Ngừng kinh doanh</span>
+            } @else if (!d.usable) {
+              <span class="sp-badge sp-badge--out">Không còn áp dụng</span>
+            } @else if (d.stickerGone) {
+              <span class="text-warning small fw-semibold">Một số sticker đã hết mùa</span>
+            }
+          </div>
+          <div class="sp-dcard__acts">
+            <button class="btn btn-primary btn-sm" type="button" [disabled]="!d.usable" (click)="reuse(d)">Dùng lại</button>
+            <button class="btn btn-link btn-sm text-danger" type="button" [attr.aria-label]="'Xóa thiết kế ' + d.name" (click)="confirmDelete.set(d)"><app-icon name="trash" [size]="18" /></button>
+          </div>
+        } @else {
+          <div class="sp-dcard__art sp-dcard__art--gift">
+            <img [src]="d.paper?.image || '/assets/brand/soulprint-mark.png'" alt="" />
+            <span class="sp-dcard__mats">
+              <img [src]="d.ribbon?.image" alt="" />
+              <img [src]="d.card?.image" alt="" />
+            </span>
+          </div>
+          <div class="sp-dcard__body">
+            <strong>{{ d.name }}</strong>
+            <span class="m">{{ d.paper?.name }}, {{ d.ribbon?.name }}, {{ d.card?.name }}</span>
+            <span class="m">{{ d.message ? '“' + d.message + '”' : 'Không có lời nhắn' }} | Lưu {{ d.createdAt | date: 'dd/MM/yyyy' }}</span>
+            @if (d.available === false) {
+              <span class="sp-badge sp-badge--out">Tạm hết vật liệu</span>
+            }
+          </div>
+          <div class="sp-dcard__acts">
+            <button class="btn btn-primary btn-sm" type="button" [disabled]="busy() || d.available === false" (click)="applyGift(d)">Áp dụng</button>
+            <button class="btn btn-outline-primary btn-sm" type="button" (click)="editing.set(d)">Chỉnh sửa</button>
+            <button class="btn btn-link btn-sm text-danger" type="button" [attr.aria-label]="'Xóa mẫu ' + d.name" (click)="confirmDelete.set(d)"><app-icon name="trash" [size]="18" /></button>
+          </div>
+        }
+      </article>
+    }
+  </div>
+}
+
+@if (editing(); as d) {
+  <app-gift-dialog mode="edit" [editDesign]="d" (saved)="onSaved($event)" (closed)="editing.set(null)" />
+}
+
+@if (confirmDelete(); as d) {
+  <app-dialog title="Xóa thiết kế" size="sm" (closed)="confirmDelete.set(null)">
+    <p class="m-0">Bạn có chắc chắn muốn xóa thiết kế này? Bạn không thể lấy lại sau khi xóa</p>
+    <p class="m-0 text-body-secondary small">{{ d.name }}</p>
+    <div dialog-footer class="d-flex gap-2 justify-content-end w-100">
+      <button class="btn btn-outline-secondary" type="button" (click)="confirmDelete.set(null)">Hủy</button>
+      <button class="btn btn-danger" type="button" [disabled]="busy()" (click)="remove(d)">Xóa</button>
+    </div>
+  </app-dialog>
+}

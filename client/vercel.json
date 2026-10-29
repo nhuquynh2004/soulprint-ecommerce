@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "angular",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/client/browser",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://project-soulprint-ecomwebsite.onrender.com/api/$1" },
+    { "source": "/images/(.*)", "destination": "https://project-soulprint-ecomwebsite.onrender.com/images/$1" },
+    { "source": "/data/(.*)", "destination": "https://project-soulprint-ecomwebsite.onrender.com/data/$1" },
+    { "source": "/dvhc/(.*)", "destination": "https://provinces.open-api.vn/api/v2/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

@@ -1,0 +1,99 @@
+// Lịch chọn ngày giao: ô 40px (Mobile vẫn đủ 7 cột ở 320px), ngày chọn nền primary, ngày sớm nhất viền accent
+.sp-cal {
+  max-width: 360px;
+  padding: var(--sp-space-3);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface);
+}
+
+.sp-cal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-space-2);
+
+  strong {
+    font-size: 15px;
+  }
+}
+
+.sp-cal__nav {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--sp-color-text);
+
+  &:hover:not(:disabled) {
+    background: var(--sp-color-primary-subtle);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+  }
+}
+
+.sp-cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.sp-cal__dow {
+  padding: 4px 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sp-color-text-muted);
+}
+
+.sp-cal__day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0;
+  border: 1.5px solid transparent;
+  border-radius: var(--sp-radius-md);
+  background: none;
+  color: var(--sp-color-text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.1;
+
+  small {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--sp-color-success);
+  }
+
+  &:hover:not(:disabled):not(.is-on) {
+    background: var(--sp-color-primary-subtle);
+  }
+
+  &:disabled {
+    color: var(--sp-color-text-subtle);
+    opacity: 0.45;
+    text-decoration: line-through;
+  }
+
+  &.is-today:not(.is-on) {
+    border-color: var(--sp-color-border-strong);
+  }
+
+  &.is-marked:not(.is-on) {
+    border-color: var(--sp-color-success);
+  }
+
+  &.is-on {
+    background: var(--sp-color-primary);
+    color: var(--sp-color-on-primary);
+    font-weight: 700;
+  }
+}

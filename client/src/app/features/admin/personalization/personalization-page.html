@@ -1,0 +1,496 @@
+<header class="sp-aph">
+  <div>
+    <h1>Cá nhân hóa và gói quà</h1>
+    <p>Sticker, mẫu gói quà và vật liệu</p>
+  </div>
+  @if (canAdd()) {
+    <button class="btn btn-primary d-inline-flex align-items-center gap-2" type="button" (click)="addNew()">
+      <app-icon name="plus" [size]="20" /> {{ tab() === 'STICKER' ? 'Thêm nhóm sticker' : tab() === 'GOI_QUA' ? 'Thêm mẫu gói quà' : 'Thêm vật liệu' }}
+    </button>
+  }
+</header>
+
+<div class="sp-tabs2 mb-3" role="tablist" aria-label="Cá nhân hóa và gói quà">
+  <button type="button" role="tab" [class.is-on]="tab() === 'STICKER'" [attr.aria-selected]="tab() === 'STICKER'" (click)="switchTab('STICKER')">
+    Bộ sticker <span class="sp-count">{{ tabCount('STICKER') }}</span>
+  </button>
+  <button type="button" role="tab" [class.is-on]="tab() === 'GOI_QUA'" [attr.aria-selected]="tab() === 'GOI_QUA'" (click)="switchTab('GOI_QUA')">
+    Mẫu gói quà <span class="sp-count">{{ tabCount('GOI_QUA') }}</span>
+  </button>
+  <button type="button" role="tab" [class.is-on]="tab() === 'VAT_LIEU'" [attr.aria-selected]="tab() === 'VAT_LIEU'" (click)="switchTab('VAT_LIEU')">
+    Vật liệu <span class="sp-count">{{ tabCount('VAT_LIEU') }}</span>
+  </button>
+</div>
+
+<!-- Thanh công cụ: ô chọn tổng, tìm, Bộ lọc, Sắp xếp; có mục được chọn thì thanh thao tác thay chỗ (1b) -->
+@if (selectedCount() && bulkActions().length) {
+  <app-bulk-bar class="d-block mb-3" [count]="selectedCount()" unit="mục" [actions]="bulkActions()" [busy]="busy()" (action)="onBulk($event)" (cleared)="clearSelection()" />
+} @else {
+  <div class="sp-atools">
+    @if (bulkActions().length) {
+      <input class="form-check-input sp-pp__all" type="checkbox" aria-label="Chọn tất cả" [checked]="allChecked()" [indeterminate]="someChecked()" (change)="toggleAll()" />
+    }
+    <div class="sp-field__icon flex-grow-1">
+      <app-icon name="search" [size]="18" />
+      <input
+        class="form-control"
+        type="search"
+        [placeholder]="tab() === 'VAT_LIEU' ? 'Tìm vật liệu theo tên, mã' : 'Tìm theo tên mẫu, nhóm'"
+        aria-label="Tìm kiếm"
+        [value]="q()"
+        (input)="q.set($any($event.target).value.trim())"
+      />
+    </div>
+    <button class="btn btn-outline-secondary d-inline-flex align-items-center gap-1" type="button" [attr.aria-expanded]="filterOpen()" (click)="filterOpen.set(!filterOpen())">
+      <app-icon name="filter" [size]="18" /> Bộ lọc{{ chips().length ? ' (' + chips().length + ')' : '' }}
+    </button>
+    <select class="form-select sp-atools__sel" aria-label="Sắp xếp" [value]="sortBy()" (change)="sortBy.set($any($event.target).value)">
+      <option value="ORDER">Thứ tự hiển thị</option>
+      <option value="NAME">Tên A-Z</option>
+    </select>
+  </div>
+}
+
+@if (filterOpen()) {
+  <div class="sp-pp__filters">
+    @if (tab() === 'VAT_LIEU') {
+      <label>
+        Tồn kho
+        <select class="form-select form-select-sm" [value]="fStock()" (change)="fStock.set($any($event.target).value)">
+          <option value="">Mọi mức tồn</option>
+          <option value="CON_HANG">Còn hàng</option>
+          <option value="SAP_HET">Sắp hết</option>
+          <option value="HET_HANG">Hết hàng</option>
+        </select>
+      </label>
+    } @else {
+      <label>
+        Loại
+        <select class="form-select form-select-sm" [value]="fKind()" (change)="fKind.set($any($event.target).value)">
+          <option value="">Mọi loại</option>
+          <option value="THUONG">{{ tab() === 'STICKER' ? 'Theo loại sản phẩm' : 'Mẫu thường' }}</option>
+          <option value="BST_MUA">Theo BST/mùa</option>
+        </select>
+      </label>
+      <label>
+        Trạng thái
+        <select class="form-select form-select-sm" [value]="fStatus()" (change)="fStatus.set($any($event.target).value)">
+          <option value="">Mọi trạng thái</option>
+          <option value="DANG_HIEN">Đang hiện</option>
+          <option value="DA_LEN_LICH">Chờ lịch</option>
+          <option value="HET_HAN">Hết hạn</option>
+          <option value="AN">Ẩn</option>
+          @if (tab() === 'GOI_QUA') {
+            <option value="TAM_HET">Tạm hết</option>
+          }
+        </select>
+      </label>
+    }
+  </div>
+}
+<app-filter-chips [chips]="chips()" (removed)="removeChip($event)" (clearedAll)="clearFilters()" />
+
+@if (loading()) {
+  <span class="sp-skel d-block" style="height: 360px"></span>
+} @else if (errMessage()) {
+  <div class="sp-state" role="alert">
+    <p>{{ errMessage() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Thử lại</button>
+  </div>
+} @else {
+  @switch (tab()) {
+    <!-- ===== Tab Bộ sticker ===== -->
+    @case ('STICKER') {
+      @if (!visibleSets().length) {
+        <div class="sp-state">
+          <p>{{ q() || chips().length ? 'Không có kết quả phù hợp.' : 'Chưa có bộ sticker nào.' }}</p>
+          @if (q() || chips().length) {
+            <button class="btn btn-link" type="button" (click)="clearFilters(); q.set('')">Xóa bộ lọc</button>
+          }
+        </div>
+      }
+      @for (s of visibleSets(); track s._id) {
+        <section
+          class="sp-accg"
+          [class.is-open]="isOpen(s._id)"
+          [class.is-dragover]="dragOver() === s._id"
+          [attr.draggable]="canReorder()"
+          (dragstart)="onDragStart('SETS', s._id, $event)"
+          (dragover)="onDragOver('SETS', s._id, $event)"
+          (drop)="onDrop('SETS', s._id, groupIds(visibleSets()), $event)"
+        >
+          <div class="sp-accg__head">
+            <button class="btn sp-accg__tg" type="button" [attr.aria-expanded]="isOpen(s._id)" [attr.aria-label]="(isOpen(s._id) ? 'Thu gọn nhóm ' : 'Mở nhóm ') + s.name" (click)="toggleOpen(s._id)">
+              <app-icon [name]="isOpen(s._id) ? 'chevron-down' : 'chevron-right'" [size]="18" />
+            </button>
+            @if (bulkActions().length) {
+              <input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn nhóm ' + s.name" [checked]="setState(s) === 'all'" [indeterminate]="setState(s) === 'some'" (change)="toggleSet(s)" />
+            }
+            <span class="sp-pp__scope">{{ s.kind === 'BST_MUA' ? 'Mùa' : 'Loại sản phẩm' }}</span>
+            <strong class="sp-accg__name">{{ s.kind === 'BST_MUA' ? s.seasonLabel : s.name }}</strong>
+            @if (s.badge) {
+              <span class="sp-badge" [class.sp-badge--hot]="s.badge === 'HOT'" [class.sp-badge--new]="s.badge === 'MOI'">{{ s.badge === 'HOT' ? 'Hot' : 'Mới' }}</span>
+            }
+            <span class="sp-accg__meta">Áp dụng: {{ s.productCount }} sản phẩm | {{ s.stickers.length }} sticker</span>
+            <span class="sp-accg__right">
+              <span class="sp-status" [class]="'sp-status sp-status--' + s.displayStatus">{{ STATUS[s.displayStatus] }}</span>
+              @if (canSticker().edit) {
+                <button class="btn btn-sm btn-link" type="button" (click)="setDialog.set({ set: s, duplicate: false })">Sửa nhóm</button>
+              }
+              <app-row-menu [items]="setMenu(s)" [label]="'Thao tác cho nhóm ' + s.name" (picked)="onSetMenu(s, $event)" />
+            </span>
+          </div>
+          @if (isOpen(s._id)) {
+            <div class="sp-table-wrap">
+              <table class="table sp-atable align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col" class="sp-cb"><span class="visually-hidden">Chọn</span></th>
+                    <th scope="col" style="width: 36px"><span class="visually-hidden">Kéo</span></th>
+                    <th scope="col" style="width: 56px">Ảnh</th>
+                    <th scope="col">Tên</th>
+                    <th scope="col">Mã</th>
+                    <th scope="col">Trạng thái</th>
+                    <th scope="col"><span class="visually-hidden">Thao tác</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (x of s.stickers; track x.code) {
+                    <tr
+                      [class.is-selected]="stickerChecked(s, x.code)"
+                      [class.is-dragover]="dragOver() === x.code"
+                      [attr.draggable]="canReorder()"
+                      (dragstart)="onDragStart('SET:' + s._id, x.code, $event)"
+                      (dragover)="onDragOver('SET:' + s._id, x.code, $event)"
+                      (drop)="onDrop('SET:' + s._id, x.code, codesOf(s), $event)"
+                    >
+                      <td class="sp-cb">
+                        @if (bulkActions().length) {
+                          <input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn ' + x.name" [checked]="stickerChecked(s, x.code)" (change)="toggleSticker(s, x.code)" />
+                        }
+                      </td>
+                      <td class="sp-grip" [class.is-off]="!canReorder()" title="Kéo để đổi thứ tự"><app-icon name="grip" [size]="18" /></td>
+                      <td><img class="sp-pp__thumb" [src]="x.image" alt="" /></td>
+                      <td>{{ x.name }}</td>
+                      <td><span class="sp-pp__mono">{{ x.code }}</span></td>
+                      <td>
+                        <span class="sp-status" [class]="'sp-status ' + (x.isActive ? 'sp-status--DANG_HIEN' : '')">{{ x.isActive ? 'Đang hiện' : 'Ẩn' }}</span>
+                      </td>
+                      <td class="text-end">
+                        @if (stickerMenu(x.isActive).length) {
+                          <app-row-menu [items]="stickerMenu(x.isActive)" [label]="'Thao tác cho ' + x.name" (picked)="onStickerMenu(x.code, $event)" />
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+      }
+      <p class="sp-pp__foot">
+        Phí mỗi sticker: {{ stickerFee() | vnd }} - đổi ở
+        @if (auth.currentUser()?.isFullAccess) {
+          <a routerLink="/quan-tri/cai-dat">Cài đặt cửa hàng</a>
+        } @else {
+          Cài đặt cửa hàng
+        }
+      </p>
+    }
+
+    <!-- ===== Tab Mẫu gói quà ===== -->
+    @case ('GOI_QUA') {
+      @if (!templateGroups().length) {
+        <div class="sp-state">
+          <p>{{ q() || chips().length ? 'Không có kết quả phù hợp.' : 'Chưa có mẫu gói quà nào.' }}</p>
+        </div>
+      }
+      @for (g of templateGroups(); track g.key) {
+        <section class="sp-accg" [class.is-open]="isOpen(g.key)">
+          <div class="sp-accg__head">
+            <button class="btn sp-accg__tg" type="button" [attr.aria-expanded]="isOpen(g.key)" [attr.aria-label]="(isOpen(g.key) ? 'Thu gọn nhóm ' : 'Mở nhóm ') + g.label" (click)="toggleOpen(g.key)">
+              <app-icon [name]="isOpen(g.key) ? 'chevron-down' : 'chevron-right'" [size]="18" />
+            </button>
+            @if (bulkActions().length) {
+              <input
+                class="form-check-input"
+                type="checkbox"
+                [attr.aria-label]="'Chọn nhóm ' + g.label"
+                [checked]="groupState(groupIds(g.items), selTpl) === 'all'"
+                [indeterminate]="groupState(groupIds(g.items), selTpl) === 'some'"
+                (change)="selTpl.togglePage(groupIds(g.items))"
+              />
+            }
+            <span class="sp-pp__scope">{{ g.kind === 'BST_MUA' ? 'Mùa' : 'Cơ bản' }}</span>
+            <strong class="sp-accg__name">{{ g.label }}</strong>
+            @if (g.badge) {
+              <span class="sp-badge" [class.sp-badge--hot]="g.badge === 'HOT'" [class.sp-badge--new]="g.badge === 'MOI'">{{ g.badge === 'HOT' ? 'Hot' : 'Mới' }}</span>
+            }
+            <span class="sp-accg__meta">{{ g.kind === 'BST_MUA' ? 'Toàn cửa hàng' : 'Mọi đơn hàng' }} | {{ g.items.length }} mẫu</span>
+            <span class="sp-accg__right">
+              @if (g.kind === 'BST_MUA') {
+                <span class="sp-status" [class]="'sp-status sp-status--' + g.items[0].displayStatus">{{ STATUS[g.items[0].displayStatus] }}</span>
+                @if (canSticker().edit) {
+                  <button class="btn btn-sm btn-link" type="button" (click)="editTemplateGroup(g)">Sửa nhóm</button>
+                }
+              }
+            </span>
+          </div>
+          @if (isOpen(g.key)) {
+            <div class="sp-table-wrap">
+              <table class="table sp-atable align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col" class="sp-cb"><span class="visually-hidden">Chọn</span></th>
+                    <th scope="col" style="width: 36px"><span class="visually-hidden">Kéo</span></th>
+                    <th scope="col" style="width: 56px">Ảnh</th>
+                    <th scope="col">Mẫu</th>
+                    <th scope="col">Mã</th>
+                    <th scope="col">Trạng thái</th>
+                    <th scope="col"><span class="visually-hidden">Thao tác</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (t of g.items; track t._id) {
+                    <tr
+                      [class.is-selected]="selTpl.has(t._id)"
+                      [class.is-dragover]="dragOver() === t._id"
+                      [attr.draggable]="canReorder()"
+                      (dragstart)="onDragStart('TPL:' + g.key, t._id, $event)"
+                      (dragover)="onDragOver('TPL:' + g.key, t._id, $event)"
+                      (drop)="onDrop('TPL:' + g.key, t._id, groupIds(g.items), $event)"
+                    >
+                      <td class="sp-cb">
+                        @if (bulkActions().length) {
+                          <input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn ' + t.name" [checked]="selTpl.has(t._id)" (change)="selTpl.toggle(t._id)" />
+                        }
+                      </td>
+                      <td class="sp-grip" [class.is-off]="!canReorder()" title="Kéo để đổi thứ tự"><app-icon name="grip" [size]="18" /></td>
+                      <td><img class="sp-pp__thumb" [src]="t.image || '/assets/brand/soulprint-mark.png'" alt="" /></td>
+                      <td>
+                        <strong>{{ t.name }}</strong>
+                        <small class="d-block text-body-secondary">{{ t.paper.name }}, {{ t.ribbon.name }}, {{ t.card.name }}</small>
+                      </td>
+                      <td><span class="sp-pp__mono">{{ t.code }}</span></td>
+                      <td>
+                        @if (t.outOfStock.length && t.isActive) {
+                          <span class="sp-status sp-status--HET_HAN">Tạm hết</span>
+                          <small class="d-block text-danger">Hết {{ t.outOfStock.join(', ') }}</small>
+                        } @else {
+                          <span class="sp-status" [class]="'sp-status sp-status--' + t.displayStatus">{{ STATUS[t.displayStatus] }}</span>
+                        }
+                      </td>
+                      <td class="text-end">
+                        @if (tplMenu(t).length) {
+                          <app-row-menu [items]="tplMenu(t)" [label]="'Thao tác cho ' + t.name" (picked)="onTplMenu(t, $event)" />
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+      }
+    }
+
+    <!-- ===== Tab Vật liệu ===== -->
+    @case ('VAT_LIEU') {
+      @if (!canMaterial() && !canStock()) {
+        <p class="sp-pp__foot mt-0">Bạn xem tab này ở chế độ chỉ đọc. Kho quản lý vật liệu, tồn kho và phiếu nhập.</p>
+      }
+      @for (g of materialGroups(); track g.kind) {
+        <section class="sp-accg" [class.is-open]="isOpen(g.kind)">
+          <div class="sp-accg__head">
+            <button class="btn sp-accg__tg" type="button" [attr.aria-expanded]="isOpen(g.kind)" [attr.aria-label]="(isOpen(g.kind) ? 'Thu gọn nhóm ' : 'Mở nhóm ') + g.label" (click)="toggleOpen(g.kind)">
+              <app-icon [name]="isOpen(g.kind) ? 'chevron-down' : 'chevron-right'" [size]="18" />
+            </button>
+            @if (bulkActions().length) {
+              <input
+                class="form-check-input"
+                type="checkbox"
+                [attr.aria-label]="'Chọn nhóm ' + g.label"
+                [checked]="groupState(groupIds(g.items), selMat) === 'all'"
+                [indeterminate]="groupState(groupIds(g.items), selMat) === 'some'"
+                (change)="selMat.togglePage(groupIds(g.items))"
+              />
+            }
+            <span class="sp-pp__scope">Nhóm</span>
+            <strong class="sp-accg__name">{{ g.label }}</strong>
+            <span class="sp-accg__meta">{{ g.items.length }} vật liệu</span>
+            <span class="sp-accg__right">
+              @if (canMaterial()) {
+                <button class="btn btn-sm btn-link" type="button" (click)="matDialog.set({ material: null, kind: g.kind })"><app-icon name="plus" [size]="16" /> Thêm</button>
+              }
+            </span>
+          </div>
+          @if (isOpen(g.kind)) {
+            <div class="sp-table-wrap">
+              <table class="table sp-atable align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col" class="sp-cb"><span class="visually-hidden">Chọn</span></th>
+                    <th scope="col" style="width: 36px"><span class="visually-hidden">Kéo</span></th>
+                    <th scope="col" style="width: 56px">Ảnh</th>
+                    <th scope="col">Tên</th>
+                    <th scope="col">Mã</th>
+                    <th scope="col" class="text-end">Có sẵn</th>
+                    <th scope="col" class="text-end">Đang giữ cho đơn</th>
+                    <th scope="col">Tồn kho</th>
+                    <th scope="col">Hiện</th>
+                    <th scope="col">Dùng trong</th>
+                    <th scope="col"><span class="visually-hidden">Thao tác</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (m of g.items; track m._id) {
+                    <tr
+                      [class.is-selected]="selMat.has(m._id)"
+                      [class.is-dragover]="dragOver() === m._id"
+                      [attr.draggable]="canReorder()"
+                      (dragstart)="onDragStart('MAT:' + g.kind, m._id, $event)"
+                      (dragover)="onDragOver('MAT:' + g.kind, m._id, $event)"
+                      (drop)="onDrop('MAT:' + g.kind, m._id, groupIds(g.items), $event)"
+                    >
+                      <td class="sp-cb">
+                        @if (bulkActions().length) {
+                          <input class="form-check-input" type="checkbox" [attr.aria-label]="'Chọn ' + m.name" [checked]="selMat.has(m._id)" (change)="selMat.toggle(m._id)" />
+                        }
+                      </td>
+                      <td class="sp-grip" [class.is-off]="!canReorder()" title="Kéo để đổi thứ tự"><app-icon name="grip" [size]="18" /></td>
+                      <td><img class="sp-pp__thumb" [src]="m.image || '/assets/brand/soulprint-mark.png'" alt="" /></td>
+                      <td>
+                        <button class="btn btn-link p-0 text-start fw-semibold" type="button" (click)="openDrawer(m)">{{ m.name }}</button>
+                        @if (m.description) {
+                          <small class="d-block text-body-secondary">{{ m.description }}</small>
+                        }
+                      </td>
+                      <td><span class="sp-pp__mono">{{ m.code }}</span></td>
+                      <td class="text-end fw-semibold">{{ m.stock }} <small class="text-body-secondary">{{ m.unit }}</small></td>
+                      <td class="text-end">{{ m.committed }}</td>
+                      <td><span class="sp-stock" [class]="'sp-stock sp-stock--' + m.stockStatus">{{ STOCK[m.stockStatus] }}</span></td>
+                      <td>
+                        <div class="form-check form-switch m-0">
+                          <input class="form-check-input" type="checkbox" role="switch" [checked]="m.isActive" [disabled]="!canMaterial() || busy()" [attr.aria-label]="'Hiện ' + m.name" (change)="toggleMaterial(m)" />
+                        </div>
+                      </td>
+                      <td>{{ m.templateCount }} mẫu</td>
+                      <td class="text-end">
+                        <app-row-menu [items]="matMenu(m)" [label]="'Thao tác cho ' + m.name" (picked)="onMatMenu(m, $event)" />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+      }
+    }
+  }
+}
+
+<!-- Ngăn bên chi tiết vật liệu (1e) -->
+@if (drawer(); as m) {
+  <div class="sp-pp__scrim" (click)="drawer.set(null)"></div>
+  <aside class="sp-pp__drawer" [attr.aria-label]="'Chi tiết vật liệu ' + m.name">
+    <div class="sp-pp__dhead">
+      <div>
+        <h2 class="h4 m-0">{{ m.name }}</h2>
+        <span class="text-body-secondary small">{{ m.code }} | {{ KIND_LABEL[m.kind] }}</span>
+      </div>
+      <button class="btn" type="button" aria-label="Đóng" (click)="drawer.set(null)"><app-icon name="close" /></button>
+    </div>
+    <div class="sp-pp__dbody">
+      <div class="sp-pp__stats">
+        <div><span>Có sẵn</span><strong>{{ m.stock }} {{ m.unit }}</strong></div>
+        @if (m.avgCost !== undefined) {
+          <div><span>Giá vốn bình quân</span><strong>{{ m.avgCost | vnd }}</strong></div>
+        }
+        @if (history(); as h) {
+          <div><span>Số đơn dùng 30 ngày</span><strong>{{ h.summary?.ordersLast30Days ?? 0 }}</strong></div>
+        }
+      </div>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="sp-stock" [class]="'sp-stock sp-stock--' + m.stockStatus">{{ STOCK[m.stockStatus] }}</span>
+        <span class="small text-body-secondary">Ngưỡng sắp hết: {{ m.lowStockThreshold }} {{ m.unit }} | đang giữ {{ m.committed }} {{ m.unit }} cho đơn | dùng trong {{ m.templateCount }} mẫu</span>
+      </div>
+      @if (canStock()) {
+        <h3 class="h6 mt-2 mb-0">Lịch sử nhập xuất</h3>
+        @if (!history()) {
+          <span class="sp-skel d-block" style="height: 120px"></span>
+        } @else if (!history()!.items.length) {
+          <p class="small text-body-secondary m-0">Chưa có lịch sử nhập xuất.</p>
+        } @else {
+          <ul class="sp-pp__hist">
+            @for (h of history()!.items; track h._id) {
+              <li>
+                <span class="sp-badge" [class.sp-badge--new]="h.type === 'NHAP' || h.type === 'HOAN_DON'">{{ movementLabel(h.type) }}</span>
+                <span>
+                  <strong>{{ h.quantity > 0 ? '+' : '' }}{{ h.quantity }} {{ m.unit }}</strong> → còn {{ h.stockAfter }}
+                  <small class="d-block text-body-secondary">
+                    {{ h.createdAt | date: 'dd/MM HH:mm' }}
+                    @if (h.receiptCode) {
+                      | Phiếu {{ h.receiptCode }}{{ h.unitCost !== null && h.unitCost !== undefined ? ' | ' + (h.unitCost | vnd) + '/' + m.unit : '' }}{{ h.supplier ? ' | ' + h.supplier : '' }}
+                    }
+                    @if (h.orderCode) {
+                      | Đơn {{ h.orderCode }}
+                    }
+                    @if (h.reason) {
+                      | {{ reasonLabel(h.reason) }}{{ h.note ? ': ' + h.note : '' }}
+                    }
+                  </small>
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      }
+    </div>
+    @if (canStock()) {
+      <div class="sp-pp__dfoot">
+        <button class="btn btn-outline-secondary" type="button" (click)="stockDialog.set({ type: 'DIEU_CHINH', ids: [m._id] })">Điều chỉnh tồn</button>
+        <button class="btn btn-primary" type="button" (click)="stockDialog.set({ type: 'NHAP', ids: [m._id] })">Tạo phiếu nhập</button>
+      </div>
+    }
+  </aside>
+}
+
+@if (setDialog(); as d) {
+  <app-sticker-set-dialog [set]="d.set" [duplicate]="d.duplicate" [categories]="categories()" [collections]="collections()" [stickerFee]="stickerFee()" (done)="onDialogDone($event, 'setDialog')" />
+}
+@if (tplDialog(); as d) {
+  <app-gift-template-dialog [template]="d.template" [duplicate]="d.duplicate" [materials]="materials()" (done)="onDialogDone($event, 'tplDialog')" />
+}
+@if (matDialog(); as d) {
+  <app-material-dialog [material]="d.material" [defaultKind]="d.kind" (done)="onDialogDone($event, 'matDialog')" />
+}
+@if (stockDialog(); as d) {
+  <app-stock-movement-dialog [type]="d.type" [materials]="materials()" [preselected]="d.ids" (done)="onStockDone($event)" />
+}
+@if (seasonDialog(); as d) {
+  <app-season-dialog
+    [withLabel]="d.mode === 'SET_SEASON'"
+    [initial]="d.initial"
+    [note]="d.mode === 'SET_SEASON' ? 'Áp dụng cho ' + d.ids.length + ' mẫu trong nhóm' : 'Áp dụng cho ' + d.ids.length + ' mục đã chọn; mục loại thường được bỏ qua'"
+    [busy]="busy()"
+    [error]="seasonError()"
+    (saved)="onSeasonSaved($event)"
+    (cancel)="seasonDialog.set(null)"
+  />
+}
+@if (thresholdDialog(); as ids) {
+  <app-dialog title="Đặt ngưỡng sắp hết" size="sm" (closed)="thresholdDialog.set(null)">
+    <label class="form-label" for="pp-th">Ngưỡng cho {{ ids.length }} vật liệu</label>
+    <input id="pp-th" class="form-control" type="number" min="0" [value]="threshold()" (input)="threshold.set($any($event.target).value)" />
+    <div dialog-footer class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-secondary" type="button" (click)="thresholdDialog.set(null)">Hủy</button>
+      <button class="btn btn-primary" type="button" [disabled]="threshold() < 0" (click)="saveThreshold()">Lưu</button>
+    </div>
+  </app-dialog>
+}
+@if (confirm(); as c) {
+  <app-confirm-dialog [title]="c.title" [message]="c.message" confirmLabel="Xóa" [danger]="true" [busy]="busy()" (confirm)="runConfirm()" (cancel)="confirm.set(null)" />
+}

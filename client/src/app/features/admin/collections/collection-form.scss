@@ -1,0 +1,170 @@
+// SCR-54 Form - bám SCR-54-Desktop-Form (khung form dùng chung ở styles/_components.scss)
+
+.sp-cf-info {
+  display: flex;
+  gap: var(--sp-space-4);
+
+  @media (max-width: 575.98px) {
+    flex-direction: column;
+  }
+}
+
+.sp-cf-cover {
+  flex: none;
+  width: 160px;
+}
+
+.sp-rules {
+  padding: var(--sp-space-3);
+  margin-bottom: var(--sp-space-3);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+}
+
+.sp-rule {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) auto;
+  gap: var(--sp-space-2);
+  margin-bottom: var(--sp-space-2);
+
+  @media (max-width: 575.98px) {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+.sp-rule__x {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px;
+}
+
+.sp-rules__count {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  margin-top: var(--sp-space-2);
+  padding: var(--sp-space-3);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-info-subtle);
+  color: var(--sp-color-info);
+  font-weight: 600;
+}
+
+.sp-pick {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 20;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-lg);
+  background: var(--sp-color-surface);
+  box-shadow: var(--sp-shadow-lg);
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-space-2);
+    width: 100%;
+    padding: 8px;
+    border: 0;
+    border-radius: var(--sp-radius-md);
+    background: none;
+    color: var(--sp-color-text);
+
+    &:hover {
+      background: var(--sp-color-primary-subtle);
+    }
+
+    img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+  }
+}
+
+.sp-pgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--sp-space-2);
+
+  .sp-pitem {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sp-pitem img,
+  .sp-pitem .sp-pitem__ph {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    height: auto;
+  }
+}
+
+.sp-plist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sp-pitem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-space-2);
+  padding: var(--sp-space-2);
+  border: 1px solid var(--sp-color-border);
+  border-radius: var(--sp-radius-md);
+  background: var(--sp-color-surface);
+
+  &[draggable="true"] {
+    cursor: grab;
+  }
+
+  img,
+  .sp-pitem__ph {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    background: var(--sp-color-surface-alt);
+    color: var(--sp-color-text-muted);
+    object-fit: cover;
+  }
+}
+
+.sp-pitem__txt {
+  min-width: 0;
+  flex: 1;
+
+  strong,
+  small {
+    display: block;
+  }
+
+  strong {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  small {
+    color: var(--sp-color-text-muted);
+  }
+}
+
+.sp-pitem__x {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 50%;
+  background: var(--sp-color-surface);
+}

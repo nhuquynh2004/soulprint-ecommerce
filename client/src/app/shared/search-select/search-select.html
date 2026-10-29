@@ -1,0 +1,39 @@
+<div class="sp-ss" [class.is-open]="open()">
+  <input
+    class="form-select"
+    type="text"
+    role="combobox"
+    autocomplete="off"
+    aria-autocomplete="list"
+    [id]="inputId || null"
+    [attr.aria-label]="ariaLabel || null"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="listId"
+    [attr.aria-activedescendant]="open() && results().length ? listId + '-' + active() : null"
+    [class.is-invalid]="invalid"
+    [placeholder]="loading ? 'Đang tải...' : placeholder"
+    [disabled]="disabled || (!hasOptions && !text)"
+    [value]="text"
+    (focus)="show()"
+    (click)="show()"
+    (input)="onInput($any($event.target).value)"
+    (keydown)="onKey($event)"
+  />
+  @if (open()) {
+    <ul class="sp-ss__list" role="listbox" [id]="listId">
+      @for (o of results(); track o.value; let i = $index) {
+        <li
+          role="option"
+          [id]="listId + '-' + i"
+          [class.is-active]="i === active()"
+          [attr.aria-selected]="o.label === text"
+          (pointerdown)="onItemDown($event, o)"
+          (click)="pick(o)"
+          (pointerenter)="active.set(i)"
+        >{{ o.label }}</li>
+      } @empty {
+        <li class="sp-ss__empty">Không tìm thấy "{{ text }}"</li>
+      }
+    </ul>
+  }
+</div>
