@@ -1,46 +1,47 @@
 # Soulprint - "The Blueprint of Your Heart"
 
-Website thương mại điện tử B2C bán quà tặng cá nhân hóa cho nam giới yêu thích Thể thao, Anime và Game. Khách tìm quà theo 6 danh mục nhu cầu và 3 trục đam mê, cá nhân hóa sản phẩm bằng In/Khắc hoặc thiết kế sticker có xem trước, đặt hàng không cần tài khoản, thanh toán khi nhận hàng hoặc thanh toán online có đặt cọc, và nhận gợi ý quà từ mô hình Logistic Regression dựa trên thông tin của từng lần tặng.
+Soulprint là website thương mại điện tử B2C bán quà tặng cá nhân hóa cho nam giới thích thể thao, anime và game. Khách tìm quà theo 6 danh mục nhu cầu và 3 trục đam mê, in/khắc chữ hoặc chọn sticker lên sản phẩm và xem trước trước khi đặt. Khách đặt hàng được mà không cần tài khoản, trả tiền khi nhận hàng hoặc trả online (hàng cá nhân hóa phải đặt cọc). Mục Tư vấn quà dùng mô hình hồi quy Logistic để xếp hạng sản phẩm theo người nhận, dịp tặng, sở thích và ngân sách của từng lần tặng.
 
-Đồ án nhóm học phần **BIE5061 - Phát triển Web kinh doanh nâng cao**, Khoa Hệ thống thông tin, Trường Đại học Kinh tế - Luật, ĐHQG-HCM.
+Đồ án nhóm 09, học phần Phát triển Web kinh doanh nâng cao (261BIE503102), giảng viên hướng dẫn TS. Trần Duy Thanh, Khoa Hệ thống thông tin, Trường Đại học Kinh tế - Luật, ĐHQG-HCM.
 
-| | |
+| Nội dung | Liên kết |
 |---|---|
 | Website | https://soulprint-shop.vercel.app |
-| Trang quản trị | https://soulprint-shop.vercel.app/quan-tri |
-| RESTful API | https://project-soulprint-ecomwebsite.onrender.com/api/health |
+| Trang nhân viên | https://soulprint-shop.vercel.app/quan-tri |
+| RESTful API (kiểm tra trạng thái) | https://project-soulprint-ecomwebsite.onrender.com/api/health |
+| Thiết kế giao diện (Figma) | https://www.figma.com/design/7wacD6Nn4VbIAjtzGFvKgX/Web2_UI |
 
-Máy chủ API chạy gói miễn phí của Render, tự ngủ khi không có truy cập: lần mở đầu tiên có thể mất khoảng 1 phút.
+Server chạy trên gói miễn phí của Render và tự tắt khi không có ai truy cập, nên lần mở đầu tiên có thể mất khoảng 1 phút.
 
 ## Chức năng chính
 
-**Phía khách hàng**
+### Khách hàng
 
-- Khám phá sản phẩm theo danh mục, trục đam mê, bộ sưu tập; tìm kiếm không dấu; bộ lọc theo tag, giá, độ tuổi, đánh giá.
-- Tư vấn chọn quà: khảo sát người nhận, dịp, sở thích, ngân sách; mô hình gợi ý xếp hạng sản phẩm và combo.
-- Cá nhân hóa: In/Khắc (chế độ Thường hoặc Áo đấu), thiết kế sticker kèm lời nhắn, gói quà theo mẫu hoặc tự chọn vật liệu.
-- Giỏ hàng cho khách vãng lai và thành viên (tự gộp khi đăng nhập), voucher, đặt hàng COD hoặc thanh toán online qua cổng giả lập, đặt cọc cho hàng cá nhân hóa, đặt gấp.
-- Theo dõi đơn, tra cứu đơn bằng mã xác minh, tự sửa thông tin giao hàng trước khi xác nhận, hủy đơn, nhận lại hàng, đổi trả, bảo hành, đánh giá.
-- Tài khoản: đăng ký, đăng nhập bằng mật khẩu hoặc Google, quên mật khẩu bằng mã 6 số, sổ địa chỉ, tài khoản nhận tiền hoàn, kho voucher.
-- Chat với chatbot "Sâu Béo" và nhân viên chăm sóc khách hàng.
+- Xem sản phẩm theo danh mục, trục đam mê, bộ sưu tập. Tìm kiếm gõ không dấu vẫn ra kết quả, lọc theo tag, giá, độ tuổi, đánh giá.
+- Tư vấn quà: khách trả lời vài câu về người nhận, dịp, sở thích, ngân sách; hệ thống gợi ý sản phẩm và combo kèm lý do.
+- Cá nhân hóa: In/Khắc (chế độ Thường hoặc Áo đấu), chọn 1 đến 3 sticker kèm lời nhắn, gói quà theo mẫu hoặc tự chọn vật liệu.
+- Giỏ hàng dùng được khi chưa đăng nhập và tự gộp khi đăng nhập. Áp voucher, trả COD hoặc online qua cổng thanh toán giả lập, đặt cọc cho hàng cá nhân hóa, đặt gấp.
+- Theo dõi đơn, tra cứu đơn bằng mã xác minh, sửa thông tin giao hàng khi đơn chưa được xác nhận, hủy đơn, nhận lại hàng, đổi trả, bảo hành, đánh giá.
+- Tài khoản: đăng ký, đăng nhập bằng mật khẩu hoặc Google, lấy lại mật khẩu bằng mã 6 số, sổ địa chỉ, tài khoản nhận tiền hoàn, kho voucher.
+- Chat với chatbot "Sâu Béo" hoặc với nhân viên chăm sóc khách hàng.
 
-**Phía quản trị**
+### Nhân viên
 
-- Bảng điều khiển việc cần làm theo mức ưu tiên, báo cáo doanh thu, sản phẩm, khách hàng, voucher.
+- Bảng việc cần làm xếp theo mức ưu tiên; báo cáo doanh thu, sản phẩm, khách hàng, voucher.
 - Quản lý sản phẩm, biến thể, tồn kho, danh mục, tag, bộ sưu tập, trang chủ, sticker, gói quà, voucher, chính sách.
-- Xử lý đơn theo State Machine: xác nhận, cá nhân hóa, đóng gói, giao, ngoại lệ (sửa sản phẩm, đổi kiểu nhận, hoàn tiền, hủy), đơn nháp, đơn gấp, hàng lưu kho.
-- Hậu mãi: hoàn tiền, đổi trả, bảo hành; chăm sóc khách hàng theo hội thoại, nhãn tự gắn, nhắc trả lời.
-- Nhân viên, vai trò và 60 quyền chi tiết; ngoại lệ đặc biệt cần duyệt.
+- Xử lý đơn theo State Machine: xác nhận, cá nhân hóa, đóng gói, giao hàng. Ngoại lệ gồm sửa sản phẩm, đổi kiểu nhận, hoàn tiền, hủy; có thêm đơn nháp, đơn gấp, hàng lưu kho.
+- Hậu mãi (hoàn tiền, đổi trả, bảo hành) và chăm sóc khách hàng theo hội thoại, có nhãn tự gắn và nhắc trả lời.
+- Quản lý nhân viên, vai trò và 60 quyền chi tiết. Ngoại lệ ảnh hưởng đến tiền cần quyền đặc biệt; nhân viên không có quyền thì gửi Quản trị duyệt.
 
 ## Công nghệ
 
 | Tầng | Công nghệ |
 |---|---|
 | Client | Angular 22 (NgModule, routing, lazy loading), Bootstrap 5.3 + SCSS, giao diện Sáng/Tối, responsive |
-| Server | Node.js 22+ và Express 5 theo mô hình MVC, RESTful API tiền tố `/api` |
+| Server | Node.js và Express 5 theo mô hình MVC, RESTful API tiền tố `/api` |
 | Cơ sở dữ liệu | MongoDB Atlas, driver `mongodb` (MongoClient) |
 | Xác thực | `express-session` + cookie HttpOnly, phiên lưu trong MongoDB (`connect-mongo`), mật khẩu băm bằng `crypto.scrypt` |
-| Học máy | Logistic Regression viết bằng JavaScript thuần (`server/ml/`), huấn luyện offline, hệ số lưu ở `server/ml/model.json` |
+| Học máy | Hồi quy Logistic viết bằng JavaScript thuần (`server/ml/`), huấn luyện offline, hệ số lưu ở `server/ml/model.json` |
 | Triển khai | Vercel (client), Render (server), MongoDB Atlas |
 
 ## Cấu trúc thư mục
@@ -63,10 +64,11 @@ Máy chủ API chạy gói miễn phí của Render, tự ngủ khi không có t
 │   ├── controllers/          Nhận request, kiểm tra đầu vào, trả response
 │   ├── services/             Nghiệp vụ (đơn hàng, thanh toán, gợi ý, chat...) và adapter dịch vụ ngoài
 │   ├── middlewares/          Nạp phiên, kiểm tra quyền
+│   ├── utils/                Băm mật khẩu, kiểm tra dữ liệu, xử lý chữ tiếng Việt
 │   ├── ml/                   Mô hình gợi ý: sinh dữ liệu, huấn luyện, đánh giá
 │   ├── scripts/              Seed, dataset demo, nhập ảnh, migrations
 │   ├── tests/                Unit test (node:test) và Postman collection
-│   └── public/images/        Ảnh mẫu dùng khi seed
+│   └── public/               Ảnh giữ chỗ SVG, dữ liệu địa giới hành chính
 └── data/
     ├── seed/                 Dữ liệu mẫu JSON (danh mục, sản phẩm, voucher, tài khoản demo...)
     └── images/               Ảnh thật của sản phẩm, banner, danh mục, bộ sưu tập, gói quà, sticker
@@ -74,70 +76,70 @@ Máy chủ API chạy gói miễn phí của Render, tự ngủ khi không có t
 
 ## Chạy ở máy
 
-Yêu cầu: Node.js 22.22 trở lên, một cụm MongoDB Atlas (gói M0 miễn phí là đủ) hoặc MongoDB chạy ở máy.
+Cần Node.js 22.22.3 trở lên và một cụm MongoDB Atlas (gói M0 miễn phí là đủ) hoặc MongoDB cài trên máy.
 
-**1. Cài đặt**
+### 1. Cài đặt
 
 ```bash
-git clone <địa chỉ repo này>
+git clone https://github.com/nhuquynh2004/soulprint-ecommerce.git
 cd soulprint-ecommerce
 cd server && npm install
 cd ../client && npm install
 ```
 
-**2. Cấu hình server**
+### 2. Cấu hình server
 
-Chép `server/.env.example` thành `server/.env` rồi điền:
+Chép `server/.env.example` thành `server/.env` rồi điền các biến sau:
 
 | Biến | Ý nghĩa |
 |---|---|
-| `MONGODB_URI` | Chuỗi kết nối Atlas (Atlas > Database > Connect > Drivers). Ở Network Access cho phép IP của máy |
+| `MONGODB_URI` | Chuỗi kết nối Atlas (Atlas > Database > Connect > Drivers). Ở Network Access, cho phép IP của máy |
 | `MONGODB_DB` | Tên CSDL, mặc định `soulprint` |
 | `SESSION_SECRET` | Chuỗi ngẫu nhiên dài, tạo bằng `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
 | `CLIENT_ORIGIN` | `http://localhost:4200` |
-| `DEMO_MODE` | `true` để mã OTP và liên kết kích hoạt hiện ngay trên màn hình (không gửi email thật) |
-| `GOOGLE_*` | Tùy chọn, đăng nhập Google; bỏ trống thì nút Google báo tạm ngưng |
+| `DEMO_MODE` | `true` thì mã OTP và liên kết kích hoạt hiện ngay trên màn hình, không gửi email thật |
+| `GOOGLE_*` | Không bắt buộc, dùng cho đăng nhập Google. Để trống thì nút Google báo tạm ngưng |
 
-Nếu gặp lỗi `querySrv ECONNREFUSED` hoặc `ETIMEOUT` trên Windows, thêm `DNS_SERVERS=8.8.8.8,1.1.1.1` (hoặc DNS của mạng đang dùng).
+Trên Windows, nếu gặp lỗi `querySrv ECONNREFUSED` hoặc `ETIMEOUT`, thêm `DNS_SERVERS=8.8.8.8,1.1.1.1` (hoặc DNS của mạng đang dùng).
 
-**3. Nạp dữ liệu**
+### 3. Nạp dữ liệu
 
 ```bash
 cd server
-npm run seed            # dữ liệu mẫu gọn: 36 sản phẩm, tài khoản demo bên dưới
+npm run seed            # dữ liệu mẫu gọn: 36 sản phẩm và các tài khoản demo bên dưới
 # hoặc
-npm run seed:dataset    # dữ liệu 1,5 năm: 60 sản phẩm, khoảng 1.800 đơn, dùng cho báo cáo và mô hình gợi ý
+npm run seed:dataset    # dữ liệu 1,5 năm (04/2025 - 10/2026): 60 sản phẩm, 1.815 đơn, dùng cho báo cáo và mô hình gợi ý
 ```
 
-Cả hai lệnh **xóa toàn bộ CSDL** trong `MONGODB_DB` rồi nạp lại, với ảnh giữ chỗ dạng SVG. Để dùng ảnh thật, chạy tiếp:
+Cả hai lệnh đều **xóa toàn bộ CSDL** `MONGODB_DB` rồi nạp lại, sản phẩm dùng ảnh giữ chỗ SVG. Muốn có ảnh thật thì chạy thêm:
 
 ```bash
 npm run seed:images     # nạp 173 ảnh trong data/images vào MongoDB (collection files), thay ảnh giữ chỗ
 ```
 
-Seed lại thì chạy lại lệnh này.
+Mỗi lần seed lại phải chạy lại lệnh này.
 
-**4. Chạy**
+### 4. Chạy
 
 ```bash
 cd server && npm start      # API ở http://localhost:3000 (nodemon)
 cd client && npm start      # Website ở http://localhost:4200
 ```
 
-Khu quản trị: http://localhost:4200/quan-tri
+Trang nhân viên ở http://localhost:4200/quan-tri.
 
 ## Tài khoản demo (sau `npm run seed`)
 
 | Vai trò | Đăng nhập | Mật khẩu |
 |---|---|---|
 | Quản trị | `admin@soulprint.vn` | `Admin@123` |
-| Nhân viên bán hàng | `ngoclan@soulprint.vn` | `Staff@123` |
+| Bán hàng | `ngoclan@soulprint.vn` | `Staff@123` |
 | Bán hàng + Kho | `quochuy@soulprint.vn` | `Staff@123` |
-| Kho (có quyền riêng) | `minhkhoa@soulprint.vn` | `Staff@123` |
+| Kho, có cấp thêm quyền riêng | `minhkhoa@soulprint.vn` | `Staff@123` |
 | Khách thành viên | `minhanh@example.com` hoặc `0901234567` | `Member@123` |
 | Khách thành viên | `quocbao@example.com` hoặc `0912345678` | `Member@123` |
 
-Thanh toán online dùng cổng giả lập nội bộ: trang cổng có nút Thành công, Thất bại, Hủy để thử từng trường hợp.
+Thanh toán online đi qua cổng giả lập nội bộ. Trang cổng có ba nút Thành công, Thất bại, Hủy để thử từng trường hợp.
 
 ## Kiểm thử
 
@@ -147,7 +149,7 @@ cd client && npm test                 # 76 unit test phía client
 cd client && npm run build            # build production
 ```
 
-Kiểm thử API bằng Postman: import `server/tests/postman/soulprint.postman_collection.json`, chạy server trên CSDL vừa `npm run seed`, rồi chạy cả collection (biến `baseUrl` mặc định `http://localhost:3000`). Bằng Postman CLI:
+Kiểm thử API bằng Postman: seed lại CSDL bằng `npm run seed`, chạy server, import `server/tests/postman/soulprint.postman_collection.json` rồi chạy cả collection. Biến `baseUrl` mặc định là `http://localhost:3000`. Nếu dùng Postman CLI:
 
 ```bash
 postman collection run server/tests/postman/soulprint.postman_collection.json
@@ -161,20 +163,22 @@ npm run train       # sinh dữ liệu giả lập, chia train/test 80/20, huấ
 npm run evaluate    # accuracy, precision, recall, F1 trên tập test; Precision@5 trên 30 kịch bản, so với cosine trên tag
 ```
 
-Kết quả hiện tại: accuracy 0,8678, F1 0,7262; Precision@5 0,7733 so với 0,7000 của phương án cosine. Thiếu `model.json` thì hệ thống tự dùng phương án cosine.
+Trên tập test, mô hình đạt accuracy 0,8678 và F1 0,7262. Precision@5 là 0,7733, cao hơn 0,7000 của cách so khớp cosine trên tag. Nếu không có `model.json`, hệ thống dùng cosine để gợi ý.
 
 ## Triển khai
 
-- **Server (Render)**: Web Service, Root Directory `server`, Build `npm install`, Start `npm run prod`; biến môi trường như `.env` với `NODE_ENV=production`, `CLIENT_ORIGIN` là địa chỉ Vercel.
-- **Client (Vercel)**: Root Directory `client`, framework Angular; `vercel.json` chuyển tiếp `/api`, `/images`, `/data` sang Render nên trình duyệt chỉ làm việc với một tên miền và cookie phiên hoạt động như ở máy.
-- **MongoDB Atlas**: Network Access cho phép `0.0.0.0/0` để Render kết nối được.
+Server deploy lên Render dạng Web Service: Root Directory `server`, Build `npm install`, Start `npm run prod`. Biến môi trường giống `.env`, thêm `NODE_ENV=production`, còn `CLIENT_ORIGIN` là địa chỉ Vercel.
+
+Client deploy lên Vercel: Root Directory `client`, framework Angular. `vercel.json` chuyển tiếp `/api`, `/images`, `/data` sang Render, nên trình duyệt chỉ làm việc với một tên miền và cookie phiên chạy giống như ở máy.
+
+Ở MongoDB Atlas, mục Network Access cần cho phép `0.0.0.0/0` để Render kết nối được.
 
 ## Nhóm thực hiện
 
-| Thành viên | Vai trò |
+| Thành viên | Công việc chính |
 |---|---|
-| Trần Ái Quyên | Trưởng nhóm, BA quản lý đơn hàng, UI quản trị, front-end |
-| Nguyễn Như Quỳnh | Lead BA, back-end, mô hình gợi ý |
-| Phan Ngọc Bảo Châu | BA và UI khu khách hàng, back-end |
-| Huỳnh Phúc Huy | BA và UI khu khách hàng, front-end |
-| Huỳnh Nhật Đăng | BA và UI khu quản trị, front-end |
+| Trần Ái Quyên | Trưởng nhóm (Product Owner, Scrum Master); BA, UI, kiểm thử mảng Bán hàng; thiết kế hệ thống giao diện; front-end khu quản trị |
+| Nguyễn Như Quỳnh | BA chính, điều phối kiểm thử; BA, UI, kiểm thử mảng Đơn hàng và Xử lý ngoại lệ; front-end khu khách hàng; triển khai |
+| Phan Ngọc Bảo Châu | Điều phối back-end: thiết kế dữ liệu, API, lập trình server, bộ Postman; BA, UI, kiểm thử mảng Mua hàng; triển khai |
+| Huỳnh Phúc Huy | Điều phối mô hình gợi ý; BA, UI, kiểm thử mảng Trải nghiệm khách hàng; front-end khu khách hàng |
+| Huỳnh Nhật Đăng | Điều phối front-end: khung Angular, cách gọi API dùng chung; BA, UI, kiểm thử mảng Quản trị còn lại; front-end khu quản trị |
