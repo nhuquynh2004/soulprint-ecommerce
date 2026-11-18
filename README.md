@@ -104,6 +104,18 @@ Trên Windows, nếu gặp lỗi `querySrv ECONNREFUSED` hoặc `ETIMEOUT`, thê
 
 ### 3. Nạp dữ liệu
 
+Chọn một trong hai cách bên dưới.
+
+**Cách 1 - Khôi phục từ dump (khuyên dùng để chấm thi).** Thư mục `data/dump` chứa dump BSON gzip của CSDL `soulprint` ở bản deploy (26 MB, kèm ảnh thật, 1.878 đơn, 3.122 phiên AI). Cần `mongorestore` trong bộ MongoDB Database Tools (https://www.mongodb.com/try/download/database-tools), rồi:
+
+```bash
+mongorestore --uri="$MONGODB_URI" --nsInclude="soulprint.*" --gzip --drop data/dump
+```
+
+Xem `data/dump/README.md` để có hướng dẫn chi tiết, kể cả khi đổi tên CSDL.
+
+**Cách 2 - Sinh lại từ script.**
+
 ```bash
 cd server
 npm run seed            # dữ liệu mẫu gọn: 36 sản phẩm và các tài khoản demo bên dưới
